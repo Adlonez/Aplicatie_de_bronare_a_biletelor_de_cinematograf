@@ -1,11 +1,13 @@
 import React from 'react'
-import SideBar from './SideBar'
+import { Outlet } from 'react-router-dom'
 import { ConfigProvider, Layout, theme } from 'antd'
+import SideBar from './SideBar'
 import Header from './Header'
 import Footer from './Footer'
 
+const{Content}=Layout
+
 const MainLayout = () => {
-    const{Content}=Layout
   return (
     <ConfigProvider
       theme={{
@@ -23,6 +25,7 @@ const MainLayout = () => {
           <Header />
           <Content style={{ margin: '24px 16px 0', overflow: 'auto' }}>
             <div style={{ padding: 24, minHeight: 360 }}>
+              <Outlet /> 
             </div>
           </Content>
           <Footer/>
