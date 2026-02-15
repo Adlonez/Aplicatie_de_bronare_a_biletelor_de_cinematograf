@@ -6,6 +6,8 @@ import AdminLayout from '../layout/admin/AdminLayout'
 import Home from '../pages/Home'
 import News from '../pages/News'
 import Films from '../pages/Films'
+import MovieDetail from '../pages/MovieDetail'
+import BookTicket from '../pages/BookTicket'
 
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
@@ -19,6 +21,8 @@ const AppRouter = () => {
           <Route index element={<Home />} />
           <Route path="news" element={<News />} />
           <Route path="films" element={<Films />} />
+          <Route path="films/:id" element={<MovieDetail />} />
+          <Route path="films/:id/book" element={<BookTicket />} />
         </Route>
 
          <Route path="/auth/login" element={<Login />} />

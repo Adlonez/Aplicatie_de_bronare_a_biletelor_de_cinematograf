@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "title": "New IMAX Theater Opening Soon",
+    "date": "February 12, 2026",
+    "category": "Announcement",
+    "content": "We're excited to announce that our brand new IMAX theater will be opening next month, featuring state-of-the-art laser projection and immersive sound systems.",
+    "image": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&h=500&fit=crop"
+  },
+  {
+    "id": 2,
+    "title": "Student Discount Available",
+    "date": "February 10, 2026",
+    "category": "Promotions",
+    "content": "All UTM students can now enjoy 20% off on all movie tickets. Just show your student ID at the box office!",
+    "image": "https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=800&h=500&fit=crop"
+  },
+  {
+    "id": 3,
+    "title": "Oscar Winners Marathon",
+    "date": "February 8, 2026",
+    "category": "Event",
+    "content": "Join us for a special weekend marathon featuring all the latest Oscar-winning films. Special pricing available for the full weekend pass.",
+    "image": "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800&h=500&fit=crop"
+  },
+  {
+    "id": 4,
+    "title": "New Snack Bar Menu",
+    "date": "February 5, 2026",
+    "category": "News",
+    "content": "Check out our expanded snack bar menu with new gourmet popcorn flavors, healthy options, and premium beverages.",
+    "image": "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=800&h=500&fit=crop"
+  }
+]

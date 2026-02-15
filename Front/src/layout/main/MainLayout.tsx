@@ -1,4 +1,3 @@
-import React from 'react'
 import { Outlet } from 'react-router-dom'
 import { ConfigProvider, Layout, theme } from 'antd'
 import SideBar from './SideBar'
