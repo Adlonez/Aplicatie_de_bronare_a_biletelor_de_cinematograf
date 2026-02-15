@@ -8,7 +8,7 @@ const { Text, Title } = Typography;
 interface Film {
   id: number;
   title: string;
-  poster: string;
+  image: string;
   format: "2D" | "3D" | "IMAX";
   languages: string[];
 }
@@ -36,7 +36,7 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
         }}
       >
         <img
-          src={film.poster}
+          src={film.image}
           alt={film.title}
           style={{
             position: "absolute",
@@ -90,7 +90,6 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
           style={{
             display: "block",
             fontSize: 13,
-            color: "#222",
             marginBottom: 5,
             lineHeight: "1.3",
           }}
@@ -157,14 +156,8 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
   });
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#fff",
-        padding: "40px 0",
-        fontFamily: "'Segoe UI', system-ui, sans-serif",
-      }}
-    >
+    <div>
+      
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 48px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
           <div
@@ -182,7 +175,6 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
               fontWeight: 700,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              color: "#333",
             }}
           >
             {title}
