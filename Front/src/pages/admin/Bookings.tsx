@@ -77,17 +77,16 @@ const Bookings: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1 style={{ marginBottom: '16px' }}>Booking & Ticket Management</h1>
+    <div>
+      <h1>Booking & Ticket Management</h1>
       <Input
         placeholder="Search by customer name, email, or phone"
         prefix={<SearchOutlined />}
         onChange={(e) => setSearchText(e.target.value)}
-        style={{ width: 400, marginBottom: '8px' }}
         allowClear
       />
-      <div style={{ marginBottom: '16px', fontSize: '12px', color: '#888' }}>
-        <Tag color="red">BOUGHT</Tag> = Paid | <Tag color="orange">BOOKED</Tag> = Reserved
+      <div>
+        <Tag>BOUGHT</Tag> = Paid | <Tag>BOOKED</Tag> = Reserved
       </div>
       <Table dataSource={filteredBookings} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} scroll={{ x: 1200 }} />
     </div>

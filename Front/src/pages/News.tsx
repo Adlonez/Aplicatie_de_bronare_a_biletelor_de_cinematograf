@@ -32,9 +32,9 @@ const News = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Title level={2} style={{ color: '#fff', marginBottom: '30px' }}>
-        <FileTextOutlined style={{ marginRight: '10px' }} />
+    <div>
+      <Title level={2}>
+        <FileTextOutlined />
         Latest News & Updates
       </Title>
       
@@ -48,30 +48,21 @@ const News = () => {
                 <img
                   alt={news.title}
                   src={news.image}
-                  style={{ 
-                    height: '250px', 
-                    objectFit: 'cover' 
-                  }}
                 />
               }
-              style={{ height: '100%', cursor: 'pointer' }}
             >
-              <div style={{ marginBottom: '12px' }}>
-                <Tag color="purple">{news.category}</Tag>
-                <span style={{ 
-                  color: '#60157A', 
-                  fontSize: '12px',
-                  marginLeft: '8px'
-                }}>
+              <div>
+                <Tag>{news.category}</Tag>
+                <span>
                   <CalendarOutlined /> {news.date}
                 </span>
               </div>
               
-              <Title level={4} style={{ marginBottom: '12px' }}>
+              <Title level={4}>
                 {news.title}
               </Title>
               
-              <Paragraph style={{ color: '#ccc' }}>
+              <Paragraph>
                 {news.content}
               </Paragraph>
             </Card>
@@ -82,12 +73,12 @@ const News = () => {
       <Modal
         title={
           <div>
-            <Title level={3} style={{ marginBottom: '8px' }}>
+            <Title level={3}>
               {selectedNews?.title}
             </Title>
             <div>
-              <Tag color="purple">{selectedNews?.category}</Tag>
-              <span style={{ color: '#60157A', fontSize: '12px', marginLeft: '8px' }}>
+              <Tag>{selectedNews?.category}</Tag>
+              <span>
                 <CalendarOutlined /> {selectedNews?.date}
               </span>
             </div>
@@ -103,15 +94,8 @@ const News = () => {
             <img
               alt={selectedNews.title}
               src={selectedNews.image}
-              style={{
-                width: '100%',
-                height: '300px',
-                objectFit: 'cover',
-                borderRadius: '8px',
-                marginBottom: '20px'
-              }}
             />
-            <Paragraph style={{ fontSize: '16px', lineHeight: '1.8', whiteSpace: 'pre-line' }}>
+            <Paragraph>
               {selectedNews.fullContent}
             </Paragraph>
           </div>

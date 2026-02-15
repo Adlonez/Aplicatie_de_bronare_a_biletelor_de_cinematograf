@@ -1,4 +1,3 @@
-import React from 'react'
 import ClickableCarousel from '../components/dataDisplay/Carousel'
 import CinemaCarousel from '../components/MiniCarousel'
 import films from "../_mock/films.json"

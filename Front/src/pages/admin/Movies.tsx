@@ -55,7 +55,7 @@ const Movies: React.FC = () => {
       dataIndex: 'poster',
       width: 100,
       render: (url: string, movie: Films) => (
-        <img src={url} alt={movie.title} style={{ width: 60, height: 40, objectFit: 'cover' }} />
+        <img src={url} alt={movie.title} />
       ),
     },
     { title: 'Title', dataIndex: 'title' },
@@ -91,8 +91,8 @@ const Movies: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+    <div>
+      <div>
         <h1>Movie Management</h1>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>
           Add Movie
@@ -114,7 +114,7 @@ const Movies: React.FC = () => {
             <Input.TextArea rows={3} />
           </FormField>
           <FormField name="duration" label="Duration (minutes)">
-            <InputNumber min={1} style={{ width: '100%' }} />
+            <InputNumber min={1} />
           </FormField>
           <FormField name="genre" label="Genre" />
           <FormField name="releaseDate" label="Release Date">

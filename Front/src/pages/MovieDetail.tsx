@@ -44,8 +44,8 @@ const MovieDetail = () => {
 
   if (!movie) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <Title level={2} style={{ color: '#fff' }}>Movie not found</Title>
+      <div>
+        <Title level={2}>Movie not found</Title>
         <Button type="primary" onClick={() => navigate('/films')}>
           Back to Movies
         </Button>
@@ -54,11 +54,10 @@ const MovieDetail = () => {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div>
       <Button 
         icon={<ArrowLeftOutlined />} 
         onClick={() => navigate('/films')}
-        style={{ marginBottom: '20px' }}
       >
         Back to Movies
       </Button>
@@ -70,41 +69,34 @@ const MovieDetail = () => {
               <img
                 alt={movie.title}
                 src={movie.poster}
-                style={{ 
-                  width: '100%',
-                  height: 'auto',
-                  borderRadius: '8px'
-                }}
               />
             }
-            style={{ border: 'none' }}
           />
+          <div>
+            <Title level={4}>
+              Description
+            </Title>
+            <Paragraph>
+              {movie.description}
+            </Paragraph>
+          </div>
         </Col>
 
         <Col xs={24} md={14}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Space direction="vertical" size="large">
             <div>
-              <Title level={1} style={{ color: '#fff', marginBottom: '8px' }}>
+              <Title level={1}>
                 {movie.title}
               </Title>
-              <Tag color="purple" style={{ fontSize: '14px', padding: '4px 12px' }}>
+              <Tag>
                 {movie.languages.join(', ')} | {movie.format}
               </Tag>
             </div>
 
-            <Divider style={{ borderColor: '#434343' }} />
+            <Divider />
 
             <div>
-              <Title level={4} style={{ color: '#fff' }}>
-                Description
-              </Title>
-              <Paragraph style={{ fontSize: '16px', lineHeight: '1.8', color: '#d9d9d9' }}>
-                {movie.description}
-              </Paragraph>
-            </div>
-
-            <div>
-              <Title level={4} style={{ color: '#fff' }}>
+              <Title level={4}>
                 Showtimes
               </Title>
               <Space wrap>
@@ -146,16 +138,15 @@ const MovieDetail = () => {
               </Space>
             </div>
 
-            <Divider style={{ borderColor: '#434343' }} />
+            <Divider />
 
-            <Space size="middle" style={{ width: '100%' }} direction="vertical">
+            <Space size="middle" direction="vertical">
               <Button 
                 type="primary" 
                 size="large"
                 icon={<PlayCircleOutlined />}
                 block
                 onClick={handleBuyTickets}
-                style={{ height: '50px', fontSize: '16px' }}
               >
                 Buy Tickets Now
               </Button>
@@ -165,7 +156,6 @@ const MovieDetail = () => {
                 block
                 onClick={handleAddToWatchlist}
                 type={isInWatchlist ? 'default' : 'dashed'}
-                style={{ height: '50px', fontSize: '16px' }}
               >
                 {isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
               </Button>

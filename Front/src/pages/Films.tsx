@@ -14,8 +14,8 @@ const Films = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Title level={2} style={{ color: '#fff', marginBottom: '30px' }}>
+    <div>
+      <Title level={2}>
         Available Movies
       </Title>
       
@@ -25,39 +25,23 @@ const Films = () => {
             <Card
               hoverable
               onClick={() => handleMovieClick(film.id)}
-              style={{ 
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                cursor: 'pointer'
-              }}
-              bodyStyle={{ 
-                flex: 1, 
-                display: 'flex', 
-                flexDirection: 'column' 
-              }}
+              style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+              bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
               cover={
                 <img
                   alt={film.title}
                   src={film.poster}
-                  style={{ 
-                    height: '300px', 
-                    objectFit: 'cover' 
-                  }}
+                  style={{ height: '400px', objectFit: 'cover' }}
                 />
               }
             >
               <Meta
                 title={
                   <div>
-                    <Title level={4} style={{ marginBottom: 4 }}>
+                    <Title level={4}>
                       {film.title}
                     </Title>
-                    <span style={{ 
-                      fontSize: '12px', 
-                      color: '#60157A',
-                      fontWeight: 'bold'
-                    }}>
+                    <span>
                       {film.languages.join(', ')} | {film.format}
                     </span>
                   </div>
@@ -65,7 +49,6 @@ const Films = () => {
                 description={
                   <Paragraph 
                     ellipsis={{ rows: 3 }}
-                    style={{ marginTop: '10px' }}
                   >
                     {film.description}
                   </Paragraph>
@@ -74,7 +57,6 @@ const Films = () => {
               <Button 
                 type="primary" 
                 icon={<PlayCircleOutlined />}
-                style={{ marginTop: 'auto' }}
                 block
                 onClick={(e) => {
                   e.stopPropagation();

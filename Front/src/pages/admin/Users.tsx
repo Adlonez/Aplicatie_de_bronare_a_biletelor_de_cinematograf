@@ -72,13 +72,12 @@ const Users: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1 style={{ marginBottom: '16px' }}>User Management</h1>
+    <div>
+      <h1>User Management</h1>
       <Input
         placeholder="Search by name, email, or phone"
         prefix={<SearchOutlined />}
         onChange={(e) => setSearchText(e.target.value)}
-        style={{ width: 300, marginBottom: '16px' }}
         allowClear
       />
       <Table dataSource={filteredUsers} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} />

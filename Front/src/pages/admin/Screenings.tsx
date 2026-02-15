@@ -215,7 +215,7 @@ const Screenings: React.FC = () => {
     {
       title: 'Hall',
       dataIndex: 'hall',
-      render: (hall: string) => <Tag color="blue">{hall}</Tag>,
+      render: (hall: string) => <Tag>{hall}</Tag>,
       filters: halls.map(h => ({ text: h.name, value: h.name })),
       onFilter: (value: any, record: Screening) => record.hall === value,
     },
@@ -246,15 +246,15 @@ const Screenings: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+    <div>
+      <div>
         <h1><CalendarOutlined /> Screening Schedule</h1>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => openScreeningModal()}>
           Add Screening
         </Button>
       </div>
 
-      <div style={{ marginBottom: '16px' }}>
+      <div>
         <h3>Available Halls:</h3>
         <Space wrap>
           {halls.map((hall) => (
@@ -291,10 +291,10 @@ const Screenings: React.FC = () => {
             </Select>
           </FormField>
           <FormField name="date" label="Date">
-            <DatePicker style={{ width: '100%' }} />
+            <DatePicker />
           </FormField>
           <FormField name="time" label="Time">
-            <TimePicker format="HH:mm" style={{ width: '100%' }} />
+            <TimePicker format="HH:mm" />
           </FormField>
         </Form>
       </Modal>
@@ -314,10 +314,10 @@ const Screenings: React.FC = () => {
           const { booked, bought } = getScreeningSeats(selectedScreening);
           return (
             <>
-              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                <Tag color="orange">{booked.length} Booked</Tag>
-                <Tag color="red">{bought.length} Bought</Tag>
-                <Tag color="blue">{booked.length + bought.length} / {hall.capacity} occupied</Tag>
+              <div>
+                <Tag>{booked.length} Booked</Tag>
+                <Tag>{bought.length} Bought</Tag>
+                <Tag>{booked.length + bought.length} / {hall.capacity} occupied</Tag>
               </div>
               <SeatMap hall={hall} bookedSeats={booked} boughtSeats={bought} onSeatClick={openBookingModal} />
             </>
@@ -355,10 +355,10 @@ const Screenings: React.FC = () => {
             </Select>
           </Form.Item>
           <Form.Item name="totalPrice" label="Price ($)" rules={[{ required: true, message: 'Enter price' }]}>
-            <InputNumber min={0} step={0.5} style={{ width: '100%' }} />
+            <InputNumber min={0} step={0.5} />
           </Form.Item>
           {selectedScreening && (
-            <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+            <div>
               <div><strong>Movie:</strong> {selectedScreening.movieTitle}</div>
               <div><strong>Hall:</strong> {selectedScreening.hall}</div>
               <div><strong>Showtime:</strong> {selectedScreening.date} {selectedScreening.time}</div>
