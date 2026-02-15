@@ -11,7 +11,7 @@ const Footer = () => {
         backgroundColor: 'rgba(107, 33, 168, 0.8)',
       }}
       
-     >Test footer</Footer>
+     >© 2026 Toate drepturile înregistrate.</Footer>
   )
 }
 
