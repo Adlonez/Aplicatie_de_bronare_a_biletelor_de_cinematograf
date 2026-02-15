@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "phone": "+1-555-0101",
+    "status": "active",
+    "registrationDate": "2025-08-15"
+  },
+  {
+    "id": 2,
+    "name": "Emma Johnson",
+    "email": "emma.j@example.com",
+    "phone": "+1-555-0102",
+    "status": "active",
+    "registrationDate": "2025-09-22"
+  },
+  {
+    "id": 3,
+    "name": "Michael Brown",
+    "email": "m.brown@example.com",
+    "phone": "+1-555-0103",
+    "status": "inactive",
+    "registrationDate": "2025-07-10"
+  },
+  {
+    "id": 4,
+    "name": "Sarah Davis",
+    "email": "sarah.davis@example.com",
+    "phone": "+1-555-0104",
+    "status": "active",
+    "registrationDate": "2025-11-05"
+  },
+  {
+    "id": 5,
+    "name": "James Wilson",
+    "email": "james.w@example.com",
+    "phone": "+1-555-0105",
+    "status": "active",
+    "registrationDate": "2026-01-12"
+  },
+  {
+    "id": 6,
+    "name": "Lisa Anderson",
+    "email": "lisa.a@example.com",
+    "phone": "+1-555-0106",
+    "status": "inactive",
+    "registrationDate": "2025-06-18"
+  }
+]
