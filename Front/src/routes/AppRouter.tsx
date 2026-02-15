@@ -10,6 +10,7 @@ import Films from '../pages/Films'
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
 import Dashboard from '../components/admin/Dashboard'
+import NotFound from '../pages/NotFound'
 const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -28,6 +29,7 @@ const AppRouter = () => {
           <Route path="dashboard" element={<Dashboard />} /> 
         </Route>
 
+          <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )
