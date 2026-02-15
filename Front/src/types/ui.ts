@@ -1,4 +1,4 @@
-export interface Films{
+export interface Films {
   id: number;
   title: string;
   poster: string;
@@ -9,6 +9,22 @@ export interface Films{
   languages: string[];
   status: "progress" | "soon";
   toptier: boolean;
+  // Admin panel fields
+  duration?: number;
+  genre?: string;
+  releaseDate?: string;
+  screeningPeriod?: {
+    start: string;
+    end: string;
+  };
 }
 
-
+export interface NewsItem {
+  id: number;
+  title: string;
+  date: string;
+  category: string;
+  content: string;
+  image: string;
+  fullContent: string;
+}

@@ -9,7 +9,14 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 109,
+    "genre": "Animation, Adventure, Comedy",
+    "releaseDate": "2025-11-26",
+    "screeningPeriod": {
+      "start": "2025-11-26",
+      "end": "2026-03-15"
+    }
   },
   {
     "id": 2,
@@ -21,7 +28,14 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 125,
+    "genre": "Drama, Comedy",
+    "releaseDate": "2025-12-10",
+    "screeningPeriod": {
+      "start": "2025-12-10",
+      "end": "2026-03-20"
+    }
   },
   {
     "id": 3,
@@ -33,7 +47,14 @@
     "languages": ["RO", "RU"],
     "status": "soon",
     "toptier": false,
-    "image": ""
+    "image": "",
+    "duration": 118,
+    "genre": "Horror, Thriller",
+    "releaseDate": "2026-02-27",
+    "screeningPeriod": {
+      "start": "2026-02-27",
+      "end": "2026-05-30"
+    }
   },
   {
     "id": 4,
@@ -45,8 +66,14 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
-    
+    "image": "",
+    "duration": 140,
+    "genre": "Biography, Drama, Music",
+    "releaseDate": "2025-10-03",
+    "screeningPeriod": {
+      "start": "2025-10-03",
+      "end": "2026-02-28"
+    }
   },
   {
     "id": 5,
@@ -58,7 +85,14 @@
     "languages": ["RO", "EN"],
     "status": "soon",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 100,
+    "genre": "Animation, Adventure, Musical",
+    "releaseDate": "2024-11-27",
+    "screeningPeriod": {
+      "start": "2024-11-27",
+      "end": "2025-03-15"
+    }
   },
   {
     "id": 6,
@@ -70,7 +104,14 @@
     "languages": ["EN-RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 160,
+    "genre": "Fantasy, Musical, Drama",
+    "releaseDate": "2024-11-22",
+    "screeningPeriod": {
+      "start": "2024-11-22",
+      "end": "2025-03-01"
+    }
   },
   {
     "id": 7,
@@ -82,8 +123,14 @@
     "languages": ["RO"],
     "status": "soon",
     "toptier": false,
-    "image": ""
-
+    "image": "",
+    "duration": 148,
+    "genre": "Action, Drama, History",
+    "releaseDate": "2024-11-15",
+    "screeningPeriod": {
+      "start": "2024-11-15",
+      "end": "2025-02-28"
+    }
   },
   {
     "id": 8,
@@ -95,8 +142,14 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
-
+    "image": "",
+    "duration": 96,
+    "genre": "Animation, Adventure, Comedy",
+    "releaseDate": "2024-06-14",
+    "screeningPeriod": {
+      "start": "2024-06-14",
+      "end": "2024-09-30"
+    }
   },
   {
     "id": 9,
@@ -108,7 +161,14 @@
     "languages": ["EN-RO", "RU"],
     "status": "soon",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 128,
+    "genre": "Action, Comedy, Superhero",
+    "releaseDate": "2024-07-26",
+    "screeningPeriod": {
+      "start": "2024-07-26",
+      "end": "2024-10-31"
+    }
   },
   {
     "id": 10,
@@ -120,7 +180,14 @@
     "languages": ["RO"],
     "status": "progress",
     "toptier": false,
-    "image": ""
+    "image": "",
+    "duration": 101,
+    "genre": "Animation, Adventure, Family",
+    "releaseDate": "2024-09-27",
+    "screeningPeriod": {
+      "start": "2024-09-27",
+      "end": "2025-01-15"
+    }
   },
   {
     "id": 11,
@@ -132,7 +199,14 @@
     "languages": ["EN-RO", "RU"],
     "status": "soon",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 119,
+    "genre": "Horror, Sci-Fi, Thriller",
+    "releaseDate": "2024-08-16",
+    "screeningPeriod": {
+      "start": "2024-08-16",
+      "end": "2024-11-30"
+    }
   },
   {
     "id": 12,
@@ -144,7 +218,14 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": false,
-    "image": ""
+    "image": "",
+    "duration": 122,
+    "genre": "Action, Thriller, Adventure",
+    "releaseDate": "2024-07-19",
+    "screeningPeriod": {
+      "start": "2024-07-19",
+      "end": "2024-10-31"
+    }
   },
   {
     "id": 13,
@@ -156,7 +237,14 @@
     "languages": ["EN", "RU"],
     "status": "soon",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 112,
+    "genre": "Crime, Thriller, Mystery",
+    "releaseDate": "2025-01-10",
+    "screeningPeriod": {
+      "start": "2025-01-10",
+      "end": "2025-04-15"
+    }
   },
   {
     "id": 14,
@@ -168,6 +256,13 @@
     "languages": ["EN-RO", "RU"],
     "status": "soon",
     "toptier": true,
-    "image": ""
+    "image": "",
+    "duration": 105,
+    "genre": "Drama, Fashion",
+    "releaseDate": "2025-02-14",
+    "screeningPeriod": {
+      "start": "2025-02-14",
+      "end": "2025-05-20"
+    }
   }
 ]
