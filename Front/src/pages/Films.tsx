@@ -39,7 +39,7 @@ const Films = () => {
               cover={
                 <img
                   alt={film.title}
-                  src={film.image}
+                  src={film.poster}
                   style={{ 
                     height: '300px', 
                     objectFit: 'cover' 
@@ -55,10 +55,10 @@ const Films = () => {
                     </Title>
                     <span style={{ 
                       fontSize: '12px', 
-                      color: '#7c3aed',
+                      color: '#60157A',
                       fontWeight: 'bold'
                     }}>
-                      {film.subtitle}
+                      {film.languages.join(', ')} | {film.format}
                     </span>
                   </div>
                 }

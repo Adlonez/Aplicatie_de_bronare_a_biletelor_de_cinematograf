@@ -69,7 +69,7 @@ const MovieDetail = () => {
             cover={
               <img
                 alt={movie.title}
-                src={movie.image}
+                src={movie.poster}
                 style={{ 
                   width: '100%',
                   height: 'auto',
@@ -88,7 +88,7 @@ const MovieDetail = () => {
                 {movie.title}
               </Title>
               <Tag color="purple" style={{ fontSize: '14px', padding: '4px 12px' }}>
-                {movie.subtitle}
+                {movie.languages.join(', ')} | {movie.format}
               </Tag>
             </div>
 
