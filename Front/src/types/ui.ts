@@ -2,7 +2,7 @@ export interface Films {
   id: number;
   title: string;
   poster: string;
-  image: string; // vertical poster format
+  image: string; // this is for vertical
   description: string;
   href: string;
   format: "2D" | "3D";
