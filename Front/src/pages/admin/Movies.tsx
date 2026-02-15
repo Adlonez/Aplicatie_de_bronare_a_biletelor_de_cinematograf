@@ -2,38 +2,21 @@ import React, { useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import moviesDataJson from '../../_mock/films.json';
-
-interface Movie {
-  id: number;
-  title: string;
-  description: string;
-  duration: number;
-  genre: string;
-  releaseDate: string;
-  screeningPeriod: {
-    start: string;
-    end: string;
-  };
-  poster: string;
-  format?: string;
-  languages?: string[];
-  status?: string;
-  toptier?: boolean;
-}
+import type { Films } from '../../types/ui';
 
 const Movies: React.FC = () => {
-  const [movies, setMovies] = useState<Movie[]>(moviesDataJson as Movie[]);
+  const [movies, setMovies] = useState<Films[]>(moviesDataJson as Films[]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
+  const [editingMovie, setEditingMovie] = useState<Films | null>(null);
   const [form] = Form.useForm();
 
-  const openModal = (movie?: Movie) => {
+  const openModal = (movie?: Films) => {
     setEditingMovie(movie || null);
     if (movie) {
       form.setFieldsValue({
         ...movie,
-        screeningStart: movie.screeningPeriod.start,
-        screeningEnd: movie.screeningPeriod.end,
+        screeningStart: movie.screeningPeriod?.start,
+        screeningEnd: movie.screeningPeriod?.end,
       });
     } else {
       form.resetFields();
@@ -43,7 +26,7 @@ const Movies: React.FC = () => {
 
   const saveMovie = () => {
     form.validateFields().then((values) => {
-      const movieData: Movie = {
+      const movieData: Films = {
         id: editingMovie?.id || Date.now(),
         ...values,
         screeningPeriod: { start: values.screeningStart, end: values.screeningEnd },
@@ -71,7 +54,7 @@ const Movies: React.FC = () => {
       title: 'Poster',
       dataIndex: 'poster',
       width: 100,
-      render: (url: string, movie: Movie) => (
+      render: (url: string, movie: Films) => (
         <img src={url} alt={movie.title} style={{ width: 60, height: 40, objectFit: 'cover' }} />
       ),
     },
@@ -81,7 +64,7 @@ const Movies: React.FC = () => {
     { title: 'Release Date', dataIndex: 'releaseDate' },
     {
       title: 'Actions',
-      render: (_: any, movie: Movie) => (
+      render: (_: any, movie: Films) => (
         <Space>
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(movie)}>
             Edit
