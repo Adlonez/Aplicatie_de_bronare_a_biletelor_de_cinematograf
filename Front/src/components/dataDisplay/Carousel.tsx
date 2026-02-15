@@ -3,23 +3,14 @@ import { Carousel } from "antd";
 import { useNavigate } from "react-router-dom";
 import type { CarouselRef } from "antd/es/carousel";
 import films from "../../_mock/films.json"
+import type {Films} from "../../types/ui"
 
 
-
-interface CarouselSlide {
-  id: number;
-  title: string;
-  subtitle: string;
-  description: string;
-  href: string;           
-  image?: string;         
-}
-
-const slides: CarouselSlide[] = films as CarouselSlide[];
+ const slides: Films[] = films as Films[];
 
 
-interface SlideItemProps {
-  slide: CarouselSlide;
+ interface SlideItemProps {
+  slide: Films;
   onNavigate: (href: string) => void;
 }
 
@@ -45,7 +36,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
       }}
     >
       <img
-        src={slide.image}
+        src={slide.poster}
         alt={"slide.imageAlt"}
         draggable={false}
         style={{
@@ -80,20 +71,6 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
             transition: "width 0.4s ease",
           }}
         />
-
-        <p
-          style={{
-            margin: 0,
-            fontFamily: "'Courier New', monospace",
-            fontSize: 12,
-            letterSpacing: "0.25em",
-            textTransform: "uppercase",
-            color: "#1c0a00",
-            marginBottom: 12,
-          }}
-        >
-          {slide.subtitle}
-        </p>
 
         <h2
           style={{
