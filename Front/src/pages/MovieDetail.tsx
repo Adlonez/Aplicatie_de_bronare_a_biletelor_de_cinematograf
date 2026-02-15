@@ -88,7 +88,7 @@ const MovieDetail = () => {
                 {movie.title}
               </Title>
               <Tag color="purple" style={{ fontSize: '14px', padding: '4px 12px' }}>
-                {movie.subtitle}
+                {/* {movie.subtitle} */}
               </Tag>
             </div>
 

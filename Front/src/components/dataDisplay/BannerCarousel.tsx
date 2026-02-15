@@ -2,13 +2,7 @@ import React, { useState } from "react";
 import { Carousel } from "antd";
 import { useNavigate } from "react-router-dom";
 import type { CarouselRef } from "antd/es/carousel";
-import films from "../../_mock/films.json"
-import type { Films } from "../../types/ui"
-
-
-const slides: Films[] = films as Films[];
-
-
+import type {Films} from "../../types/ui"
 interface SlideItemProps {
   slide: Films;
   onNavigate: (href: string) => void;
@@ -124,8 +118,11 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
   );
 };
 
+interface BannerCarouselItemsProps {
+  slides: Films[];
+}
 
-const ClickableCarousel: React.FC = () => {
+const BannerCarousel: React.FC<BannerCarouselItemsProps> = ({slides}) => {
   const navigate = useNavigate();
   const carouselRef = React.useRef<CarouselRef>(null);
   const isDragging = React.useRef(false);
@@ -186,4 +183,4 @@ const ClickableCarousel: React.FC = () => {
   );
 };
 
-export default ClickableCarousel;
+export default BannerCarousel;
