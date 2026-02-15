@@ -59,7 +59,7 @@ const News = () => {
               <div style={{ marginBottom: '12px' }}>
                 <Tag color="purple">{news.category}</Tag>
                 <span style={{ 
-                  color: '#999', 
+                  color: '#60157A', 
                   fontSize: '12px',
                   marginLeft: '8px'
                 }}>
@@ -87,7 +87,7 @@ const News = () => {
             </Title>
             <div>
               <Tag color="purple">{selectedNews?.category}</Tag>
-              <span style={{ color: '#999', fontSize: '12px', marginLeft: '8px' }}>
+              <span style={{ color: '#60157A', fontSize: '12px', marginLeft: '8px' }}>
                 <CalendarOutlined /> {selectedNews?.date}
               </span>
             </div>
