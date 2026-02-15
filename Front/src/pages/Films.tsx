@@ -39,7 +39,7 @@ const Films = () => {
               cover={
                 <img
                   alt={film.title}
-                  src={film.image}
+                  src={film.poster}
                   style={{ 
                     height: '300px', 
                     objectFit: 'cover' 
@@ -53,13 +53,6 @@ const Films = () => {
                     <Title level={4} style={{ marginBottom: 4 }}>
                       {film.title}
                     </Title>
-                    <span style={{ 
-                      fontSize: '12px', 
-                      color: '#7c3aed',
-                      fontWeight: 'bold'
-                    }}>
-                      {film.subtitle}
-                    </span>
                   </div>
                 }
                 description={
