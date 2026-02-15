@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-import MainLayout from '../layout/main/MainLayout'
+import MainLayout from '../layout/MainLayout'
 import AdminLayout from '../layout/admin/AdminLayout'
 
 import Home from '../pages/Home'
@@ -13,11 +13,12 @@ import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
 import Dashboard from '../components/admin/Dashboard'
 import NotFound from '../pages/NotFound'
-const AppRouter = () => {
+const AppRouter = (props:any) => {
+  const {setIsDark, isDark} = props;
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<MainLayout setIsDark={setIsDark} isDark={isDark}/>}>
           <Route index element={<Home />} />
           <Route path="news" element={<News />} />
           <Route path="films" element={<Films />} />

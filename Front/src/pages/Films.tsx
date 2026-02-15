@@ -15,7 +15,7 @@ const Films = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <Title level={2} style={{ color: '#fff', marginBottom: '30px' }}>
+      <Title level={2} style={{ marginBottom: '30px' }}>
         Available Movies
       </Title>
       

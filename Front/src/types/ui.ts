@@ -10,6 +10,7 @@ export interface Films{
   status: "progress" | "soon";
   toptier: boolean;
 }
+
 export interface NewsItem {
   id: number;
   title: string;

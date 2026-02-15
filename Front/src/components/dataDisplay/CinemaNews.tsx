@@ -134,7 +134,6 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
           strong
           style={{
             fontSize: featured ? 15 : 13,
-            color: hovered ? "#e31e24" : "#1a1a1a",
             lineHeight: 1.4,
             display: "block",
             marginBottom: 8,
@@ -177,17 +176,9 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
   );
 };
 
-const CinemaNews = ({title='', items=[]}:any) => {
-  //const [featured, ...rest] = NEWS_ITEMS;
-
+const CinemaNews = ({items=[]}:any) => {
   return (
-    <div
-      style={{
-        background: "#fff",
-        padding: "48px 0 56px",
-        fontFamily: "'Segoe UI', system-ui, sans-serif",
-      }}
-    >
+    <div>
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 48px" }}>
         <div
           style={{
@@ -213,7 +204,6 @@ const CinemaNews = ({title='', items=[]}:any) => {
                 fontWeight: 700,
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
-                color: "#333",
               }}
             >
               News &amp; Promotions
@@ -223,7 +213,6 @@ const CinemaNews = ({title='', items=[]}:any) => {
           <Button
             type="link"
             style={{
-              color: "#e31e24",
               fontSize: 11,
               fontWeight: 600,
               letterSpacing: "0.08em",
@@ -232,28 +221,25 @@ const CinemaNews = ({title='', items=[]}:any) => {
               height: "auto",
             }}
             icon={<ArrowRightOutlined />}
-            iconPosition="end"
+            iconPlacement="end"
           >
             All news
           </Button>
         </div>
 
-            <Row gutter={[20, 0]} style={{ height: "100%" }}>
-              {items.map((item:any, idx:number) => (
-                <Col key={item.id} xs={24} sm={8} md={8} style={{ height: "100%" }}>
-                  <div
-                    style={{
-                      height: "100%",
-                      borderLeft: idx > 0 ? "1px solid #f0f0f0" : "none",
-                      paddingLeft: idx > 0 ? 20 : 0,
-                    }}
-                  >
-                    <NewsCard item={item} />
-                  </div>
-                </Col>
-              ))}
-            </Row>
-        <Divider style={{ marginTop: 40, borderColor: "#f0f0f0" }} />
+        <Row gutter={[20, 0]} style={{ height: "100%" }}>
+          {items.map((item:any) => (
+            <Col key={item.id} xs={24} sm={8} md={8} style={{ height: "100%" }}>
+              <div
+                style={{
+                  height: "100%",
+                }}
+              >
+                <NewsCard item={item} />
+              </div>
+            </Col>
+          ))}
+        </Row>
       </div>
     </div>
   );

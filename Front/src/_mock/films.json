@@ -2,14 +2,14 @@
   {
     "id": 1,
     "title": "Zootopia 2",
-    "poster": "https://img.englishcinemazurich.com/-PcuBX127v_6G6O_s81D7iISCYf4sX3pN2dk-WyI-4s/resize:fill:800:450:1:0/gravity:sm/aHR0cHM6Ly9leHBhdGNpbmVtYXByb2QuYmxvYi5jb3JlLndpbmRvd3MubmV0L2ltYWdlcy8zY2RkYWIyZi1iODE4LTQ0MmItYTc2ZS0zNGE4NTE2Y2Y1NWIuanBn.jpg",
+    "poster": "https://static.wixstatic.com/media/45c4d7_9d5f3ed884454273b8db375efb73442c~mv2.jpg/v1/fill/w_980,h_551,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/45c4d7_9d5f3ed884454273b8db375efb73442c~mv2.jpg",
     "description": "Brave rabbit cop Judy Hopps and her friend, the fox Nick Wilde, team up again to crack a new case, the most perilous and intricate of their careers.",
     "href": "/zootopia-2",
     "format": "3D",
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQD3fFfTd0q45fDy7vTtgbTCTNdDE-fo7oA9w&s"
   },
   {
     "id": 2,
@@ -21,7 +21,7 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
+    "image": "https://img.vwassets.com/echucaparamount.com/vertical_b9852a73-fdb6-4dc9-a8a2-b58802ec8933.jpg"
   },
   {
     "id": 3,
@@ -32,142 +32,142 @@
     "format": "3D",
     "languages": ["RO", "RU"],
     "status": "soon",
-    "toptier": false,
-    "image": ""
+    "toptier": true,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHQBbJ4cWPaHCFdih7zxlY4ZvrFEEjuccQqQ&s"
   },
   {
     "id": 4,
     "title": "Michael",
-    "poster": "https://i.ytimg.com/vi/723RZxnDWKE/maxresdefault.jpg",
+    "poster": "https://wallpapers.com/images/hd/michael-jackson-this-is-it-poster-6n68egaei8jau1ey.jpg",
     "description": "The story of the famous musician Michael Jackson, known as the King of Pop.",
     "href": "/michael",
     "format": "3D",
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": ""
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc9mQB86-J6K6oyiZ2W8MyCDSpl4IicDYKnA&s"
     
   },
   {
     "id": 5,
     "title": "Moana 2",
-    "poster": "https://avatars.mds.yandex.net/get-kinopoisk-image/10893610/35ea6b45-665d-4d3b-940a-efde13a62c42/600x900",
+    "image": "https://avatars.mds.yandex.net/get-kinopoisk-image/10893610/35ea6b45-665d-4d3b-940a-efde13a62c42/600x900",
     "description": "Moana embarks on a new ocean voyage beyond the familiar seas, facing ancient dangers and discovering new allies.",
     "href": "/moana-2",
     "format": "3D",
     "languages": ["RO", "EN"],
     "status": "soon",
-    "toptier": true,
-    "image": ""
+    "toptier": false,
+    "poster": ""
   },
   {
     "id": 6,
     "title": "Wicked",
-    "poster": "https://image.tmdb.org/t/p/w500/c5Tqxeo1UpBvnAc3csUm7j3hlQl.jpg",
+    "image": "https://image.tmdb.org/t/p/w500/c5Tqxeo1UpBvnAc3csUm7j3hlQl.jpg",
     "description": "The untold story of the witches of Oz, focusing on the unlikely friendship between Elphaba and Glinda.",
     "href": "/wicked",
     "format": "2D",
     "languages": ["EN-RO", "RU"],
     "status": "progress",
-    "toptier": true,
-    "image": ""
+    "toptier": false,
+    "poster": ""
   },
   {
     "id": 7,
     "title": "Gladiator II",
-    "poster": "https://image.tmdb.org/t/p/w500/2cxhvwyEwRlysAmRH4iodkvo0z5.jpg",
+    "image": "https://image.tmdb.org/t/p/w500/2cxhvwyEwRlysAmRH4iodkvo0z5.jpg",
     "description": "Years after Maximus' death, Lucius is drawn back into the brutal world of the Colosseum and Roman politics.",
     "href": "/gladiator-2",
     "format": "2D",
     "languages": ["RO"],
     "status": "soon",
     "toptier": false,
-    "image": ""
+    "poster": ""
 
   },
   {
     "id": 8,
     "title": "Inside Out 2",
-    "poster": "https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
+    "image": "https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
     "description": "Riley enters her teenage years and new emotions arrive at headquarters, causing unexpected chaos.",
     "href": "/inside-out-2",
     "format": "3D",
     "languages": ["RO", "RU"],
     "status": "progress",
-    "toptier": true,
-    "image": ""
+    "toptier": false,
+    "poster": ""
 
   },
   {
     "id": 9,
     "title": "Deadpool & Wolverine",
-    "poster": "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
+    "image": "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
     "description": "Deadpool teams up with Wolverine for a multiverse-spanning mission filled with chaos and dark humor.",
     "href": "/deadpool-wolverine",
     "format": "2D",
     "languages": ["EN-RO", "RU"],
     "status": "soon",
-    "toptier": true,
-    "image": ""
+    "toptier": false,
+    "poster": ""
   },
   {
     "id": 10,
     "title": "The Wild Robot",
-    "poster": "https://image.tmdb.org/t/p/w500/9w0Vh9eizfBXrcomiaFWTIPdboo.jpg",
+    "image": "https://image.tmdb.org/t/p/w500/9w0Vh9eizfBXrcomiaFWTIPdboo.jpg",
     "description": "A robot stranded on an island learns to survive in the wild and form bonds with animals.",
     "href": "/the-wild-robot",
     "format": "3D",
     "languages": ["RO"],
     "status": "progress",
     "toptier": false,
-    "image": ""
+    "poster": ""
   },
   {
     "id": 11,
     "title": "Alien: Romulus",
-    "poster": "https://image.tmdb.org/t/p/w500/b33nnKl1GSFbao4l3fZDDqsMx0F.jpg",
+    "image": "https://image.tmdb.org/t/p/w500/b33nnKl1GSFbao4l3fZDDqsMx0F.jpg",
     "description": "Young people on a distant world uncover the most terrifying life form in the universe.",
     "href": "/alien-romulus",
     "format": "2D",
     "languages": ["EN-RO", "RU"],
     "status": "soon",
-    "toptier": true,
-    "image": ""
+    "toptier": false,
+    "poster": ""
   },
   {
     "id": 12,
     "title": "Twisters",
-    "poster": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA1ybX5uL1bOIwscjQsycDwjM4FcBSkHnfwA&s",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA1ybX5uL1bOIwscjQsycDwjM4FcBSkHnfwA&s",
     "description": "Storm chasers risk everything to study unprecedented tornado outbreaks across the Midwest.",
     "href": "/twisters",
     "format": "3D",
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": false,
-    "image": ""
+    "poster": ""
   },
   {
     "id": 13,
     "title": "Crime Highway",
-    "poster": "https://cineplex.md/posters/Crime%20101%20RO.jpg",
+    "image": "https://cineplex.md/posters/Crime%20101%20RO.jpg",
     "description": "A gritty crime thriller following detectives chasing a serial killer along a notorious highway.",
     "href": "/crime-highway",
     "format": "2D",
     "languages": ["EN", "RU"],
     "status": "soon",
-    "toptier": true,
-    "image": ""
+    "toptier": false,
+    "poster": ""
   },
   {
     "id": 14,
     "title": "Couture",
-    "poster": "https://cineplex.md/posters/Couture%20RO.jpg",
+    "image": "https://cineplex.md/posters/Couture%20RO.jpg",
     "description": "A high-fashion drama revealing ambition, rivalry, and secrets behind the scenes of the fashion industry.",
     "href": "/couture",
     "format": "2D",
     "languages": ["EN-RO", "RU"],
     "status": "soon",
-    "toptier": true,
-    "image": ""
+    "toptier": false,
+    "poster": ""
   }
 ]
