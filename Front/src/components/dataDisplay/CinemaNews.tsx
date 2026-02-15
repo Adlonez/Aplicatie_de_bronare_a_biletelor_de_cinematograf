@@ -226,7 +226,6 @@ const CinemaNews = ({items=[]}:any) => {
             All news
           </Button>
         </div>
-
         <Row gutter={[20, 0]} style={{ height: "100%" }}>
           {items.map((item:any) => (
             <Col key={item.id} xs={24} sm={8} md={8} style={{ height: "100%" }}>

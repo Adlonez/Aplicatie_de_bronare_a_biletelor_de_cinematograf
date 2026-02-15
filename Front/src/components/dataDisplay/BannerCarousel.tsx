@@ -3,7 +3,6 @@ import { Carousel } from "antd";
 import { useNavigate } from "react-router-dom";
 import type { CarouselRef } from "antd/es/carousel";
 import type {Films} from "../../types/ui"
-
 interface SlideItemProps {
   slide: Films;
   onNavigate: (href: string) => void;
@@ -32,7 +31,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
     >
       <img
         src={slide.poster}
-        alt={"slide.imageAlt"}
+        alt={slide.title}
         draggable={false}
         style={{
           position: "absolute",

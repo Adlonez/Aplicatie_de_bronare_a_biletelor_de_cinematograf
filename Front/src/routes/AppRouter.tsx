@@ -11,7 +11,11 @@ import BookTicket from '../pages/BookTicket'
 
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
-import Dashboard from '../components/admin/Dashboard'
+import Dashboard from '../pages/admin/Dashboard'
+import Movies from '../pages/admin/Movies'
+import Users from '../pages/admin/Users'
+import Bookings from '../pages/admin/Bookings'
+import Screenings from '../pages/admin/Screenings'
 import NotFound from '../pages/NotFound'
 const AppRouter = (props:any) => {
   const {setIsDark, isDark} = props;
@@ -32,6 +36,10 @@ const AppRouter = (props:any) => {
         <Route path="/admin" element={<AdminLayout />}>
            <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} /> 
+          <Route path="movies" element={<Movies />} />
+          <Route path="screenings" element={<Screenings />} />
+          <Route path="users" element={<Users />} />
+          <Route path="bookings" element={<Bookings />} />
         </Route>
 
           <Route path="*" element={<NotFound />} />

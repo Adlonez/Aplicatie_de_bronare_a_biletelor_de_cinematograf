@@ -1,0 +1,39 @@
+{
+  "statistics": {
+    "totalUsers": 342,
+    "activeUsers": 289,
+    "inactiveUsers": 53,
+    "ticketsSoldToday": 47,
+    "ticketsSoldThisWeek": 234,
+    "ticketsSoldThisMonth": 1089,
+    "revenueToday": 658.50,
+    "revenueThisWeek": 3276.00,
+    "revenueThisMonth": 15246.50
+  },
+  "topMovies": [
+    {
+      "movieId": 1,
+      "title": "Zootopia 2",
+      "ticketsSold": 312,
+      "revenue": 4368.00
+    },
+    {
+      "movieId": 3,
+      "title": "Scream 7",
+      "ticketsSold": 287,
+      "revenue": 4018.00
+    },
+    {
+      "movieId": 4,
+      "title": "Michael",
+      "ticketsSold": 245,
+      "revenue": 3430.00
+    },
+    {
+      "movieId": 2,
+      "title": "The Devil Wears Prada 2",
+      "ticketsSold": 245,
+      "revenue": 3430.50
+    }
+  ]
+}
