@@ -1,12 +1,22 @@
 import { Layout, Menu, Typography } from 'antd';
 import { HomeOutlined, LoginOutlined, VideoCameraOutlined, FileTextOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const SideBar = () => {
     const{Sider}=Layout
-    const [activeTab, setActiveTab] = useState<string>('home');
-  const [collapsed, setCollapsed] = useState<boolean>(false);
+    const navigate = useNavigate();
+    const location = useLocation();
     const { Title } = Typography;
+  
+  const getActiveKey = () => {
+    const path = location.pathname;
+    if (path === '/') return 'home';
+    if (path.startsWith('/auth/login')) return 'login';
+    if (path.startsWith('/films')) return 'filmlist';
+    if (path.startsWith('/news')) return 'news';
+    return 'home';
+  };
+
   const menuItems = [
     { key: 'home', label: 'Home', icon: <HomeOutlined /> },
     { key: 'login', label: 'Log In', icon: <LoginOutlined /> },
@@ -14,11 +24,27 @@ const SideBar = () => {
     { key: 'news', label: 'News', icon: <FileTextOutlined /> },
   ];
 
+  const handleMenuClick = (key: string) => {
+    switch (key) {
+      case 'home':
+        navigate('/');
+        break;
+      case 'login':
+        navigate('/auth/login');
+        break;
+      case 'filmlist':
+        navigate('/films');
+        break;
+      case 'news':
+        navigate('/news');
+        break;
+    }
+  };
+
   return (
    <Sider
           breakpoint="lg"
           collapsedWidth="0"
-          onCollapse={(collapsed) => setCollapsed(collapsed)}
           style={{
             height: '100vh',
             position: 'sticky',
@@ -45,8 +71,8 @@ const SideBar = () => {
           <Menu
             theme="dark"
             mode="inline"
-            selectedKeys={[activeTab]}
-            onClick={({ key }) => setActiveTab(key)}
+            selectedKeys={[getActiveKey()]}
+            onClick={({ key }) => handleMenuClick(key)}
             items={menuItems}
             style={{ 
               background: 'transparent',
