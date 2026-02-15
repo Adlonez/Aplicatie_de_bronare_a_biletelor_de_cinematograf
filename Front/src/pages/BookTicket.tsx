@@ -11,8 +11,7 @@ import {
   Modal,
   Radio,
   Alert,
-  Divider,
-  Tag
+  Divider
 } from 'antd';
 import { 
   ArrowLeftOutlined, 
@@ -267,61 +266,146 @@ const BookTicket = () => {
         </Col>
 
         <Col xs={24} lg={8}>
-          <Card>
-            <Title level={4}>Booking Summary</Title>
-            
-            <Divider />
-            
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              <div>
-                <Text strong>Selected Seats:</Text>
-                <div style={{ marginTop: 8 }}>
-                  {selectedSeats.length > 0 ? (
-                    selectedSeats.map(seat => (
-                      <Tag key={seat.id} color="purple" style={{ marginBottom: 8 }}>
-                        Row {String.fromCharCode(64 + seat.row)}, Seat {seat.number}
-                      </Tag>
-                    ))
-                  ) : (
-                    <Text type="secondary">No seats selected</Text>
-                  )}
+          <Card style={{ 
+            backgroundColor: '#fff',
+            border: '2px dashed #999'
+          }}>
+            <div style={{ 
+              fontFamily: '"Courier New", Courier, monospace',
+              backgroundColor: '#fff',
+              color: '#000',
+              padding: '0'
+            }}>
+              <div style={{ 
+                textAlign: 'center',
+                borderBottom: '2px dashed #000',
+                paddingBottom: '12px',
+                marginBottom: '16px'
+              }}>
+                <Title level={4} style={{ 
+                  fontFamily: '"Courier New", Courier, monospace',
+                  margin: 0,
+                  color: '#000'
+                }}>
+                  BOOKING SUMMARY
+                </Title>
+                <Text style={{ 
+                  fontFamily: '"Courier New", Courier, monospace',
+                  fontSize: '12px',
+                  color: '#000'
+                }}>
+                  Cinema Ticket Receipt
+                </Text>
+              </div>
+              
+              <Space direction="vertical" style={{ width: '100%' }} size="large">
+                <div>
+                  <Text strong style={{ 
+                    fontFamily: '"Courier New", Courier, monospace',
+                    color: '#000',
+                    display: 'block',
+                    marginBottom: '8px'
+                  }}>
+                    SELECTED SEATS:
+                  </Text>
+                  <div style={{ 
+                    fontFamily: '"Courier New", Courier, monospace',
+                    color: '#000',
+                    backgroundColor: '#f5f5f5',
+                    padding: '8px',
+                    borderRadius: '4px'
+                  }}>
+                    {selectedSeats.length > 0 ? (
+                      selectedSeats.map((seat, index) => (
+                        <div key={seat.id} style={{ marginBottom: index < selectedSeats.length - 1 ? '4px' : 0 }}>
+                          Row {String.fromCharCode(64 + seat.row)}, Seat {seat.number}
+                        </div>
+                      ))
+                    ) : (
+                      <Text style={{ 
+                        fontFamily: '"Courier New", Courier, monospace',
+                        color: '#666'
+                      }}>
+                        No seats selected
+                      </Text>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text>Tickets ({selectedSeats.length}x):</Text>
-                    <Text>{selectedSeats.length * TICKET_PRICE} Lei</Text>
+                <div style={{ 
+                  borderTop: '1px dashed #000',
+                  borderBottom: '1px dashed #000',
+                  paddingTop: '12px',
+                  paddingBottom: '12px'
+                }}>
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      fontFamily: '"Courier New", Courier, monospace',
+                      color: '#000'
+                    }}>
+                      <Text style={{ fontFamily: '"Courier New", Courier, monospace', color: '#000' }}>
+                        Tickets x {selectedSeats.length}:
+                      </Text>
+                      <Text style={{ fontFamily: '"Courier New", Courier, monospace', color: '#000' }}>
+                        {selectedSeats.length * TICKET_PRICE} Lei
+                      </Text>
+                    </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      marginTop: '8px'
+                    }}>
+                      <Text strong style={{ 
+                        fontSize: '18px',
+                        fontFamily: '"Courier New", Courier, monospace',
+                        color: '#000'
+                      }}>
+                        TOTAL:
+                      </Text>
+                      <Text strong style={{ 
+                        fontSize: '18px',
+                        fontFamily: '"Courier New", Courier, monospace',
+                        color: '#000'
+                      }}>
+                        {totalPrice} Lei
+                      </Text>
+                    </div>
+                  </Space>
+                </div>
+
+                <Button 
+                  type="primary" 
+                  size="large" 
+                  block
+                  onClick={handleProceedToPayment}
+                  disabled={selectedSeats.length === 0}
+                  icon={<CheckCircleOutlined />}
+                  style={{ 
+                    fontFamily: '"Courier New", Courier, monospace',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  PROCEED TO PAYMENT
+                </Button>
+
+                <div style={{ 
+                  backgroundColor: '#fffbe6',
+                  border: '1px solid #ffe58f',
+                  padding: '12px',
+                  borderRadius: '4px',
+                  fontFamily: '"Courier New", Courier, monospace',
+                  fontSize: '12px',
+                  color: '#000'
+                }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                    ⚠ DEADLINE REMINDER
                   </div>
-                  <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text strong style={{ fontSize: '18px' }}>Total:</Text>
-                    <Text strong style={{ fontSize: '18px', color: '#7c3aed' }}>
-                      {totalPrice} Lei
-                    </Text>
-                  </div>
-                </Space>
-              </div>
-
-              <Button 
-                type="primary" 
-                size="large" 
-                block
-                onClick={handleProceedToPayment}
-                disabled={selectedSeats.length === 0}
-                icon={<CheckCircleOutlined />}
-              >
-                Proceed to Payment
-              </Button>
-
-              <Alert
-                message="Deadline Reminder"
-                description="Payment must be completed 45 minutes before showtime"
-                type="info"
-                showIcon
-              />
-            </Space>
+                  Payment must be completed 45 minutes before showtime
+                </div>
+              </Space>
+            </div>
           </Card>
         </Col>
       </Row>
