@@ -119,7 +119,7 @@ const MainLayout = (props: any) => {
               <Button
                 type="primary"
                 icon={<UserOutlined />}
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/auth/login')}
                 className='ml-2'
               >
                 Login
