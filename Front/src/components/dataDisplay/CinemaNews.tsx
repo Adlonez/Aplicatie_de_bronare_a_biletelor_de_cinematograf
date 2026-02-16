@@ -7,45 +7,6 @@ import type {NewsItem} from "../../types/ui"
 
 const { Text, Title, Paragraph } = Typography;
 
-const NEWS_ITEMS: NewsItem[] = [
-  {
-    "id": 1,
-    "title": "New IMAX Theater Opening Soon",
-    "date": "February 12, 2026",
-    "category": "Announcement",
-    "content": "We're excited to announce that our brand new IMAX theater will be opening next month, featuring state-of-the-art laser projection and immersive sound systems.",
-    "image": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&h=500&fit=crop",
-    "fullContent": "We're thrilled to announce the grand opening of our brand new IMAX theater, scheduled for March 15, 2026! This state-of-the-art cinema experience will feature the latest IMAX laser projection technology, delivering unprecedented image quality with enhanced brightness, deeper contrast, and the widest color gamut available.\n\nThe theater will be equipped with a 12-channel sound system that creates an immersive audio experience, making you feel like you're part of the action. With 300 premium seats featuring ergonomic design and optimal viewing angles, every seat in the house will be the best seat.\n\nOpening week special: Get 30% off all IMAX screenings! We'll be featuring major blockbusters including the latest sci-fi epic and nature documentaries that showcase the full capabilities of IMAX technology.\n\nPre-booking opens February 20th. Don't miss this opportunity to experience cinema like never before!"
-  },
-  {
-    "id": 2,
-    "title": "Student Discount Available",
-    "date": "February 10, 2026",
-    "category": "Promotions",
-    "content": "All UTM students can now enjoy 20% off on all movie tickets. Just show your student ID at the box office!",
-    "image": "https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=800&h=500&fit=crop",
-    "fullContent": "We're excited to introduce our new Student Discount Program, exclusively for UTM students! Starting immediately, all valid UTM student ID holders can enjoy 20% off on all movie tickets, any day of the week.\n\nHow to claim your discount:\n• Present your valid UTM student ID at the box office when purchasing tickets\n• Discount applies to all movie formats including standard, 3D, and IMAX screenings\n• Can be combined with matinee pricing for even greater savings\n• Valid for both online bookings (use your student email) and in-person purchases\n\nAdditionally, students can enjoy:\n• 15% off all concessions items\n• Priority booking for special student-only screening events\n• Free membership to our loyalty program\n\nThis initiative is part of our commitment to making quality entertainment accessible to the student community. We believe that movies are not just entertainment, but also an important part of cultural education and social bonding.\n\nTerms and conditions apply. Valid student ID must be presented upon ticket collection."
-  },
-  {
-    "id": 3,
-    "title": "Oscar Winners Marathon",
-    "date": "February 8, 2026",
-    "category": "Event",
-    "content": "Join us for a special weekend marathon featuring all the latest Oscar-winning films. Special pricing available for the full weekend pass.",
-    "image": "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800&h=500&fit=crop",
-    "fullContent": "Mark your calendars for the ultimate cinematic celebration! This February 22-23, we're hosting an exclusive Oscar Winners Marathon featuring all the major Oscar-winning films from this year's ceremony.\n\nSchedule:\nSaturday, February 22:\n• 10:00 AM - Best Picture Winner\n• 1:30 PM - Best Director Winner\n• 4:00 PM - Best International Film\n• 7:00 PM - Best Animated Feature\n• 9:30 PM - Best Documentary\n\nSunday, February 23:\n• 11:00 AM - Best Original Screenplay\n• 2:00 PM - Best Adapted Screenplay\n• 5:00 PM - Special retrospective screening\n\nTicket Options:\n• Single screening: $12\n• Day pass (all screenings in one day): $40\n• Full weekend pass: $65 (Save $31!)\n• VIP weekend pass: $95 (includes reserved seating, complimentary popcorn and drink, and exclusive poster)\n\nEach screening will be introduced by local film critics and will include brief Q&A discussions. This is a perfect opportunity for film enthusiasts to experience the best of cinema in a celebration of the art form.\n\nSeats are limited! Book your passes now online or at the box office. Members get an additional 10% discount."
-  },
-  {
-    "id": 4,
-    "title": "New Snack Bar Menu",
-    "date": "February 5, 2026",
-    "category": "News",
-    "content": "Check out our expanded snack bar menu with new gourmet popcorn flavors, healthy options, and premium beverages.",
-    "image": "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=800&h=500&fit=crop",
-    "fullContent": "We've completely revamped our snack bar menu to offer you an elevated cinema dining experience! After listening to customer feedback, we're excited to introduce a diverse range of options that cater to all tastes and dietary preferences.\n\nGourmet Popcorn Flavors:\n• Classic Butter (always a favorite)\n• Caramel & Sea Salt\n• White Cheddar\n• Spicy Jalapeño\n• Sweet & Salty Kettle Corn\n• Truffle Parmesan (Premium)\n\nHealthy Options:\n• Fresh fruit cups\n• Veggie sticks with hummus\n• Protein boxes with cheese, nuts, and crackers\n• Granola bars and trail mix\n• Sugar-free candy options\n\nPremium Beverages:\n• Specialty coffee drinks (cappuccino, latte, mocha)\n• Fresh-squeezed lemonade\n• Organic iced teas\n• Craft sodas in unique flavors\n• Smoothies (strawberry, mango, mixed berry)\n\nWe've also expanded our hot food menu with:\n• Gourmet hot dogs with various toppings\n• Nachos with premium toppings\n• Personal pizzas\n• Chicken tenders and mozzarella sticks\n\nAll items are made with quality ingredients, and we're committed to offering vegetarian, vegan, and gluten-free options. Our staff is trained to help you find the perfect snack for your movie experience.\n\nCome early before your movie to try our new offerings! Combo deals available for great savings."
-  }
-]
-
 const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
   item,
   featured = false,
