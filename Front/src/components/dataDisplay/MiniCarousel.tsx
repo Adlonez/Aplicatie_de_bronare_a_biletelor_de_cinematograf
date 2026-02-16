@@ -32,7 +32,6 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
           paddingBottom: "150%",
           borderRadius: 8,
           overflow: "hidden",
-          background: "#f0f0f0",
         }}
       >
         <img
@@ -65,7 +64,6 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
           <Button
             type="primary"
             shape="round"
-            danger
             style={{
               fontWeight: 700,
               fontSize: 11,
@@ -75,7 +73,6 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
               height: 36,
               boxShadow: "0 4px 18px rgba(0,0,0,0.4)",
               border: "none",
-              background: "#e31e24",
             }}
           >
             Buy a ticket
@@ -98,17 +95,16 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
         </Text>
 
         <Space size={2} wrap={false} style={{ display: "flex", alignItems: "center" }}>
-          <Text style={{ fontSize: 12, fontWeight: 700, color: "#e31e24" }}>
+          <Text style={{ fontSize: 12, fontWeight: 700 }}>
             {film.format}
           </Text>
           {film.languages.map((lang, i) => (
             <Space key={lang} size={2} style={{ display: "flex", alignItems: "center" }}>
-              <Text style={{ color: "#ccc", fontWeight: 300, fontSize: 12 }}>·</Text>
+              <Text style={{ fontWeight: 300, fontSize: 12 }}>·</Text>
               <Text
                 style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  color: i === 0 ? "#e31e24" : "#f87171",
                 }}
               >
                 {lang}
@@ -146,12 +142,10 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
     height: 42,
     borderRadius: "50%",
     border: `2px solid ${enabled ? "#bbb" : "#e8e8e8"}`,
-    background: "#fff",
     boxShadow: "none",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: enabled ? "#555" : "#ccc",
     padding: 0,
   });
 
@@ -164,7 +158,6 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
             style={{
               width: 4,
               height: 18,
-              background: "#e31e24",
               borderRadius: 2,
               flexShrink: 0,
             }}
@@ -241,7 +234,6 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
                 border: "none",
                 cursor: "pointer",
                 padding: 0,
-                background: i === offset ? "#e31e24" : "#d1d5db",
                 transition: "width 0.3s ease, background 0.3s ease",
               }}
             />

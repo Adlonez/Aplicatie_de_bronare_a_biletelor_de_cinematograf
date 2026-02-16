@@ -60,7 +60,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
           style={{
             width: hovered ? 80 : 40,
             height: 3,
-            background: "#1c0a00",
+            background: "#ffffff",
             marginBottom: 20,
             transition: "width 0.4s ease",
           }}
@@ -85,7 +85,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
           style={{
             margin: 0,
             fontSize: 16,
-            color: "rgba(255,255,255,0.55)",
+            color: "#ffffff",
             maxWidth: 400,
             lineHeight: 1.6,
             marginBottom: 32,
@@ -100,13 +100,13 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
             alignItems: "center",
             gap: 10,
             padding: "12px 28px",
-            border: `1.5px solid ${"#1c0a00"}`,
-            color: "#1c0a00",
+            border: `1.5px solid ${"#ffffff"}`,
+            color: "#ffffff",
             fontSize: 13,
             fontFamily: "'Courier New', monospace",
             letterSpacing: "0.1em",
             textTransform: "uppercase",
-            background: hovered ? `${"#1c0a00"}22` : "transparent",
+            background: hovered ? `${"#ffffff"}22` : "transparent",
             transition: "background 0.3s ease",
           }}
         >

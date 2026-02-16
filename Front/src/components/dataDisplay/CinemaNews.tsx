@@ -46,22 +46,12 @@ const NEWS_ITEMS: NewsItem[] = [
   }
 ]
 
-
-const CATEGORY_COLORS: Record<NewsItem["category"], { text: string; border: string }> =
-  {
-    Promotions: { text: "#e31e24", border: "#ffccc7" },
-    Films: { text: "#2f54eb", border: "#adc6ff" },
-    News: { text: "#389e0d", border: "#b7eb8f" },
-    Events: {  text: "#d46b08", border: "#ffd591" },
-  };
-
 const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
   item,
   featured = false,
 }) => {
   const [hovered, setHovered] = useState(false);
-  const cat = CATEGORY_COLORS[item.category];
-
+  
   return (
     <div
       onMouseEnter={() => setHovered(true)}
@@ -81,7 +71,6 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
           paddingBottom: featured ? "58%" : "62%",
           overflow: "hidden",
           borderRadius: 6,
-          background: "#f0f0f0",
           flexShrink: 0,
         }}
       >
@@ -124,8 +113,8 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
             marginBottom: 8,
           }}
         >
-          <CalendarOutlined style={{ fontSize: 11, color: "#aaa" }} />
-          <Text style={{ fontSize: 11, color: "#aaa", letterSpacing: "0.04em" }}>
+          <CalendarOutlined style={{ fontSize: 11 }} />
+          <Text style={{ fontSize: 11, letterSpacing: "0.04em" }}>
             {item.date}
           </Text>
         </div>
@@ -146,7 +135,6 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
         <Text
           style={{
             fontSize: 12,
-            color: "#888",
             lineHeight: 1.65,
             flex: 1,
           }}
@@ -160,7 +148,6 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "#e31e24",
               display: "flex",
               alignItems: "center",
               gap: 5,
@@ -193,7 +180,6 @@ const CinemaNews = ({items=[]}:any) => {
               style={{
                 width: 4,
                 height: 18,
-                background: "#e31e24",
                 borderRadius: 2,
                 flexShrink: 0,
               }}

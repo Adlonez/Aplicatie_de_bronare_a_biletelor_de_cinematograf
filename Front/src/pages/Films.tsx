@@ -39,7 +39,7 @@ const Films = () => {
               cover={
                 <img
                   alt={film.title}
-                  src={film.poster}
+                  src={film.image}
                   style={{ 
                     height: '300px', 
                     objectFit: 'cover' 
