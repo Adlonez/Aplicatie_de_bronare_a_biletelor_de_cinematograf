@@ -35,8 +35,8 @@ const Dashboard: React.FC = () => {
       </h2>
       <Row gutter={16}>
         <Col span={8}><StatCard title="Total Users" value={stats.totalUsers} icon={<UserOutlined />} /></Col>
-        <Col span={8}><StatCard title="Active Users" value={stats.activeUsers} icon={<UserOutlined />} valueStyle={{ color: '#3f8600' }} /></Col>
-        <Col span={8}><StatCard title="Inactive Users" value={stats.inactiveUsers} icon={<UserOutlined />} valueStyle={{ color: '#cf1322' }} /></Col>
+        <Col span={8}><StatCard title="Active Users" value={stats.activeUsers} icon={<UserOutlined />}  /></Col>
+        <Col span={8}><StatCard title="Inactive Users" value={stats.inactiveUsers} icon={<UserOutlined />}  /></Col>
       </Row>
 
       <h2 style={{ marginTop: '32px', marginBottom: '16px' }}>
@@ -52,9 +52,9 @@ const Dashboard: React.FC = () => {
         <DollarOutlined /> Revenue Analytics
       </h2>
       <Row gutter={16}>
-        <Col span={8}><StatCard title="Today" value={stats.revenueToday} precision={2} icon="$" valueStyle={{ color: '#3f8600' }} /></Col>
-        <Col span={8}><StatCard title="This Week" value={stats.revenueThisWeek} precision={2} icon="$" valueStyle={{ color: '#3f8600' }} /></Col>
-        <Col span={8}><StatCard title="This Month" value={stats.revenueThisMonth} precision={2} icon="$" valueStyle={{ color: '#3f8600' }} /></Col>
+        <Col span={8}><StatCard title="Today" value={stats.revenueToday} precision={2} icon="$"  /></Col>
+        <Col span={8}><StatCard title="This Week" value={stats.revenueThisWeek} precision={2} icon="$"  /></Col>
+        <Col span={8}><StatCard title="This Month" value={stats.revenueThisMonth} precision={2} icon="$" /></Col>
       </Row>
 
       <h2 style={{ marginTop: '32px', marginBottom: '16px' }}>

@@ -58,7 +58,6 @@ const AdminLayout: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
             fontSize: collapsed ? '14px' : '20px',
             fontWeight: 'bold',
             transition: 'all 0.2s',
@@ -67,7 +66,6 @@ const AdminLayout: React.FC = () => {
           {collapsed ? 'AP' : 'Admin Panel'}
         </div>
         <Menu
-          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
@@ -75,7 +73,7 @@ const AdminLayout: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: '#fff', display: 'flex', alignItems: 'center' }}>
+        <Header style={{ padding: 0, display: 'flex', alignItems: 'center' }}>
           {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
             className: 'trigger',
             onClick: () => setCollapsed(!collapsed),
@@ -87,7 +85,6 @@ const AdminLayout: React.FC = () => {
             margin: '24px 16px',
             padding: 24,
             minHeight: 280,
-            background: '#fff',
           }}
         >
           <Outlet />

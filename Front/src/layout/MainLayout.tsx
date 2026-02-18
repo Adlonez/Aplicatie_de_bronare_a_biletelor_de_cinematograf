@@ -107,7 +107,6 @@ const MainLayout = (props: any) => {
                 </Button>
 
                 <Button
-                  danger
                   icon={<LogoutOutlined />}
                   onClick={handleLogout}
                   className='ml-2'

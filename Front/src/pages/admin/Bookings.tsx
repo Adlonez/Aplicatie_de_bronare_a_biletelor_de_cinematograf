@@ -86,7 +86,7 @@ const Bookings: React.FC = () => {
         style={{ width: 400, marginBottom: '8px' }}
         allowClear
       />
-      <div style={{ marginBottom: '16px', fontSize: '12px', color: '#888' }}>
+      <div style={{ marginBottom: '16px', fontSize: '12px'}}>
         <Tag color="red">BOUGHT</Tag> = Paid | <Tag color="orange">BOOKED</Tag> = Reserved
       </div>
       <Table dataSource={filteredBookings} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} scroll={{ x: 1200 }} />

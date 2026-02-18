@@ -19,7 +19,6 @@ const MovieDetail = () => {
       message.warning('Please select a showtime first');
       return;
     }
-    // Navigate to booking page with movie and time
     navigate(`/films/${id}/book`, { state: { movie, time: selectedTime } });
   };
 
@@ -27,7 +26,6 @@ const MovieDetail = () => {
     setIsInWatchlist(!isInWatchlist);
     if (!isInWatchlist) {
       message.success(`${movie?.title} added to your watchlist!`);
-      // Add to local storage or API
       const watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
       if (!watchlist.includes(movie?.id)) {
         watchlist.push(movie?.id);
@@ -35,7 +33,6 @@ const MovieDetail = () => {
       }
     } else {
       message.info(`${movie?.title} removed from your watchlist`);
-      // Remove from local storage or API
       const watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
       const filtered = watchlist.filter((movieId: number) => movieId !== movie?.id);
       localStorage.setItem('watchlist', JSON.stringify(filtered));
@@ -45,7 +42,7 @@ const MovieDetail = () => {
   if (!movie) {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
-        <Title level={2} style={{ color: '#fff' }}>Movie not found</Title>
+        <Title level={2}>Movie not found</Title>
         <Button type="primary" onClick={() => navigate('/films')}>
           Back to Movies
         </Button>
@@ -84,27 +81,26 @@ const MovieDetail = () => {
         <Col xs={24} md={14}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <div>
-              <Title level={1} style={{ color: '#fff', marginBottom: '8px' }}>
+              <Title level={1} style={{ marginBottom: '8px' }}>
                 {movie.title}
               </Title>
               <Tag color="purple" style={{ fontSize: '14px', padding: '4px 12px' }}>
-                {/* {movie.subtitle} */}
               </Tag>
             </div>
 
             <Divider style={{ borderColor: '#434343' }} />
 
             <div>
-              <Title level={4} style={{ color: '#fff' }}>
+              <Title level={4}>
                 Description
               </Title>
-              <Paragraph style={{ fontSize: '16px', lineHeight: '1.8', color: '#d9d9d9' }}>
+              <Paragraph style={{ fontSize: '16px', lineHeight: '1.8'}}>
                 {movie.description}
               </Paragraph>
             </div>
 
             <div>
-              <Title level={4} style={{ color: '#fff' }}>
+              <Title level={4}>
                 Showtimes
               </Title>
               <Space wrap>

@@ -40,11 +40,9 @@ const BookTicket = () => {
   const selectedTime = location.state?.time || '19:00';
   
   const movie = filmsData.find(film => film.id === Number(id));
-  
-  // Initialize seats - 8 rows, 12 seats each
   const initializeSeats = (): Seat[] => {
     const seats: Seat[] = [];
-    const occupiedSeats = ['3-5', '3-6', '4-7', '5-5', '5-6', '5-7', '6-8']; // Some pre-booked seats
+    const occupiedSeats = ['3-5', '3-6', '4-7', '5-5', '5-6', '5-7', '6-8'];
     
     for (let row = 1; row <= 8; row++) {
       for (let number = 1; number <= 12; number++) {
@@ -63,7 +61,7 @@ const BookTicket = () => {
   const [seats, setSeats] = useState<Seat[]>(initializeSeats());
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const TICKET_PRICE = 50; // Lei per ticket
+  const TICKET_PRICE = 50; 
 
   const selectedSeats = seats.filter(seat => seat.status === 'selected');
   const totalPrice = selectedSeats.length * TICKET_PRICE;
@@ -142,7 +140,7 @@ const BookTicket = () => {
   if (!movie) {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
-        <Title level={2} style={{ color: '#fff' }}>Movie not found</Title>
+        <Title level={2}>Movie not found</Title>
         <Button type="primary" onClick={() => navigate('/films')}>
           Back to Movies
         </Button>
@@ -189,7 +187,7 @@ const BookTicket = () => {
               borderRadius: '0 0 50% 50%',
               border: '2px solid #999'
             }}>
-              <Text strong style={{ color: '#fff', fontSize: '16px' }}>SCREEN</Text>
+              <Text strong style={{ fontSize: '16px' }}>SCREEN</Text>
             </div>
 
             {/* Seat Grid */}
@@ -220,7 +218,6 @@ const BookTicket = () => {
                           padding: '0',
                           backgroundColor: getSeatColor(seat.status),
                           borderColor: getSeatColor(seat.status),
-                          color: '#fff',
                           cursor: seat.status === 'occupied' ? 'not-allowed' : 'pointer'
                         }}
                       >
@@ -256,7 +253,6 @@ const BookTicket = () => {
                 <div style={{ 
                   width: '20px', 
                   height: '20px', 
-                  backgroundColor: '#666',
                   borderRadius: '4px'
                 }} />
                 <Text>Occupied</Text>
@@ -267,13 +263,10 @@ const BookTicket = () => {
 
         <Col xs={24} lg={8}>
           <Card style={{ 
-            backgroundColor: '#fff',
             border: '2px dashed #999'
           }}>
             <div style={{ 
               fontFamily: '"Courier New", Courier, monospace',
-              backgroundColor: '#fff',
-              color: '#000',
               padding: '0'
             }}>
               <div style={{ 
@@ -285,14 +278,12 @@ const BookTicket = () => {
                 <Title level={4} style={{ 
                   fontFamily: '"Courier New", Courier, monospace',
                   margin: 0,
-                  color: '#000'
                 }}>
                   BOOKING SUMMARY
                 </Title>
                 <Text style={{ 
                   fontFamily: '"Courier New", Courier, monospace',
                   fontSize: '12px',
-                  color: '#000'
                 }}>
                   Cinema Ticket Receipt
                 </Text>
@@ -302,7 +293,6 @@ const BookTicket = () => {
                 <div>
                   <Text strong style={{ 
                     fontFamily: '"Courier New", Courier, monospace',
-                    color: '#000',
                     display: 'block',
                     marginBottom: '8px'
                   }}>
@@ -310,8 +300,6 @@ const BookTicket = () => {
                   </Text>
                   <div style={{ 
                     fontFamily: '"Courier New", Courier, monospace',
-                    color: '#000',
-                    backgroundColor: '#f5f5f5',
                     padding: '8px',
                     borderRadius: '4px'
                   }}>
@@ -324,7 +312,6 @@ const BookTicket = () => {
                     ) : (
                       <Text style={{ 
                         fontFamily: '"Courier New", Courier, monospace',
-                        color: '#666'
                       }}>
                         No seats selected
                       </Text>
@@ -343,12 +330,11 @@ const BookTicket = () => {
                       display: 'flex', 
                       justifyContent: 'space-between',
                       fontFamily: '"Courier New", Courier, monospace',
-                      color: '#000'
                     }}>
-                      <Text style={{ fontFamily: '"Courier New", Courier, monospace', color: '#000' }}>
+                      <Text style={{ fontFamily: '"Courier New", Courier, monospace' }}>
                         Tickets x {selectedSeats.length}:
                       </Text>
-                      <Text style={{ fontFamily: '"Courier New", Courier, monospace', color: '#000' }}>
+                      <Text style={{ fontFamily: '"Courier New", Courier, monospace' }}>
                         {selectedSeats.length * TICKET_PRICE} Lei
                       </Text>
                     </div>
@@ -359,15 +345,13 @@ const BookTicket = () => {
                     }}>
                       <Text strong style={{ 
                         fontSize: '18px',
-                        fontFamily: '"Courier New", Courier, monospace',
-                        color: '#000'
+                        fontFamily: '"Courier New", Courier, monospace'
                       }}>
                         TOTAL:
                       </Text>
                       <Text strong style={{ 
                         fontSize: '18px',
-                        fontFamily: '"Courier New", Courier, monospace',
-                        color: '#000'
+                        fontFamily: '"Courier New", Courier, monospace'
                       }}>
                         {totalPrice} Lei
                       </Text>
@@ -391,13 +375,11 @@ const BookTicket = () => {
                 </Button>
 
                 <div style={{ 
-                  backgroundColor: '#fffbe6',
                   border: '1px solid #ffe58f',
                   padding: '12px',
                   borderRadius: '4px',
                   fontFamily: '"Courier New", Courier, monospace',
-                  fontSize: '12px',
-                  color: '#000'
+                  fontSize: '12px'
                 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
                     ⚠ DEADLINE REMINDER
@@ -482,7 +464,7 @@ const BookTicket = () => {
 
         <Divider />
 
-        <div style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px' }}>
+        <div style={{  padding: '16px', borderRadius: '8px' }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Text strong>Movie:</Text>
@@ -499,7 +481,7 @@ const BookTicket = () => {
             <Divider style={{ margin: '8px 0' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Text strong style={{ fontSize: '16px' }}>Total Amount:</Text>
-              <Text strong style={{ fontSize: '16px', color: '#7c3aed' }}>
+              <Text strong style={{ fontSize: '16px' }}>
                 {totalPrice} Lei
               </Text>
             </div>

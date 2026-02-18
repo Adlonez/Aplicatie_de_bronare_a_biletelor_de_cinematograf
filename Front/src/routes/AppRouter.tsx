@@ -17,8 +17,15 @@ import Users from '../pages/admin/Users'
 import Bookings from '../pages/admin/Bookings'
 import Screenings from '../pages/admin/Screenings'
 import NotFound from '../pages/NotFound'
-const AppRouter = (props:any) => {
-  const {setIsDark, isDark} = props;
+
+import { paths } from "./paths"
+
+type AppRouterProps = {
+  isDark: boolean
+  setIsDark: (value: boolean) => void
+}
+
+const AppRouter = ({ isDark, setIsDark }: AppRouterProps) => {
   return (
     <BrowserRouter>
       <Routes>
@@ -30,7 +37,7 @@ const AppRouter = (props:any) => {
           <Route path="films/:id/book" element={<BookTicket />} />
         </Route>
 
-         <Route path="/auth/login" element={<Login />} />
+         <Route path={paths.login} element={<Login />} />
         <Route path="/auth/register" element={<Register />} /> 
        
         <Route path="/admin" element={<AdminLayout />}>
