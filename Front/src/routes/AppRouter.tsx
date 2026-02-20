@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import MainLayout from '../layout/MainLayout'
 import AdminLayout from '../layout/admin/AdminLayout'
@@ -34,7 +34,7 @@ const AppRouter = (props:any) => {
         <Route path="/auth/register" element={<Register />} /> 
        
         <Route path="/admin" element={<AdminLayout />}>
-           <Route index element={<Dashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} /> 
           <Route path="movies" element={<Movies />} />
           <Route path="screenings" element={<Screenings />} />

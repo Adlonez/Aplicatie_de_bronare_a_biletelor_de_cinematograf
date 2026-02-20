@@ -1,142 +1,70 @@
-import React from 'react';
+import type { FC } from 'react';
+import { theme } from 'antd';
+import type { Hall } from '../../types/ui';
 
 interface SeatMapProps {
-  hall: {
-    name: string;
-    seatMap: {
-      rows: Array<{
-        row: string;
-        seats: number[];
-      }>;
-    };
-  };
-  bookedSeats?: string[]; // Orange - Reserved but not paid
-  boughtSeats?: string[]; // Red - Paid
-  selectedSeats?: string[];
+  hall: Hall;
+  bookedSeats?: string[];
+  boughtSeats?: string[];
   onSeatClick?: (seat: string) => void;
-  viewOnly?: boolean;
 }
 
-const SeatMap: React.FC<SeatMapProps> = ({ 
-  hall, 
-  bookedSeats = [],
-  boughtSeats = [],
-  selectedSeats = [],
-  onSeatClick,
-  viewOnly = false 
-}) => {
-  const isSeatBooked = (row: string, seat: number) => {
-    return bookedSeats.includes(`${row}${seat}`);
-  };
+const SeatMap: FC<SeatMapProps> = ({ hall, bookedSeats = [], boughtSeats = [], onSeatClick }) => {
+  const { token } = theme.useToken();
 
-  const isSeatBought = (row: string, seat: number) => {
-    return boughtSeats.includes(`${row}${seat}`);
-  };
-
-  const isSeatSelected = (row: string, seat: number) => {
-    return selectedSeats.includes(`${row}${seat}`);
-  };
-
-  const handleSeatClick = (row: string, seat: number) => {
-    const seatId = `${row}${seat}`;
-    // Allow clicking on any seat in admin mode
-    if (onSeatClick) {
-      onSeatClick(seatId);
-    }
-  };
+  const getSeatId = (row: string, seat: number) => `${row}${seat}`;
+  const isBooked = (row: string, seat: number) => bookedSeats.includes(getSeatId(row, seat));
+  const isBought = (row: string, seat: number) => boughtSeats.includes(getSeatId(row, seat));
+  const isOccupied = (row: string, seat: number) => isBooked(row, seat) || isBought(row, seat);
 
   const getSeatColor = (row: string, seat: number) => {
-    if (isSeatBought(row, seat)) return '#ff4d4f'; // Red - Bought (paid)
-    if (isSeatBooked(row, seat)) return '#ff9800'; // Orange - Booked (reserved)
-    if (isSeatSelected(row, seat)) return '#52c41a'; // Green - Selected
-    return '#d9d9d9'; // Gray - Available
+    if (isBought(row, seat)) return token.colorError;
+    if (isBooked(row, seat)) return token.colorWarning;
+    return token.colorFillSecondary;
   };
 
-  const getSeatCursor = () => {
-    // All seats are clickable in admin mode
-    if (onSeatClick) return 'pointer';
-    return 'default';
-  };
+  const legendItems = [
+    { color: token.colorFillSecondary, label: 'Available' },
+    { color: token.colorWarning, label: 'Booked' },
+    { color: token.colorError, label: 'Bought' },
+  ];
 
   return (
-    <div style={{ 
-      padding: '24px', 
-      backgroundColor: '#f5f5f5', 
-      borderRadius: '8px',
-      maxWidth: '900px',
-      margin: '0 auto'
-    }}>
+    <div style={{ padding: 24, backgroundColor: token.colorFillQuaternary, borderRadius: 8, maxWidth: 900, margin: '0 auto' }}>
       {/* Screen */}
-      <div style={{ 
-        textAlign: 'center', 
-        marginBottom: '40px',
-        position: 'relative'
-      }}>
-        <div style={{
-          backgroundColor: '#1890ff',
-          height: '8px',
-          borderRadius: '50%',
-          marginBottom: '8px',
-          boxShadow: '0 4px 8px rgba(24, 144, 255, 0.3)'
-        }} />
-        <div style={{ 
-          color: '#999', 
-          fontSize: '18px', 
-          fontWeight: 'bold',
-          letterSpacing: '2px'
-        }}>
-          SCREEN
-        </div>
+      <div style={{ textAlign: 'center', marginBottom: 40 }}>
+        <div style={{ backgroundColor: token.colorPrimary, height: 8, borderRadius: '50%', marginBottom: 8, boxShadow: `0 4px 8px ${token.colorPrimary}4D` }} />
+        <div style={{ color: token.colorTextDescription, fontSize: 18, fontWeight: 'bold', letterSpacing: 2 }}>SCREEN</div>
       </div>
 
       {/* Seats */}
       <div style={{ overflowX: 'auto' }}>
         {hall.seatMap.rows.map((rowData) => (
-          <div
-            key={rowData.row}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: '8px',
-              gap: '4px'
-            }}
-          >
-            {/* Row Label */}
-            <div
-              style={{
-                width: '30px',
-                textAlign: 'center',
-                fontWeight: 'bold',
-                color: '#666',
-                fontSize: '14px'
-              }}
-            >
+          <div key={rowData.row} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 8, gap: 4 }}>
+            <div style={{ width: 30, textAlign: 'center', fontWeight: 'bold', color: token.colorTextDescription, fontSize: 14 }}>
               {rowData.row}
             </div>
-
-            {/* Seats */}
             {rowData.seats.map((seatNumber) => (
               <div
                 key={seatNumber}
-                onClick={() => handleSeatClick(rowData.row, seatNumber)}
+                onClick={() => onSeatClick?.(getSeatId(rowData.row, seatNumber))}
                 style={{
-                  width: '32px',
-                  height: '32px',
+                  width: 32,
+                  height: 32,
                   backgroundColor: getSeatColor(rowData.row, seatNumber),
-                  borderRadius: '4px',
+                  borderRadius: 4,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: getSeatCursor(),
-                  fontSize: '10px',
-                  fontWeight: '500',
-                  color: isSeatBought(rowData.row, seatNumber) || isSeatBooked(rowData.row, seatNumber) || isSeatSelected(rowData.row, seatNumber) ? '#fff' : '#666',
+                  cursor: onSeatClick ? 'pointer' : 'default',
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: isOccupied(rowData.row, seatNumber) ? '#fff' : token.colorTextDescription,
                   transition: 'all 0.2s',
                   border: '1px solid rgba(0,0,0,0.1)',
-                  userSelect: 'none'
+                  userSelect: 'none',
                 }}
-                title={`${rowData.row}${seatNumber}`}
+                title={getSeatId(rowData.row, seatNumber)}
               >
                 {seatNumber}
               </div>
@@ -146,55 +74,13 @@ const SeatMap: React.FC<SeatMapProps> = ({
       </div>
 
       {/* Legend */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        gap: '24px', 
-        marginTop: '24px',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ 
-            width: '24px', 
-            height: '24px', 
-            backgroundColor: '#d9d9d9',
-            borderRadius: '4px',
-            border: '1px solid rgba(0,0,0,0.1)'
-          }} />
-          <span style={{ fontSize: '14px' }}>Available</span>
-        </div>
-        {!viewOnly && onSeatClick && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ 
-              width: '24px', 
-              height: '24px', 
-              backgroundColor: '#52c41a',
-              borderRadius: '4px',
-              border: '1px solid rgba(0,0,0,0.1)'
-            }} />
-            <span style={{ fontSize: '14px' }}>Selected</span>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 24, flexWrap: 'wrap' }}>
+        {legendItems.map(({ color, label }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 24, height: 24, backgroundColor: color, borderRadius: 4, border: '1px solid rgba(0,0,0,0.1)' }} />
+            <span style={{ fontSize: 14 }}>{label}</span>
           </div>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ 
-            width: '24px', 
-            height: '24px', 
-            backgroundColor: '#ff9800',
-            borderRadius: '4px',
-            border: '1px solid rgba(0,0,0,0.1)'
-          }} />
-          <span style={{ fontSize: '14px' }}>Booked</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ 
-            width: '24px', 
-            height: '24px', 
-            backgroundColor: '#ff4d4f',
-            borderRadius: '4px',
-            border: '1px solid rgba(0,0,0,0.1)'
-          }} />
-          <span style={{ fontSize: '14px' }}>Bought</span>
-        </div>
+        ))}
       </div>
     </div>
   );

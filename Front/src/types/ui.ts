@@ -17,6 +17,7 @@ export interface Films {
     start: string;
     end: string;
   };
+  deleted?: boolean;
 }
 
 export interface NewsItem {
@@ -27,4 +28,53 @@ export interface NewsItem {
   content: string;
   image: string;
   fullContent: string;
+}
+
+export interface Screening {
+  id: number;
+  movieId: number;
+  movieTitle: string;
+  hall: string;
+  date: string;
+  time: string;
+  deleted?: boolean;
+}
+
+export interface Booking {
+  id: number;
+  movieId: number;
+  movieTitle: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  hall: string;
+  seats: string[];
+  status: 'bought' | 'booked';
+  bookingDate: string;
+  showtime: string;
+  totalPrice: number;
+  deleted?: boolean;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  status: 'active' | 'inactive';
+  registrationDate: string;
+  deleted?: boolean;
+}
+
+export interface Hall {
+  id: number;
+  name: string;
+  capacity: number;
+  features: string[];
+  seatMap: {
+    rows: Array<{
+      row: string;
+      seats: number[];
+    }>;
+  };
 }
