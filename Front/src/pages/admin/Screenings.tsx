@@ -1,77 +1,32 @@
-import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Select, DatePicker, TimePicker, Space, message, Popconfirm, Tag, Input, InputNumber, theme } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, CalendarOutlined, EyeOutlined } from '@ant-design/icons';
+import { useState, type FC } from 'react';
+import { Table, Button, Modal, Form, Select, DatePicker, TimePicker, Space, message, Popconfirm, Tag, Popover, Tooltip, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, CalendarOutlined, EyeOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import type { ColumnType } from 'antd/es/table';
+import dayjs from 'dayjs';
 import screeningsDataJson from '../../_mock/screenings.json';
 import filmsDataJson from '../../_mock/films.json';
 import hallsDataJson from '../../_mock/halls.json';
 import bookingsDataJson from '../../_mock/bookings.json';
-import SeatMap from '../../components/admin/SeatMap';
-import dayjs from 'dayjs';
+import SeatMapModal from '../../components/admin/SeatMapModal';
+import type { Screening, Booking, Hall } from '../../types/ui';
+import { dateRangeFilter, timeRangeFilter, sortDeletedLast } from '../../components/admin/shared/tableFilters';
 
-interface Screening {
-  id: number;
-  movieId: number;
-  movieTitle: string;
-  hall: string;
-  date: string;
-  time: string;
-}
+const { Title } = Typography;
 
-interface Movie {
-  id: number;
-  title: string;
-}
+const movies = filmsDataJson as { id: number; title: string }[];
+const halls = hallsDataJson as Hall[];
 
-interface Hall {
-  id: number;
-  name: string;
-  capacity: number;
-  features: string[];
-  seatMap: {
-    rows: Array<{
-      row: string;
-      seats: number[];
-    }>;
-  };
-}
-
-interface Booking {
-  id: number;
-  movieId: number;
-  movieTitle: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  hall: string;
-  seats: string[];
-  status: string;
-  bookingDate: string;
-  showtime: string;
-  totalPrice: number;
-}
-
-const Screenings: React.FC = () => {
-  const { token } = theme.useToken();
+const Screenings: FC = () => {
   const [screenings, setScreenings] = useState<Screening[]>(screeningsDataJson as Screening[]);
-
-  const [movies] = useState<Movie[]>(filmsDataJson as Movie[]);
-  const [halls] = useState<Hall[]>(hallsDataJson as Hall[]);
   const [bookings, setBookings] = useState<Booking[]>(bookingsDataJson as Booking[]);
-  
-  const [screeningModalOpen, setScreeningModalOpen] = useState(false);
-  const [seatMapModalOpen, setSeatMapModalOpen] = useState(false);
-  const [bookingModalOpen, setBookingModalOpen] = useState(false);
-  
-  const [editingScreening, setEditingScreening] = useState<Screening | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [seatMapOpen, setSeatMapOpen] = useState(false);
+  const [editing, setEditing] = useState<Screening | null>(null);
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
-  const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
-  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
-  
   const [form] = Form.useForm();
-  const [bookingForm] = Form.useForm();
 
-  const openScreeningModal = (screening?: Screening) => {
-    setEditingScreening(screening || null);
+  const openModal = (screening?: Screening) => {
+    setEditing(screening || null);
     if (screening) {
       form.setFieldsValue({
         movieId: screening.movieId,
@@ -82,293 +37,202 @@ const Screenings: React.FC = () => {
     } else {
       form.resetFields();
     }
-    setScreeningModalOpen(true);
+    setModalOpen(true);
   };
 
   const saveScreening = () => {
     form.validateFields().then((values) => {
       const movie = movies.find((m) => m.id === values.movieId);
-      const screeningData: Screening = {
-        id: editingScreening?.id || Date.now(),
+      const dateStr = values.date.format('YYYY-MM-DD');
+      const timeStr = values.time.format('HH:mm');
+      const data: Screening = {
+        id: editing?.id || Date.now(),
         movieId: values.movieId,
         movieTitle: movie?.title || '',
         hall: values.hall,
-        date: values.date.format('YYYY-MM-DD'),
-        time: values.time.format('HH:mm'),
+        date: dateStr,
+        time: timeStr,
+        deleted: editing?.deleted,
       };
 
-      if (editingScreening) {
-        setScreenings(screenings.map((s) => (s.id === editingScreening.id ? screeningData : s)));
-        message.success('Screening updated');
+      const conflict = screenings.find(
+        (s) => !s.deleted && s.id !== data.id && s.hall === data.hall && s.date === data.date && s.time === data.time,
+      );
+
+      const doSave = () => {
+        if (editing) {
+          setScreenings(prev => prev.map((s) => (s.id === editing.id ? data : s)));
+          message.success('Screening updated');
+        } else {
+          setScreenings(prev => [...prev, data]);
+          message.success('Screening added');
+        }
+        setModalOpen(false);
+        form.resetFields();
+      };
+
+      if (conflict) {
+        Modal.confirm({
+          title: 'Schedule Conflict',
+          content: `"${conflict.movieTitle}" is already scheduled in ${data.hall} at ${data.time} on ${data.date}. Save anyway?`,
+          okText: 'Save Anyway',
+          okType: 'danger',
+          onOk: doSave,
+        });
       } else {
-        setScreenings([...screenings, screeningData]);
-        message.success('Screening added');
+        doSave();
       }
-      setScreeningModalOpen(false);
-      form.resetFields();
     });
   };
 
   const deleteScreening = (id: number) => {
-    setScreenings(screenings.filter((s) => s.id !== id));
-    message.success('Screening deleted');
-  };
+    const screening = screenings.find((s) => s.id === id);
+    if (!screening) return;
 
-  const openSeatMap = (screening: Screening) => {
-    setSelectedScreening(screening);
-    setSeatMapModalOpen(true);
-  };
-
-  const getScreeningSeats = (screening: Screening) => {
-    const screeningDateTime = `${screening.date} ${screening.time}`;
-    const relevantBookings = bookings.filter(
-      (b) => b.movieTitle === screening.movieTitle && b.hall === screening.hall && b.showtime === screeningDateTime
+    const activeBookings = bookings.filter(
+      (b) => !b.deleted && b.movieTitle === screening.movieTitle && b.hall === screening.hall && b.showtime === `${screening.date} ${screening.time}`,
     );
-    
-    return {
-      booked: relevantBookings.filter((b) => b.status === 'booked').flatMap((b) => b.seats),
-      bought: relevantBookings.filter((b) => b.status === 'bought').flatMap((b) => b.seats),
+
+    const doDelete = () => {
+      setScreenings(prev => prev.map((s) => s.id === id ? { ...s, deleted: true } : s));
+      message.success('Screening marked as deleted');
     };
-  };
 
-  const openBookingModal = (seat: string) => {
-    if (!selectedScreening) return;
-
-    setSelectedSeat(seat);
-    const screeningDateTime = `${selectedScreening.date} ${selectedScreening.time}`;
-    
-    const existingBooking = bookings.find(
-      (b) => b.movieTitle === selectedScreening.movieTitle && b.hall === selectedScreening.hall &&
-            b.showtime === screeningDateTime && b.seats.includes(seat)
-    );
-
-    if (existingBooking) {
-      setEditingBooking(existingBooking);
-      bookingForm.setFieldsValue({
-        customerName: existingBooking.customerName,
-        customerEmail: existingBooking.customerEmail,
-        customerPhone: existingBooking.customerPhone,
-        status: existingBooking.status,
-        totalPrice: existingBooking.totalPrice,
+    if (activeBookings.length > 0) {
+      Modal.confirm({
+        title: 'Active Bookings Found',
+        content: `This screening has ${activeBookings.length} active booking(s). Deleting will not cancel them. Continue?`,
+        okText: 'Delete Anyway',
+        okType: 'danger',
+        onOk: doDelete,
       });
     } else {
-      setEditingBooking(null);
-      bookingForm.setFieldsValue({ status: 'booked', totalPrice: 14.00 });
+      doDelete();
     }
-    
-    setBookingModalOpen(true);
   };
 
-  const saveBooking = () => {
-    if (!selectedScreening || !selectedSeat) return;
-
-    bookingForm.validateFields().then((values) => {
-      const screeningDateTime = `${selectedScreening.date} ${selectedScreening.time}`;
-
-      if (editingBooking) {
-        setBookings(bookings.map(b => b.id === editingBooking.id ? { ...editingBooking, ...values } : b));
-        message.success('Booking updated');
-      } else {
-        const newBooking: Booking = {
-          id: Date.now(),
-          movieId: selectedScreening.movieId,
-          movieTitle: selectedScreening.movieTitle,
-          ...values,
-          hall: selectedScreening.hall,
-          seats: [selectedSeat],
-          bookingDate: new Date().toISOString().split('T')[0],
-          showtime: screeningDateTime,
-        };
-        setBookings([...bookings, newBooking]);
-        message.success('Booking created');
-      }
-
-      setBookingModalOpen(false);
-      bookingForm.resetFields();
-    });
+  const restoreScreening = (id: number) => {
+    setScreenings(prev => prev.map((s) => s.id === id ? { ...s, deleted: false } : s));
+    message.success('Screening restored');
   };
 
-  const deleteBooking = () => {
-    if (!editingBooking) return;
-
-    Modal.confirm({
-      title: 'Delete this booking?',
-      content: 'This cannot be undone.',
-      okText: 'Delete',
-      okType: 'danger',
-      onOk: () => {
-        setBookings(bookings.filter(b => b.id !== editingBooking.id));
-        message.success('Booking deleted');
-        setBookingModalOpen(false);
-        bookingForm.resetFields();
-      },
-    });
-  };
-
-  const columns = [
-    { title: 'Date', dataIndex: 'date', sorter: (a: Screening, b: Screening) => a.date.localeCompare(b.date) },
-    { title: 'Time', dataIndex: 'time', sorter: (a: Screening, b: Screening) => a.time.localeCompare(b.time) },
+  const columns: ColumnType<Screening>[] = [
     {
-      title: 'Movie',
+      title: 'Title',
       dataIndex: 'movieTitle',
-      filters: [...new Set(screenings.map(s => s.movieTitle))].map(title => ({ text: title, value: title })),
-      onFilter: (value: any, record: Screening) => record.movieTitle === value,
+      render: (text: string, s: Screening) => (
+        <Space>
+          <Tooltip title={text}>
+            <div style={{ minWidth: 120 }}>{text}</div>
+          </Tooltip>
+          {s.deleted && <Tag color="red">Deleted</Tag>}
+        </Space>
+      ),
+      filters: movies.map((m) => ({ text: m.title, value: m.title })),
+      filterSearch: true,
+      filterDropdownProps: { overlayStyle: { width: 250 } },
+
+      onFilter: (value, record) => record.movieTitle === (value as string),
+    },
+    {
+      title: 'Date',
+      dataIndex: 'date',
+      sorter: (a, b) => a.date.localeCompare(b.date),
+      ...dateRangeFilter<Screening>((r) => r.date),
+    },
+    {
+      title: 'Time',
+      dataIndex: 'time',
+      sorter: (a, b) => a.time.localeCompare(b.time),
+      ...timeRangeFilter<Screening>((r) => r.time),
     },
     {
       title: 'Hall',
       dataIndex: 'hall',
       render: (hall: string) => <Tag color="blue">{hall}</Tag>,
-      filters: halls.map(h => ({ text: h.name, value: h.name })),
-      onFilter: (value: any, record: Screening) => record.hall === value,
+      filters: halls.map((h) => ({ text: h.name, value: h.name })),
+      onFilter: (value, record) => record.hall === (value as string),
     },
     {
       title: 'Actions',
-      render: (_: any, screening: Screening) => (
+      render: (_: any, s: Screening) => (
         <Space>
-          <Button type="default" icon={<EyeOutlined />} size="small" onClick={() => openSeatMap(screening)}>
-            Seats
-          </Button>
-          <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openScreeningModal(screening)}>
-            Edit
-          </Button>
-          <Popconfirm title="Delete this screening?" onConfirm={() => deleteScreening(screening.id)} okText="Yes" cancelText="No">
-            <Button type="primary" danger icon={<DeleteOutlined />} size="small">
-              Delete
-            </Button>
-          </Popconfirm>
+          <Button icon={<EyeOutlined />} size="small" onClick={() => { setSelectedScreening(s); setSeatMapOpen(true); }} disabled={s.deleted}>Seats</Button>
+          <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(s)} disabled={s.deleted}>Edit</Button>
+          {s.deleted ? (
+            <Button type="primary" onClick={() => restoreScreening(s.id)} size="small">Restore</Button>
+          ) : (
+            <Popconfirm title="Delete this screening?" onConfirm={() => deleteScreening(s.id)} okText="Yes" cancelText="No">
+              <Button type="primary" danger icon={<DeleteOutlined />} size="small">Delete</Button>
+            </Popconfirm>
+          )}
         </Space>
       ),
     },
   ];
 
-  const FormField = ({ name, label, required = true, children }: any) => (
-    <Form.Item name={name} label={label} rules={required ? [{ required, message: `Select ${label.toLowerCase()}` }] : []}>
-      {children}
-    </Form.Item>
-  );
-
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <h1><CalendarOutlined /> Screening Schedule</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => openScreeningModal()}>
-          Add Screening
-        </Button>
-      </div>
-
-      <div style={{ marginBottom: '16px' }}>
-        <h3>Available Halls:</h3>
-        <Space wrap>
-          {halls.map((hall) => (
-            <Tag key={hall.id} color="blue">
-              {hall.name} - Capacity: {hall.capacity} - {hall.features.join(', ')}
-            </Tag>
-          ))}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <Title level={2} style={{ margin: 0 }}><CalendarOutlined /> Screening Schedule</Title>
+        <Space>
+          <Popover
+            title="Available Halls"
+            content={
+              <Space direction="vertical">
+                {halls.map((h) => (
+                  <Tag key={h.id} color="blue">{h.name} - Capacity: {h.capacity} - {h.features.join(', ')}</Tag>
+                ))}
+              </Space>
+            }
+          >
+            <Button icon={<InfoCircleOutlined />}>Halls Info</Button>
+          </Popover>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>Add Screening</Button>
         </Space>
       </div>
 
-      <Table dataSource={screenings} columns={columns} rowKey="id" />
+      <Table dataSource={sortDeletedLast(screenings)} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} />
 
-      {/* Screening Modal */}
-      <Modal
-        title={editingScreening ? 'Edit Screening' : 'Add Screening'}
-        open={screeningModalOpen}
-        onOk={saveScreening}
-        onCancel={() => setScreeningModalOpen(false)}
-        width={500}
-      >
+      {/* Screening Form Modal */}
+      <Modal title={editing ? 'Edit Screening' : 'Add Screening'} open={modalOpen} onOk={saveScreening} onCancel={() => setModalOpen(false)} width={500}>
         <Form form={form} layout="vertical">
-          <FormField name="movieId" label="Movie">
-            <Select placeholder="Select movie">
-              {movies.map((movie) => (
-                <Select.Option key={movie.id} value={movie.id}>{movie.title}</Select.Option>
-              ))}
-            </Select>
-          </FormField>
-          <FormField name="hall" label="Hall">
-            <Select placeholder="Select hall">
-              {halls.map((hall) => (
-                <Select.Option key={hall.id} value={hall.name}>{hall.name} (Capacity: {hall.capacity})</Select.Option>
-              ))}
-            </Select>
-          </FormField>
-          <FormField name="date" label="Date">
-            <DatePicker style={{ width: '100%' }} />
-          </FormField>
-          <FormField name="time" label="Time">
-            <TimePicker format="HH:mm" style={{ width: '100%' }} />
-          </FormField>
-        </Form>
-      </Modal>
-
-      {/* Seat Map Modal */}
-      <Modal
-        title={selectedScreening ? `${selectedScreening.movieTitle} | ${selectedScreening.hall} | ${selectedScreening.date} ${selectedScreening.time}` : 'Seat Map'}
-        open={seatMapModalOpen}
-        onCancel={() => setSeatMapModalOpen(false)}
-        footer={<Button onClick={() => setSeatMapModalOpen(false)}>Close</Button>}
-        width={1000}
-      >
-        {selectedScreening && (() => {
-          const hall = halls.find((h) => h.name === selectedScreening.hall);
-          if (!hall) return <div>Hall not found</div>;
-          
-          const { booked, bought } = getScreeningSeats(selectedScreening);
-          return (
-            <>
-              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                <Tag color="orange">{booked.length} Booked</Tag>
-                <Tag color="red">{bought.length} Bought</Tag>
-                <Tag color="blue">{booked.length + bought.length} / {hall.capacity} occupied</Tag>
-              </div>
-              <SeatMap hall={hall} bookedSeats={booked} boughtSeats={bought} onSeatClick={openBookingModal} />
-            </>
-          );
-        })()}
-      </Modal>
-
-      {/* Booking Modal */}
-      <Modal
-        title={editingBooking ? `Edit Booking - Seat ${selectedSeat}` : `Create Booking - Seat ${selectedSeat}`}
-        open={bookingModalOpen}
-        onOk={saveBooking}
-        onCancel={() => { setBookingModalOpen(false); bookingForm.resetFields(); }}
-        width={600}
-        footer={[
-          editingBooking && <Button key="delete" danger onClick={deleteBooking}>Delete</Button>,
-          <Button key="cancel" onClick={() => { setBookingModalOpen(false); bookingForm.resetFields(); }}>Cancel</Button>,
-          <Button key="submit" type="primary" onClick={saveBooking}>{editingBooking ? 'Update' : 'Create'}</Button>,
-        ]}
-      >
-        <Form form={bookingForm} layout="vertical">
-          <Form.Item name="customerName" label="Name" rules={[{ required: true, message: 'Enter name' }]}>
-            <Input placeholder="John Doe" />
-          </Form.Item>
-          <Form.Item name="customerEmail" label="Email" rules={[{ required: true, message: 'Enter email' }, { type: 'email', message: 'Valid email' }]}>
-            <Input placeholder="john@example.com" />
-          </Form.Item>
-          <Form.Item name="customerPhone" label="Phone" rules={[{ required: true, message: 'Enter phone' }]}>
-            <Input placeholder="+1-555-0101" />
-          </Form.Item>
-          <Form.Item name="status" label="Status" rules={[{ required: true, message: 'Select status' }]}>
-            <Select>
-              <Select.Option value="booked">Booked (Reserved)</Select.Option>
-              <Select.Option value="bought">Bought (Paid)</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name="totalPrice" label="Price ($)" rules={[{ required: true, message: 'Enter price' }]}>
-            <InputNumber min={0} step={0.5} style={{ width: '100%' }} />
-          </Form.Item>
-          {selectedScreening && (
-            <div style={{ marginTop: '16px', padding: '12px', backgroundColor: token.colorFillQuaternary, borderRadius: '4px' }}>
-              <div style={{color: token.colorText}}><strong>Movie:</strong> {selectedScreening.movieTitle}</div>
-              <div style={{color: token.colorText}}><strong>Hall:</strong> {selectedScreening.hall}</div>
-              <div style={{color: token.colorText}}><strong>Showtime:</strong> {selectedScreening.date} {selectedScreening.time}</div>
-              <div style={{color: token.colorText}}><strong>Seat:</strong> {selectedSeat}</div>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Form.Item name="movieId" label="Movie" rules={[{ required: true, message: 'Select movie' }]}>
+                <Select placeholder="Select movie" options={movies.map((m) => ({ value: m.id, label: m.title }))} />
+              </Form.Item>
             </div>
-          )}
+            <div style={{ flex: 1 }}>
+              <Form.Item name="hall" label="Hall" rules={[{ required: true, message: 'Select hall' }]}>
+                <Select placeholder="Select hall" options={halls.map((h) => ({ value: h.name, label: `${h.name} (${h.capacity})` }))} />
+              </Form.Item>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Form.Item name="date" label="Date" rules={[{ required: true, message: 'Select date' }]}>
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </div>
+            <div style={{ flex: 1 }}>
+              <Form.Item name="time" label="Time" rules={[{ required: true, message: 'Select time' }]}>
+                <TimePicker format="HH:mm" minuteStep={5} style={{ width: '100%' }} />
+              </Form.Item>
+            </div>
+          </div>
         </Form>
       </Modal>
+
+      {/* Seat Map + Booking Modal */}
+      <SeatMapModal
+        screening={selectedScreening}
+        halls={halls}
+        bookings={bookings}
+        onBookingsChange={setBookings}
+        open={seatMapOpen}
+        onClose={() => setSeatMapOpen(false)}
+      />
     </div>
   );
 };

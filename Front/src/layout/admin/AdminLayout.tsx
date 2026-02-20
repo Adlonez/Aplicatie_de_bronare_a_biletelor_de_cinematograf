@@ -6,6 +6,7 @@ import {
   VideoCameraOutlined,
   UserOutlined,
   CalendarOutlined,
+  BookOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons'
@@ -44,7 +45,7 @@ const AdminLayout: React.FC = () => {
     },
     {
       key: '/admin/bookings',
-      icon: <CalendarOutlined />,
+      icon: <BookOutlined />,
       label: 'Bookings',
     },
   ]
@@ -58,7 +59,23 @@ const AdminLayout: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh', background: colorBgLayout }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} theme="light" style={{ background: colorBgContainer, borderRight: `1px solid ${colorBorderSecondary}` }}>
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed} 
+        theme="light" 
+        style={{ 
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          background: colorBgContainer, 
+          borderRight: `1px solid ${colorBorderSecondary}`,
+          zIndex: 100
+        }}
+      >
 
         <div
           style={{
@@ -84,8 +101,19 @@ const AdminLayout: React.FC = () => {
         />
 
       </Sider>
-      <Layout style={{ background: colorBgLayout }}>
-        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', alignItems: 'center' }}>
+      <Layout style={{ background: colorBgLayout, marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s' }}>
+        <Header style={{ 
+          padding: 0, 
+          background: colorBgContainer, 
+          display: 'flex', 
+          alignItems: 'center',
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          zIndex: 99,
+          width: `calc(100% - ${collapsed ? 80 : 200}px)`,
+          transition: 'width 0.2s'
+        }}>
           {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
             className: 'trigger',
             onClick: () => setCollapsed(!collapsed),
@@ -94,7 +122,7 @@ const AdminLayout: React.FC = () => {
         </Header>
         <Content
           style={{
-            margin: '24px 16px',
+            margin: '88px 16px 24px',
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,

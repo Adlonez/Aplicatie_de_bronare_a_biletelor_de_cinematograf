@@ -1,37 +1,29 @@
-import React from 'react';
+import type { FC, ReactNode, CSSProperties } from 'react';
 import { Card, Row, Col, Statistic, Table, theme, Typography } from 'antd';
-import { UserOutlined, TeamOutlined, DollarOutlined, UnorderedListOutlined, TrophyOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, DollarOutlined, UnorderedListOutlined, TrophyOutlined, DashboardOutlined } from '@ant-design/icons';
 import adminDataJson from '../../_mock/adminData.json';
 
 const { Title } = Typography;
 
-const Dashboard: React.FC = () => {
+const movieColumns = [
+  { title: 'Movie Title', dataIndex: 'title' },
+  { title: 'Tickets Sold', dataIndex: 'ticketsSold' },
+  { title: 'Revenue', dataIndex: 'revenue', render: (val: number) => `$${val.toFixed(2)}` },
+];
+
+const StatCard = ({ title, value, icon, precision, valueStyle, suffix }: { title: string; value: number | string; icon?: ReactNode; precision?: number; valueStyle?: CSSProperties; suffix?: string }) => (
+  <Card bordered={false} style={{ height: '100%' }}>
+    <Statistic title={title} value={value} prefix={icon} precision={precision} valueStyle={valueStyle} suffix={suffix} />
+  </Card>
+);
+
+const Dashboard: FC = () => {
   const { token } = theme.useToken();
-  const stats = adminDataJson.statistics;
-  const topMovies = adminDataJson.topMovies;
-
-  const movieColumns = [
-    { title: 'Movie Title', dataIndex: 'title' },
-    { title: 'Tickets Sold', dataIndex: 'ticketsSold' },
-    { title: 'Revenue', dataIndex: 'revenue', render: (val: number) => `$${val.toFixed(2)}` },
-  ];
-
-  const StatCard = ({ title, value, icon, precision, valueStyle, suffix }: any) => (
-    <Card bordered={false} style={{ height: '100%' }}>
-      <Statistic 
-        title={title} 
-        value={value} 
-        prefix={icon} 
-        precision={precision} 
-        valueStyle={valueStyle}
-        suffix={suffix}
-      />
-    </Card>
-  );
+  const { statistics: stats, topMovies } = adminDataJson;
 
   return (
     <div style={{ padding: '24px' }}>
-      <Title level={2} style={{ marginBottom: '24px', marginTop: 0 }}>Dashboard</Title>
+      <Title level={2} style={{ marginBottom: '24px', marginTop: 0 }}><DashboardOutlined /> Dashboard</Title>
 
       <Title level={4} style={{ marginTop: '24px', marginBottom: '16px' }}>
         <TeamOutlined style={{ marginRight: 8 }} /> User Statistics
