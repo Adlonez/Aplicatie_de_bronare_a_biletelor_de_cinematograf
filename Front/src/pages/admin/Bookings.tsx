@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Tag, Input, message, Modal } from 'antd';
+import { Table, Button, Tag, Input, message, Modal, theme } from 'antd';
 import { SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table';
 import bookingsDataJson from '../../_mock/bookings.json';
@@ -20,6 +20,7 @@ interface Booking {
 }
 
 const Bookings: React.FC = () => {
+  const { token } = theme.useToken();
   const [bookings, setBookings] = useState<Booking[]>(bookingsDataJson as Booking[]);
   const [searchText, setSearchText] = useState('');
 
@@ -29,6 +30,7 @@ const Bookings: React.FC = () => {
     booking.customerEmail.toLowerCase().includes(searchText.toLowerCase()) ||
     booking.customerPhone.includes(searchText)
   );
+
 
   const cancelBooking = (id: number) => {
     Modal.confirm({
@@ -86,9 +88,10 @@ const Bookings: React.FC = () => {
         style={{ width: 400, marginBottom: '8px' }}
         allowClear
       />
-      <div style={{ marginBottom: '16px', fontSize: '12px', color: '#888' }}>
+      <div style={{ marginBottom: '16px', fontSize: '12px', color: token.colorTextDescription }}>
         <Tag color="red">BOUGHT</Tag> = Paid | <Tag color="orange">BOOKED</Tag> = Reserved
       </div>
+
       <Table dataSource={filteredBookings} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} scroll={{ x: 1200 }} />
     </div>
   );

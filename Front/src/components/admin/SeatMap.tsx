@@ -1,4 +1,5 @@
 import React from 'react';
+import { theme } from 'antd';
 
 interface SeatMapProps {
   hall: {
@@ -25,6 +26,8 @@ const SeatMap: React.FC<SeatMapProps> = ({
   onSeatClick,
   viewOnly = false 
 }) => {
+  const { token } = theme.useToken();
+
   const isSeatBooked = (row: string, seat: number) => {
     return bookedSeats.includes(`${row}${seat}`);
   };
@@ -46,10 +49,10 @@ const SeatMap: React.FC<SeatMapProps> = ({
   };
 
   const getSeatColor = (row: string, seat: number) => {
-    if (isSeatBought(row, seat)) return '#ff4d4f'; // Red - Bought (paid)
-    if (isSeatBooked(row, seat)) return '#ff9800'; // Orange - Booked (reserved)
-    if (isSeatSelected(row, seat)) return '#52c41a'; // Green - Selected
-    return '#d9d9d9'; // Gray - Available
+    if (isSeatBought(row, seat)) return token.colorError; // Red - Bought (paid)
+    if (isSeatBooked(row, seat)) return token.colorWarning; // Orange - Booked (reserved)
+    if (isSeatSelected(row, seat)) return token.colorSuccess; // Green - Selected
+    return token.colorFillSecondary; // Gray - Available
   };
 
   const getSeatCursor = () => {
@@ -61,7 +64,7 @@ const SeatMap: React.FC<SeatMapProps> = ({
   return (
     <div style={{ 
       padding: '24px', 
-      backgroundColor: '#f5f5f5', 
+      backgroundColor: token.colorFillQuaternary, 
       borderRadius: '8px',
       maxWidth: '900px',
       margin: '0 auto'
@@ -73,14 +76,14 @@ const SeatMap: React.FC<SeatMapProps> = ({
         position: 'relative'
       }}>
         <div style={{
-          backgroundColor: '#1890ff',
+          backgroundColor: token.colorPrimary,
           height: '8px',
           borderRadius: '50%',
           marginBottom: '8px',
-          boxShadow: '0 4px 8px rgba(24, 144, 255, 0.3)'
+          boxShadow: `0 4px 8px ${token.colorPrimary}4D`
         }} />
         <div style={{ 
-          color: '#999', 
+          color: token.colorTextDescription, 
           fontSize: '18px', 
           fontWeight: 'bold',
           letterSpacing: '2px'
@@ -88,6 +91,7 @@ const SeatMap: React.FC<SeatMapProps> = ({
           SCREEN
         </div>
       </div>
+
 
       {/* Seats */}
       <div style={{ overflowX: 'auto' }}>

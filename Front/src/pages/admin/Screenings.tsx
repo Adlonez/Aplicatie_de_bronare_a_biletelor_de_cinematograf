@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Select, DatePicker, TimePicker, Space, message, Popconfirm, Tag, Input, InputNumber } from 'antd';
+import { Table, Button, Modal, Form, Select, DatePicker, TimePicker, Space, message, Popconfirm, Tag, Input, InputNumber, theme } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, CalendarOutlined, EyeOutlined } from '@ant-design/icons';
 import screeningsDataJson from '../../_mock/screenings.json';
 import filmsDataJson from '../../_mock/films.json';
@@ -51,7 +51,9 @@ interface Booking {
 }
 
 const Screenings: React.FC = () => {
+  const { token } = theme.useToken();
   const [screenings, setScreenings] = useState<Screening[]>(screeningsDataJson as Screening[]);
+
   const [movies] = useState<Movie[]>(filmsDataJson as Movie[]);
   const [halls] = useState<Hall[]>(hallsDataJson as Hall[]);
   const [bookings, setBookings] = useState<Booking[]>(bookingsDataJson as Booking[]);
@@ -358,11 +360,11 @@ const Screenings: React.FC = () => {
             <InputNumber min={0} step={0.5} style={{ width: '100%' }} />
           </Form.Item>
           {selectedScreening && (
-            <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-              <div><strong>Movie:</strong> {selectedScreening.movieTitle}</div>
-              <div><strong>Hall:</strong> {selectedScreening.hall}</div>
-              <div><strong>Showtime:</strong> {selectedScreening.date} {selectedScreening.time}</div>
-              <div><strong>Seat:</strong> {selectedSeat}</div>
+            <div style={{ marginTop: '16px', padding: '12px', backgroundColor: token.colorFillQuaternary, borderRadius: '4px' }}>
+              <div style={{color: token.colorText}}><strong>Movie:</strong> {selectedScreening.movieTitle}</div>
+              <div style={{color: token.colorText}}><strong>Hall:</strong> {selectedScreening.hall}</div>
+              <div style={{color: token.colorText}}><strong>Showtime:</strong> {selectedScreening.date} {selectedScreening.time}</div>
+              <div style={{color: token.colorText}}><strong>Seat:</strong> {selectedSeat}</div>
             </div>
           )}
         </Form>

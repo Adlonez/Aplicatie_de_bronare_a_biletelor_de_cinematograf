@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Layout, Menu } from 'antd'
+import { Layout, Menu, theme } from 'antd'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   DashboardOutlined,
@@ -16,6 +16,10 @@ const AdminLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  
+  const {
+    token: { colorBgContainer, colorText, colorBgLayout, colorBorderSecondary },
+  } = theme.useToken()
 
   const menuItems = [
     {
@@ -49,16 +53,20 @@ const AdminLayout: React.FC = () => {
     navigate(key)
   }
 
+  // Handle default selection when navigating to /admin or /admin/
+  const selectedKey = location.pathname === '/admin' || location.pathname === '/admin/' ? '/admin/dashboard' : location.pathname
+
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+    <Layout style={{ minHeight: '100vh', background: colorBgLayout }}>
+      <Sider trigger={null} collapsible collapsed={collapsed} theme="light" style={{ background: colorBgContainer, borderRight: `1px solid ${colorBorderSecondary}` }}>
+
         <div
           style={{
             height: 64,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
+            color: colorText,
             fontSize: collapsed ? '14px' : '20px',
             fontWeight: 'bold',
             transition: 'all 0.2s',
@@ -67,19 +75,21 @@ const AdminLayout: React.FC = () => {
           {collapsed ? 'AP' : 'Admin Panel'}
         </div>
         <Menu
-          theme="dark"
+          theme="light"
           mode="inline"
-          selectedKeys={[location.pathname]}
+          selectedKeys={[selectedKey]}
           items={menuItems}
           onClick={handleMenuClick}
+          style={{ background: colorBgContainer, borderRight: 0 }}
         />
+
       </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: '#fff', display: 'flex', alignItems: 'center' }}>
+      <Layout style={{ background: colorBgLayout }}>
+        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', alignItems: 'center' }}>
           {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
             className: 'trigger',
             onClick: () => setCollapsed(!collapsed),
-            style: { fontSize: '18px', padding: '0 24px', cursor: 'pointer' },
+            style: { fontSize: '18px', padding: '0 24px', cursor: 'pointer', color: colorText },
           })}
         </Header>
         <Content
@@ -87,7 +97,9 @@ const AdminLayout: React.FC = () => {
             margin: '24px 16px',
             padding: 24,
             minHeight: 280,
-            background: '#fff',
+            background: colorBgContainer,
+            color: colorText,
+            borderRadius: 8, 
           }}
         >
           <Outlet />

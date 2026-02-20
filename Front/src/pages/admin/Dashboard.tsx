@@ -1,9 +1,12 @@
 import React from 'react';
-import { Card, Row, Col, Statistic, Table } from 'antd';
+import { Card, Row, Col, Statistic, Table, theme, Typography } from 'antd';
 import { UserOutlined, TeamOutlined, DollarOutlined, UnorderedListOutlined, TrophyOutlined } from '@ant-design/icons';
 import adminDataJson from '../../_mock/adminData.json';
 
+const { Title } = Typography;
+
 const Dashboard: React.FC = () => {
+  const { token } = theme.useToken();
   const stats = adminDataJson.statistics;
   const topMovies = adminDataJson.topMovies;
 
@@ -14,7 +17,7 @@ const Dashboard: React.FC = () => {
   ];
 
   const StatCard = ({ title, value, icon, precision, valueStyle, suffix }: any) => (
-    <Card>
+    <Card bordered={false} style={{ height: '100%' }}>
       <Statistic 
         title={title} 
         value={value} 
@@ -28,40 +31,40 @@ const Dashboard: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <h1 style={{ marginBottom: '24px' }}>Dashboard</h1>
+      <Title level={2} style={{ marginBottom: '24px', marginTop: 0 }}>Dashboard</Title>
 
-      <h2 style={{ marginTop: '24px', marginBottom: '16px' }}>
-        <TeamOutlined /> User Statistics
-      </h2>
-      <Row gutter={16}>
-        <Col span={8}><StatCard title="Total Users" value={stats.totalUsers} icon={<UserOutlined />} /></Col>
-        <Col span={8}><StatCard title="Active Users" value={stats.activeUsers} icon={<UserOutlined />} valueStyle={{ color: '#3f8600' }} /></Col>
-        <Col span={8}><StatCard title="Inactive Users" value={stats.inactiveUsers} icon={<UserOutlined />} valueStyle={{ color: '#cf1322' }} /></Col>
+      <Title level={4} style={{ marginTop: '24px', marginBottom: '16px' }}>
+        <TeamOutlined style={{ marginRight: 8 }} /> User Statistics
+      </Title>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={8}><StatCard title="Total Users" value={stats.totalUsers} icon={<UserOutlined />} /></Col>
+        <Col xs={24} sm={8}><StatCard title="Active Users" value={stats.activeUsers} icon={<UserOutlined />} valueStyle={{ color: token.colorSuccess }} /></Col>
+        <Col xs={24} sm={8}><StatCard title="Inactive Users" value={stats.inactiveUsers} icon={<UserOutlined />} valueStyle={{ color: token.colorError }} /></Col>
       </Row>
 
-      <h2 style={{ marginTop: '32px', marginBottom: '16px' }}>
-        <UnorderedListOutlined /> Ticket Sales
-      </h2>
-      <Row gutter={16}>
-        <Col span={8}><StatCard title="Today" value={stats.ticketsSoldToday} suffix="tickets" /></Col>
-        <Col span={8}><StatCard title="This Week" value={stats.ticketsSoldThisWeek} suffix="tickets" /></Col>
-        <Col span={8}><StatCard title="This Month" value={stats.ticketsSoldThisMonth} suffix="tickets" /></Col>
+      <Title level={4} style={{ marginTop: '32px', marginBottom: '16px' }}>
+        <UnorderedListOutlined style={{ marginRight: 8 }} /> Ticket Sales
+      </Title>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={8}><StatCard title="Today" value={stats.ticketsSoldToday} suffix="tickets" /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Week" value={stats.ticketsSoldThisWeek} suffix="tickets" /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Month" value={stats.ticketsSoldThisMonth} suffix="tickets" /></Col>
       </Row>
 
-      <h2 style={{ marginTop: '32px', marginBottom: '16px' }}>
-        <DollarOutlined /> Revenue Analytics
-      </h2>
-      <Row gutter={16}>
-        <Col span={8}><StatCard title="Today" value={stats.revenueToday} precision={2} icon="$" valueStyle={{ color: '#3f8600' }} /></Col>
-        <Col span={8}><StatCard title="This Week" value={stats.revenueThisWeek} precision={2} icon="$" valueStyle={{ color: '#3f8600' }} /></Col>
-        <Col span={8}><StatCard title="This Month" value={stats.revenueThisMonth} precision={2} icon="$" valueStyle={{ color: '#3f8600' }} /></Col>
+      <Title level={4} style={{ marginTop: '32px', marginBottom: '16px' }}>
+        <DollarOutlined style={{ marginRight: 8 }} /> Revenue Analytics
+      </Title>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={8}><StatCard title="Today" value={stats.revenueToday} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Week" value={stats.revenueThisWeek} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Month" value={stats.revenueThisMonth} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} /></Col>
       </Row>
 
-      <h2 style={{ marginTop: '32px', marginBottom: '16px' }}>
-        <TrophyOutlined /> Top Movies by Tickets Sold
-      </h2>
-      <Card>
-        <Table dataSource={topMovies} columns={movieColumns} rowKey="movieId" pagination={false} />
+      <Title level={4} style={{ marginTop: '32px', marginBottom: '16px' }}>
+        <TrophyOutlined style={{ marginRight: 8 }} /> Top Movies by Tickets Sold
+      </Title>
+      <Card bordered={false}>
+        <Table dataSource={topMovies} columns={movieColumns} rowKey="movieId" pagination={false} scroll={{ x: true }} />
       </Card>
     </div>
   );
