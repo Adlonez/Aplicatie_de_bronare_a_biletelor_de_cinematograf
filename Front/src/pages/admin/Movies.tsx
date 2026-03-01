@@ -1,6 +1,6 @@
 import { useState, type FC } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Popconfirm, Tag, Row, Col, Select, DatePicker, Switch, Typography, Tooltip } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, VideoCameraOutlined, ClearOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import moviesDataJson from '../../_mock/films.json';
@@ -16,6 +16,7 @@ const Movies: FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Films | null>(null);
   const [form] = Form.useForm();
+  const [tableKey, setTableKey] = useState(0);
 
   const allGenres = Array.from(new Set(movies.flatMap(m => m.genre ? m.genre.split(', ') : []))).map(g => ({ label: g, value: g }));
 
@@ -120,7 +121,7 @@ const Movies: FC = () => {
     },
     {
       title: 'Actions',
-      render: (_: any, movie: Films) => (
+      render: (_: unknown, movie: Films) => (
         <Space>
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(movie)} disabled={movie.deleted}>
             Edit
@@ -138,13 +139,18 @@ const Movies: FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0 }}><VideoCameraOutlined /> Movie Management</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>Add Movie</Button>
+        <Space>
+          <Button icon={<ClearOutlined />} onClick={() => setTableKey(k => k + 1)}>Reset All Filters</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>Add Movie</Button>
+        </Space>
       </div>
 
-      <Table dataSource={sortDeletedLast(movies)} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} />
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <Table key={tableKey} dataSource={sortDeletedLast(movies)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
+      </div>
 
       <Modal title={editing ? 'Edit Movie' : 'Add Movie'} open={modalOpen} onOk={saveMovie} onCancel={() => setModalOpen(false)} width={800}>
         <Form form={form} layout="vertical">

@@ -1,6 +1,6 @@
 import { useState, type FC } from 'react';
 import { Table, Button, Modal, Form, Select, DatePicker, TimePicker, Space, message, Popconfirm, Tag, Popover, Tooltip, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, CalendarOutlined, EyeOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, CalendarOutlined, EyeOutlined, InfoCircleOutlined, ClearOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import screeningsDataJson from '../../_mock/screenings.json';
@@ -13,7 +13,7 @@ import { dateRangeFilter, timeRangeFilter, sortDeletedLast } from '../../compone
 
 const { Title } = Typography;
 
-const movies = filmsDataJson as { id: number; title: string }[];
+const movies = filmsDataJson as { id: number; title: string; image?: string }[];
 const halls = hallsDataJson as Hall[];
 
 const Screenings: FC = () => {
@@ -24,6 +24,7 @@ const Screenings: FC = () => {
   const [editing, setEditing] = useState<Screening | null>(null);
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
   const [form] = Form.useForm();
+  const [tableKey, setTableKey] = useState(0);
 
   const openModal = (screening?: Screening) => {
     setEditing(screening || null);
@@ -118,6 +119,18 @@ const Screenings: FC = () => {
 
   const columns: ColumnType<Screening>[] = [
     {
+      title: 'Image',
+      key: 'image',
+      width: 100,
+      render: (_: unknown, s: Screening) => {
+        const movie = movies.find(m => m.title === s.movieTitle);
+        if (movie?.image) {
+          return <img src={movie.image} alt={s.movieTitle} style={{ width: 60, height: 80, objectFit: 'cover' }} />;
+        }
+        return <div style={{ width: 60, height: 80, background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No Img</div>;
+      }
+    },
+    {
       title: 'Title',
       dataIndex: 'movieTitle',
       render: (text: string, s: Screening) => (
@@ -155,7 +168,7 @@ const Screenings: FC = () => {
     },
     {
       title: 'Actions',
-      render: (_: any, s: Screening) => (
+      render: (_: unknown, s: Screening) => (
         <Space>
           <Button icon={<EyeOutlined />} size="small" onClick={() => { setSelectedScreening(s); setSeatMapOpen(true); }} disabled={s.deleted}>Seats</Button>
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(s)} disabled={s.deleted}>Edit</Button>
@@ -172,10 +185,11 @@ const Screenings: FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0 }}><CalendarOutlined /> Screening Schedule</Title>
         <Space>
+          <Button icon={<ClearOutlined />} onClick={() => setTableKey(k => k + 1)}>Reset All Filters</Button>
           <Popover
             title="Available Halls"
             content={
@@ -192,7 +206,9 @@ const Screenings: FC = () => {
         </Space>
       </div>
 
-      <Table dataSource={sortDeletedLast(screenings)} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} />
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <Table key={tableKey} dataSource={sortDeletedLast(screenings)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
+      </div>
 
       {/* Screening Form Modal */}
       <Modal title={editing ? 'Edit Screening' : 'Add Screening'} open={modalOpen} onOk={saveScreening} onCancel={() => setModalOpen(false)} width={500}>

@@ -54,5 +54,24 @@
     "hall": "Hall 5",
     "date": "2026-02-16",
     "time": "21:00"
-  }
+  },
+  { "id": 8, "movieId": 4, "movieTitle": "Michael", "hall": "Hall 2", "date": "2026-02-17", "time": "17:00" },
+  { "id": 9, "movieId": 5, "movieTitle": "Moana 2", "hall": "Hall 3", "date": "2026-02-17", "time": "15:30" },
+  { "id": 10, "movieId": 6, "movieTitle": "Wicked", "hall": "Hall 1", "date": "2026-02-18", "time": "18:45" },
+  { "id": 11, "movieId": 7, "movieTitle": "Gladiator II", "hall": "Hall 4", "date": "2026-02-18", "time": "20:00" },
+  { "id": 12, "movieId": 8, "movieTitle": "Inside Out 2", "hall": "Hall 5", "date": "2026-02-19", "time": "14:15" },
+  { "id": 13, "movieId": 9, "movieTitle": "Deadpool & Wolverine", "hall": "Hall 2", "date": "2026-02-19", "time": "19:30" },
+  { "id": 14, "movieId": 10, "movieTitle": "The Wild Robot", "hall": "Hall 3", "date": "2026-02-20", "time": "16:00" },
+  { "id": 15, "movieId": 11, "movieTitle": "Alien: Romulus", "hall": "Hall 1", "date": "2026-02-20", "time": "21:00" },
+  { "id": 16, "movieId": 12, "movieTitle": "Twisters", "hall": "Hall 4", "date": "2026-02-21", "time": "17:45" },
+  { "id": 17, "movieId": 13, "movieTitle": "Crime Highway", "hall": "Hall 5", "date": "2026-02-21", "time": "20:30" },
+  { "id": 18, "movieId": 14, "movieTitle": "Couture", "hall": "Hall 2", "date": "2026-02-22", "time": "15:00" },
+  { "id": 19, "movieId": 1, "movieTitle": "Zootopia 2", "hall": "Hall 3", "date": "2026-02-22", "time": "18:00" },
+  { "id": 20, "movieId": 2, "movieTitle": "The Devil Wears Prada 2", "hall": "Hall 1", "date": "2026-02-23", "time": "20:15" },
+  { "id": 21, "movieId": 3, "movieTitle": "Scream 7", "hall": "Hall 4", "date": "2026-02-23", "time": "16:30" },
+  { "id": 22, "movieId": 4, "movieTitle": "Michael", "hall": "Hall 5", "date": "2026-02-24", "time": "19:00" },
+  { "id": 23, "movieId": 5, "movieTitle": "Moana 2", "hall": "Hall 2", "date": "2026-02-24", "time": "14:00" },
+  { "id": 24, "movieId": 6, "movieTitle": "Wicked", "hall": "Hall 3", "date": "2026-02-25", "time": "17:30" },
+  { "id": 25, "movieId": 7, "movieTitle": "Gladiator II", "hall": "Hall 1", "date": "2026-02-25", "time": "21:00" },
+  { "id": 26, "movieId": 8, "movieTitle": "Inside Out 2", "hall": "Hall 4", "date": "2026-02-26", "time": "15:45" }
 ]

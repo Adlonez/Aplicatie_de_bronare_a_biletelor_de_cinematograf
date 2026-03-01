@@ -5,11 +5,16 @@ import { MailOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
 const { Title, Text } = Typography;
 const { useToken } = theme;
 
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
 const Login = () => {
   const { token } = useToken();
   const navigate = useNavigate();
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: LoginFormValues) => {
     console.log('Login:', values);
     // Add login logic here
   };
