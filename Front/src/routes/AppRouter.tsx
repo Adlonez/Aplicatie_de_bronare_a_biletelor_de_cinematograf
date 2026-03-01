@@ -16,7 +16,7 @@ import Movies from '../pages/admin/Movies'
 import Users from '../pages/admin/Users'
 import Bookings from '../pages/admin/Bookings'
 import Screenings from '../pages/admin/Screenings'
-import NotFound from '../pages/NotFound'
+import NotFound from '../pages/errors/NotFound'
 
 import { paths } from "./paths"
 
@@ -29,27 +29,29 @@ const AppRouter = ({ isDark, setIsDark }: AppRouterProps) => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainLayout setIsDark={setIsDark} isDark={isDark}/>}>
+
+        <Route path={paths.home} element={<MainLayout setIsDark={setIsDark} isDark={isDark} />}>
           <Route index element={<Home />} />
-          <Route path="news" element={<News />} />
-          <Route path="films" element={<Films />} />
-          <Route path="films/:id" element={<MovieDetail />} />
-          <Route path="films/:id/book" element={<BookTicket />} />
+          <Route path={paths.news} element={<News />} />
+          <Route path={paths.films} element={<Films />} />
+          <Route path={paths.filmDetail} element={<MovieDetail />} />
+          <Route path={paths.bookTicket} element={<BookTicket />} />
         </Route>
 
-         <Route path={paths.login} element={<Login />} />
-        <Route path="/auth/register" element={<Register />} /> 
-       
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} /> 
-          <Route path="movies" element={<Movies />} />
-          <Route path="screenings" element={<Screenings />} />
-          <Route path="users" element={<Users />} />
-          <Route path="bookings" element={<Bookings />} />
+        <Route path={paths.auth.login} element={<Login />} />
+        <Route path={paths.auth.register} element={<Register />} />
+
+        <Route path={paths.admin.root} element={<AdminLayout />}>
+          <Route index element={<Navigate to={paths.admin.dashboard} replace />} />
+          <Route path={paths.admin.dashboard} element={<Dashboard />} />
+          <Route path={paths.admin.movies} element={<Movies />} />
+          <Route path={paths.admin.screenings} element={<Screenings />} />
+          <Route path={paths.admin.users} element={<Users />} />
+          <Route path={paths.admin.bookings} element={<Bookings />} />
         </Route>
 
-          <Route path="*" element={<NotFound />} />
+        <Route path={paths.notFound} element={<NotFound />} />
+
       </Routes>
     </BrowserRouter>
   )

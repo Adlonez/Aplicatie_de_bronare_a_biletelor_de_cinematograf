@@ -174,7 +174,7 @@ const CinemaNews = ({items=[]}:any) => {
           </Button>
         </div>
         <Row gutter={[20, 0]} style={{ height: "100%" }}>
-          {items.map((item:any) => (
+          {items.map((item:NewsItem) => (
             <Col key={item.id} xs={24} sm={8} md={8} style={{ height: "100%" }}>
               <div
                 style={{
