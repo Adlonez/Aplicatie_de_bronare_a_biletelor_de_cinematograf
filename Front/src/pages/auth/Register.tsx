@@ -5,11 +5,18 @@ import { UserOutlined, MailOutlined, LockOutlined, UserAddOutlined } from '@ant-
 const { Title, Text } = Typography;
 const { useToken } = theme;
 
+interface RegisterFormValues {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const Register = () => {
   const { token } = useToken();
   const navigate = useNavigate();
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: RegisterFormValues) => {
     console.log('Register:', values);
     // Add registration logic here
   };

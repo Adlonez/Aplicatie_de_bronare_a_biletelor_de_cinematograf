@@ -2,6 +2,8 @@ import { Button, DatePicker, Input, Slider, Space, TimePicker } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
+import type { Key } from 'react';
 import isBetween from 'dayjs/plugin/isBetween';
 
 dayjs.extend(isBetween);
@@ -21,15 +23,15 @@ export function dateRangeFilter<T>(getDate: (record: T) => string) {
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <DatePicker.RangePicker
           popupClassName="single-month-range-picker"
-          value={selectedKeys[0] as any}
-          onChange={(dates) => setSelectedKeys(dates ? [dates as any] : [])}
+          value={selectedKeys[0] as unknown as [Dayjs, Dayjs] | null}
+          onChange={(dates) => setSelectedKeys(dates ? [dates as unknown as Key] : [])}
           style={{ marginBottom: 8, display: 'flex' }}
         />
         <FilterButtons confirm={confirm} clearFilters={clearFilters} />
       </div>
     ),
-    onFilter: (value: any, record: T) => {
-      const [start, end] = value as any;
+    onFilter: (value: boolean | Key, record: T) => {
+      const [start, end] = value as unknown as [Dayjs, Dayjs];
       if (!start || !end) return true;
       return dayjs(getDate(record)).isBetween(start, end, 'day', '[]');
     },
@@ -44,15 +46,15 @@ export function timeRangeFilter<T>(getTime: (record: T) => string) {
         <TimePicker.RangePicker
           format="HH:mm"
           minuteStep={5}
-          value={selectedKeys[0] as any}
-          onChange={(times) => setSelectedKeys(times ? [times as any] : [])}
+          value={selectedKeys[0] as unknown as [Dayjs, Dayjs] | null}
+          onChange={(times) => setSelectedKeys(times ? [times as unknown as Key] : [])}
           style={{ marginBottom: 8, display: 'flex' }}
         />
         <FilterButtons confirm={confirm} clearFilters={clearFilters} />
       </div>
     ),
-    onFilter: (value: any, record: T) => {
-      const [start, end] = value as any;
+    onFilter: (value: boolean | Key, record: T) => {
+      const [start, end] = value as unknown as [Dayjs, Dayjs];
       if (!start || !end) return true;
       return dayjs(getTime(record), 'HH:mm').isBetween(start, end, 'minute', '[]');
     },
@@ -69,13 +71,13 @@ export function sliderRangeFilter<T>(getVal: (record: T) => number, min: number,
           min={min}
           max={max}
           value={(selectedKeys[0] as unknown as [number, number]) || [min, max]}
-          onChange={(val) => setSelectedKeys([val as any])}
+          onChange={(val) => setSelectedKeys([val as unknown as Key])}
         />
         <FilterButtons confirm={confirm} clearFilters={clearFilters} />
       </div>
     ),
-    onFilter: (value: any, record: T) => {
-      const [lo, hi] = value as [number, number];
+    onFilter: (value: boolean | Key, record: T) => {
+      const [lo, hi] = value as unknown as [number, number];
       const v = getVal(record);
       return v >= lo && v <= hi;
     },
@@ -98,7 +100,7 @@ export function textSearchFilter<T>(getText: (record: T) => string) {
       </div>
     ),
     filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
-    onFilter: (value: any, record: T) => getText(record).toLowerCase().includes((value as string).toLowerCase()),
+    onFilter: (value: boolean | Key, record: T) => getText(record).toLowerCase().includes((value as string).toLowerCase()),
   };
 }
 

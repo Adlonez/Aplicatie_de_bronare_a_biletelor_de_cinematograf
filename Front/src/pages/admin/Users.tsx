@@ -69,7 +69,7 @@ const Users: FC = () => {
     },
     {
       title: 'Actions',
-      render: (_: any, u: User) => (
+      render: (_: unknown, u: User) => (
         <Space>
           <Button
             type={u.status === 'active' ? 'default' : 'primary'}

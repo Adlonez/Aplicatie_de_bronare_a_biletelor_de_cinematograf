@@ -155,7 +155,7 @@ const Screenings: FC = () => {
     },
     {
       title: 'Actions',
-      render: (_: any, s: Screening) => (
+      render: (_: unknown, s: Screening) => (
         <Space>
           <Button icon={<EyeOutlined />} size="small" onClick={() => { setSelectedScreening(s); setSeatMapOpen(true); }} disabled={s.deleted}>Seats</Button>
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(s)} disabled={s.deleted}>Edit</Button>

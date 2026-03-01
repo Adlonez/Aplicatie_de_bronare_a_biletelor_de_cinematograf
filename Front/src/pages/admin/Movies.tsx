@@ -120,7 +120,7 @@ const Movies: FC = () => {
     },
     {
       title: 'Actions',
-      render: (_: any, movie: Films) => (
+      render: (_: unknown, movie: Films) => (
         <Space>
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(movie)} disabled={movie.deleted}>
             Edit

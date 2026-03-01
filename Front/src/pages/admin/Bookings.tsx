@@ -111,7 +111,7 @@ const Bookings: FC = () => {
     },
     {
       title: 'Actions',
-      render: (_: any, b: Booking) => (
+      render: (_: unknown, b: Booking) => (
         <Space>
           {b.deleted ? (
             <Button type="primary" onClick={() => restoreBooking(b.id)} size="small">Restore</Button>
