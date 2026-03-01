@@ -39,7 +39,6 @@ const SeatMap: React.FC<SeatMapProps> = ({
 
   const handleSeatClick = (row: string, seat: number) => {
     const seatId = `${row}${seat}`;
-    // Allow clicking on any seat in admin mode
     if (onSeatClick) {
       onSeatClick(seatId);
     }
