@@ -172,7 +172,7 @@ const Screenings: FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0 }}><CalendarOutlined /> Screening Schedule</Title>
         <Space>
@@ -192,7 +192,9 @@ const Screenings: FC = () => {
         </Space>
       </div>
 
-      <Table dataSource={sortDeletedLast(screenings)} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} />
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <Table dataSource={sortDeletedLast(screenings)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
+      </div>
 
       {/* Screening Form Modal */}
       <Modal title={editing ? 'Edit Screening' : 'Add Screening'} open={modalOpen} onOk={saveScreening} onCancel={() => setModalOpen(false)} width={500}>

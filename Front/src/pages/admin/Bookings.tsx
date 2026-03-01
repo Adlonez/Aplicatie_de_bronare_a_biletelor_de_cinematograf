@@ -126,7 +126,7 @@ const Bookings: FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0 }}><BookOutlined /> Booking & Ticket Management</Title>
         <Popover
@@ -142,7 +142,9 @@ const Bookings: FC = () => {
         </Popover>
       </div>
 
-      <Table dataSource={sortDeletedLast(bookings)} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} scroll={{ x: 1200 }} />
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <Table dataSource={sortDeletedLast(bookings)} columns={columns} rowKey="id" pagination={false} scroll={{ x: 1200, y: 'calc(100vh - 310px)' }} />
+      </div>
     </div>
   );
 };

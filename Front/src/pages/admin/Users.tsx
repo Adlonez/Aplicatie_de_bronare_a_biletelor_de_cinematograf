@@ -54,33 +54,38 @@ const Users: FC = () => {
       ...textSearchFilter<User>((r) => r.phone),
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      sorter: (a, b) => a.status.localeCompare(b.status),
-      render: (status: string) => <Tag color={status === 'active' ? 'green' : 'red'}>{status.toUpperCase()}</Tag>,
-      filters: [{ text: 'Active', value: 'active' }, { text: 'Inactive', value: 'inactive' }],
-      onFilter: (value, record) => record.status === value,
-    },
-    {
       title: 'Registration Date',
       dataIndex: 'registrationDate',
       sorter: (a, b) => new Date(a.registrationDate).getTime() - new Date(b.registrationDate).getTime(),
       ...dateRangeFilter<User>((r) => r.registrationDate),
     },
     {
+      title: 'Status',
+      dataIndex: 'status',
+      sorter: (a, b) => a.status.localeCompare(b.status),
+      render: (status: string, u: User) => (
+        <Button
+          type="primary"
+          icon={status === 'active' ? <CheckCircleOutlined /> : <StopOutlined />}
+          size="small"
+          onClick={() => toggleStatus(u.id)}
+          disabled={u.deleted}
+          style={{
+            backgroundColor: status === 'active' ? '#52c41a' : '#ff4d4f',
+            borderColor: status === 'active' ? '#52c41a' : '#ff4d4f',
+            width: 110,
+          }}
+        >
+          {status === 'active' ? 'Active' : 'Inactive'}
+        </Button>
+      ),
+      filters: [{ text: 'Active', value: 'active' }, { text: 'Inactive', value: 'inactive' }],
+      onFilter: (value, record) => record.status === value,
+    },
+    {
       title: 'Actions',
       render: (_: unknown, u: User) => (
         <Space>
-          <Button
-            type={u.status === 'active' ? 'default' : 'primary'}
-            icon={u.status === 'active' ? <StopOutlined /> : <CheckCircleOutlined />}
-            size="small"
-            onClick={() => toggleStatus(u.id)}
-            disabled={u.deleted}
-            style={{ width: 110 }}
-          >
-            {u.status === 'active' ? 'Deactivate' : 'Activate'}
-          </Button>
           {u.deleted ? (
             <Button type="primary" onClick={() => restoreUser(u.id)} size="small" style={{ width: 90 }}>Restore</Button>
           ) : (
@@ -94,9 +99,11 @@ const Users: FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Title level={2} style={{ marginBottom: '16px', marginTop: 0 }}><UserOutlined /> User Management</Title>
-      <Table dataSource={sortDeletedLast(users)} columns={columns} rowKey="id" pagination={{ pageSize: 10 }} />
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <Table dataSource={sortDeletedLast(users)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
+      </div>
     </div>
   );
 };

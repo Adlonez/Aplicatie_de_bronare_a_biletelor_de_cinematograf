@@ -124,7 +124,8 @@ const AdminLayout: React.FC = () => {
           style={{
             margin: '88px 16px 24px',
             padding: 24,
-            minHeight: 280,
+            height: 'calc(100vh - 112px)',
+            overflow: 'hidden',
             background: colorBgContainer,
             color: colorText,
             borderRadius: 8, 
