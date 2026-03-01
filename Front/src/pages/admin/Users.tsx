@@ -1,6 +1,6 @@
 import { useState, type FC } from 'react';
 import { Table, Button, Tag, message, Space, Popconfirm, Typography } from 'antd';
-import { CheckCircleOutlined, StopOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, StopOutlined, DeleteOutlined, UserOutlined, ClearOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table';
 import usersDataJson from '../../_mock/users.json';
 import type { User } from '../../types/ui';
@@ -10,6 +10,7 @@ const { Title } = Typography;
 
 const Users: FC = () => {
   const [users, setUsers] = useState<User[]>(usersDataJson as User[]);
+  const [tableKey, setTableKey] = useState(0);
 
   const toggleStatus = (id: number) => {
     setUsers(prev => prev.map((u) =>
@@ -100,9 +101,12 @@ const Users: FC = () => {
 
   return (
     <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Title level={2} style={{ marginBottom: '16px', marginTop: 0 }}><UserOutlined /> User Management</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <Title level={2} style={{ margin: 0 }}><UserOutlined /> User Management</Title>
+        <Button icon={<ClearOutlined />} onClick={() => setTableKey(k => k + 1)}>Reset All Filters</Button>
+      </div>
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <Table dataSource={sortDeletedLast(users)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
+        <Table key={tableKey} dataSource={sortDeletedLast(users)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
       </div>
     </div>
   );

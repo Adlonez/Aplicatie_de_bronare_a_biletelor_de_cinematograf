@@ -1,4 +1,4 @@
-import { Button, DatePicker, Input, Slider, Space, TimePicker } from 'antd';
+import { Button, DatePicker, Input, Slider, Space, TimePicker, Divider } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
@@ -9,10 +9,10 @@ import isBetween from 'dayjs/plugin/isBetween';
 dayjs.extend(isBetween);
 
 // Reusable filter/reset button row
-const FilterButtons = ({ confirm, clearFilters }: { confirm: () => void; clearFilters?: () => void }) => (
+const FilterButtons = ({ confirm, clearFilters, hasFilter }: { confirm: () => void; clearFilters?: () => void; hasFilter?: boolean }) => (
   <Space style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-    <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>Filter</Button>
-    <Button onClick={() => { clearFilters?.(); confirm(); }} size="small" style={{ width: 90 }}>Reset</Button>
+    <Button onClick={() => { clearFilters?.(); confirm(); }} size="small" style={{ width: 90 }} disabled={!hasFilter}>Reset</Button>
+    <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>OK</Button>
   </Space>
 );
 
@@ -27,7 +27,7 @@ export function dateRangeFilter<T>(getDate: (record: T) => string) {
           onChange={(dates) => setSelectedKeys(dates ? [dates as unknown as Key] : [])}
           style={{ marginBottom: 8, display: 'flex' }}
         />
-        <FilterButtons confirm={confirm} clearFilters={clearFilters} />
+        <FilterButtons confirm={confirm} clearFilters={clearFilters} hasFilter={selectedKeys.length > 0} />
       </div>
     ),
     onFilter: (value: boolean | Key, record: T) => {
@@ -50,7 +50,7 @@ export function timeRangeFilter<T>(getTime: (record: T) => string) {
           onChange={(times) => setSelectedKeys(times ? [times as unknown as Key] : [])}
           style={{ marginBottom: 8, display: 'flex' }}
         />
-        <FilterButtons confirm={confirm} clearFilters={clearFilters} />
+        <FilterButtons confirm={confirm} clearFilters={clearFilters} hasFilter={selectedKeys.length > 0} />
       </div>
     ),
     onFilter: (value: boolean | Key, record: T) => {
@@ -73,7 +73,7 @@ export function sliderRangeFilter<T>(getVal: (record: T) => number, min: number,
           value={(selectedKeys[0] as unknown as [number, number]) || [min, max]}
           onChange={(val) => setSelectedKeys([val as unknown as Key])}
         />
-        <FilterButtons confirm={confirm} clearFilters={clearFilters} />
+        <FilterButtons confirm={confirm} clearFilters={clearFilters} hasFilter={selectedKeys.length > 0} />
       </div>
     ),
     onFilter: (value: boolean | Key, record: T) => {
@@ -96,11 +96,76 @@ export function textSearchFilter<T>(getText: (record: T) => string) {
           style={{ width: 188, marginBottom: 8, display: 'block' }}
           placeholder="Search..."
         />
-        <FilterButtons confirm={confirm} clearFilters={clearFilters} />
+        <FilterButtons confirm={confirm} clearFilters={clearFilters} hasFilter={selectedKeys.length > 0} />
       </div>
     ),
     filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
     onFilter: (value: boolean | Key, record: T) => getText(record).toLowerCase().includes((value as string).toLowerCase()),
+  };
+}
+
+/** Seats search + quantity column filter. */
+export function seatsFilter<T>(getSeats: (record: T) => string[]) {
+  return {
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => {
+      const state = (selectedKeys[0] as { search?: string; range?: [number, number] }) || {};
+      
+      const updateState = (updates: Partial<typeof state>) => {
+        const newState = { ...state, ...updates };
+        if (!newState.search && (!newState.range || (newState.range[0] === 1 && newState.range[1] === 10))) {
+          setSelectedKeys([]);
+        } else {
+          setSelectedKeys([newState as unknown as Key]);
+        }
+      };
+
+      return (
+        <div style={{ padding: 12, width: 250 }} onKeyDown={(e) => e.stopPropagation()}>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 4, fontWeight: 500 }}>Search Exact Seat</div>
+            <Input
+              value={state.search || ''}
+              onChange={(e) => updateState({ search: e.target.value })}
+              onPressEnter={() => confirm()}
+              placeholder="e.g., A2 or D7"
+            />
+          </div>
+          
+          <Divider style={{ margin: '12px 0' }} />
+          
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ marginBottom: 4, fontWeight: 500 }}>Filter by Quantity</div>
+            <Slider
+              range
+              min={1}
+              max={10}
+              value={state.range || [1, 10]}
+              onChange={(val) => updateState({ range: val as [number, number] })}
+            />
+          </div>
+
+          <FilterButtons confirm={confirm} clearFilters={clearFilters} hasFilter={selectedKeys.length > 0} />
+        </div>
+      );
+    },
+    filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
+    onFilter: (value: boolean | Key, record: T) => {
+      const { search, range } = value as { search?: string; range?: [number, number] };
+      const seats = getSeats(record);
+      
+      if (search && !seats.some((s) => s.toLowerCase().includes(search.toLowerCase()))) {
+        return false;
+      }
+      
+      if (range) {
+        const [min, max] = range;
+        if (seats.length < min || seats.length > max) {
+          return false;
+        }
+      }
+      
+      return true;
+    },
   };
 }
 

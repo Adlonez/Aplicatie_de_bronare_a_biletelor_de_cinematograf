@@ -1,12 +1,12 @@
 import { useState, type FC } from 'react';
 import { Table, Button, Tag, message, Space, Popover, Tooltip, Popconfirm, Typography } from 'antd';
-import { DeleteOutlined, InfoCircleOutlined, BookOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InfoCircleOutlined, BookOutlined, ClearOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table';
 import bookingsDataJson from '../../_mock/bookings.json';
 import filmsDataJson from '../../_mock/films.json';
 import hallsDataJson from '../../_mock/halls.json';
 import type { Booking } from '../../types/ui';
-import { dateRangeFilter, timeRangeFilter, sliderRangeFilter, textSearchFilter, sortDeletedLast } from '../../components/admin/shared/tableFilters';
+import { dateRangeFilter, timeRangeFilter, sliderRangeFilter, textSearchFilter, seatsFilter, sortDeletedLast } from '../../components/admin/shared/tableFilters';
 
 const { Title } = Typography;
 
@@ -14,6 +14,7 @@ const statusColor = (status: string) => (status === 'bought' ? 'red' : 'orange')
 
 const Bookings: FC = () => {
   const [bookings, setBookings] = useState<Booking[]>(bookingsDataJson as Booking[]);
+  const [tableKey, setTableKey] = useState(0);
 
   const cancelBooking = (id: number) => {
     setBookings(prev => prev.map((b) => (b.id === id ? { ...b, deleted: true } : b)));
@@ -79,7 +80,7 @@ const Bookings: FC = () => {
       title: 'Seats',
       dataIndex: 'seats',
       render: (seats: string[]) => seats.join(', '),
-      ...textSearchFilter<Booking>((r) => r.seats.join(', ')),
+      ...seatsFilter<Booking>((r) => r.seats),
     },
     {
       title: 'Status',
@@ -129,7 +130,9 @@ const Bookings: FC = () => {
     <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0 }}><BookOutlined /> Booking & Ticket Management</Title>
-        <Popover
+        <Space>
+          <Button icon={<ClearOutlined />} onClick={() => setTableKey(k => k + 1)}>Reset All Filters</Button>
+          <Popover
           title="Status Legend"
           content={
             <Space direction="vertical">
@@ -140,10 +143,11 @@ const Bookings: FC = () => {
         >
           <Button icon={<InfoCircleOutlined />}>Status Info</Button>
         </Popover>
+        </Space>
       </div>
 
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <Table dataSource={sortDeletedLast(bookings)} columns={columns} rowKey="id" pagination={false} scroll={{ x: 1200, y: 'calc(100vh - 310px)' }} />
+        <Table key={tableKey} dataSource={sortDeletedLast(bookings)} columns={columns} rowKey="id" pagination={false} scroll={{ x: 1200, y: 'calc(100vh - 310px)' }} />
       </div>
     </div>
   );
