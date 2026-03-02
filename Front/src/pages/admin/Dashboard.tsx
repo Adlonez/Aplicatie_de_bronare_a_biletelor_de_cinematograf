@@ -22,7 +22,7 @@ const Dashboard: FC = () => {
   const { statistics: stats, topMovies } = adminDataJson;
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ height: '100%', overflowY: 'auto', paddingRight: '12px' }}>
       <Title level={2} style={{ marginBottom: '24px', marginTop: 0 }}><DashboardOutlined /> Dashboard</Title>
 
       <Title level={4} style={{ marginTop: '24px', marginBottom: '16px' }}>
