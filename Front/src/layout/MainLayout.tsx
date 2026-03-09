@@ -32,8 +32,11 @@ const menuItems = [
     label: <Link to="/news">News</Link>,
   },
 ]
-
-const MainLayout = (props: any) => {
+interface IMainLayotProps{
+  isDark:boolean;
+  setIsDark:(value: boolean) => void;
+}
+const MainLayout = (props: IMainLayotProps) => {
   const { setIsDark, isDark } = props
   const [activeTab, setActiveTab] = useState<string>('home')
   const [open, setOpen] = useState<boolean>(false)
@@ -107,7 +110,6 @@ const MainLayout = (props: any) => {
                 </Button>
 
                 <Button
-                  danger
                   icon={<LogoutOutlined />}
                   onClick={handleLogout}
                   className='ml-2'

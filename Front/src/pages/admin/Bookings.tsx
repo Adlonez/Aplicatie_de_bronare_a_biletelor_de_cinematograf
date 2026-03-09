@@ -127,6 +127,7 @@ const Bookings: FC = () => {
   ];
 
   return (
+
     <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0 }}><BookOutlined /> Booking & Ticket Management</Title>
