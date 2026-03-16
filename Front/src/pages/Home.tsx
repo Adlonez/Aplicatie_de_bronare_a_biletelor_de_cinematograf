@@ -4,12 +4,12 @@ import CinemaCarousel from "../components/dataDisplay/MiniCarousel";
 import filmsData from "../_mock/films.json";
 import newsData from "../_mock/news.json";
 import CinemaNews from "../components/dataDisplay/CinemaNews";
-import type { Films } from "../types/ui";
+import type { Films, NewsItem } from "../types/ui";
 import { Divider, Space } from "antd";
 
 const Home: React.FC = () => {
   const films = filmsData as Films[];
-  const news = newsData.slice(0,3) as any[]; 
+  const news = newsData.slice(0,3) as NewsItem[]; 
 
   const inProgressItems = useMemo(
     () => films.filter((film) => film.status === "progress"),

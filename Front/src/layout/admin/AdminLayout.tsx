@@ -92,6 +92,7 @@ const AdminLayout: React.FC = () => {
           {collapsed ? 'AP' : 'Admin Panel'}
         </div>
         <Menu
+
           theme="light"
           mode="inline"
           selectedKeys={[selectedKey]}
@@ -101,6 +102,7 @@ const AdminLayout: React.FC = () => {
         />
 
       </Sider>
+
       <Layout style={{ background: colorBgLayout, marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s' }}>
         <Header style={{ 
           padding: 0, 
@@ -124,6 +126,7 @@ const AdminLayout: React.FC = () => {
           style={{
             margin: '88px 16px 24px',
             padding: 24,
+
             height: 'calc(100vh - 112px)',
             overflow: 'hidden',
             background: colorBgContainer,

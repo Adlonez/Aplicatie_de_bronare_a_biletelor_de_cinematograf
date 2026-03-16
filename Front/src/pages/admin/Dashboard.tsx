@@ -25,6 +25,7 @@ const Dashboard: FC = () => {
     <div style={{ height: '100%', overflowY: 'auto', paddingRight: '12px' }}>
       <Title level={2} style={{ marginBottom: '24px', marginTop: 0 }}><DashboardOutlined /> Dashboard</Title>
 
+
       <Title level={4} style={{ marginTop: '24px', marginBottom: '16px' }}>
         <TeamOutlined style={{ marginRight: 8 }} /> User Statistics
       </Title>
@@ -42,6 +43,7 @@ const Dashboard: FC = () => {
         <Col xs={24} sm={8}><StatCard title="This Week" value={stats.ticketsSoldThisWeek} suffix="tickets" /></Col>
         <Col xs={24} sm={8}><StatCard title="This Month" value={stats.ticketsSoldThisMonth} suffix="tickets" /></Col>
       </Row>
+
 
       <Title level={4} style={{ marginTop: '32px', marginBottom: '16px' }}>
         <DollarOutlined style={{ marginRight: 8 }} /> Revenue Analytics

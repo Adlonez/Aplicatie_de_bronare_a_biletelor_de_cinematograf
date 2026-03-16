@@ -12,6 +12,7 @@ interface SeatMapProps {
 const SeatMap: FC<SeatMapProps> = ({ hall, bookedSeats = [], boughtSeats = [], onSeatClick }) => {
   const { token } = theme.useToken();
 
+
   const getSeatId = (row: string, seat: number) => `${row}${seat}`;
   const isBooked = (row: string, seat: number) => bookedSeats.includes(getSeatId(row, seat));
   const isBought = (row: string, seat: number) => boughtSeats.includes(getSeatId(row, seat));

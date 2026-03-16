@@ -9,7 +9,6 @@ export interface Films {
   languages: string[];
   status: "progress" | "soon";
   toptier: boolean;
-  // Admin panel fields
   duration?: number;
   genre?: string;
   releaseDate?: string;

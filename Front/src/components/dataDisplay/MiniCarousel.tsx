@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Typography, Tag, Space, type CarouselProps } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import type { Films } from "../../types/ui";
 
 
 const { Text, Title } = Typography;
@@ -119,7 +120,7 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
 
 type CinemaCarouselProps={
     title:string;
-    items:any;
+    items:Films[];
 
 }
 
@@ -191,7 +192,7 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
                 transition: "transform 0.42s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
             >
-              {items.map((film:any) => (
+              {items.map((film:Films) => (
                 <div
                   key={film.id}
                   style={{
