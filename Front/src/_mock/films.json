@@ -9,7 +9,7 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQD3fFfTd0q45fDy7vTtgbTCTNdDE-fo7oA9w&s",
+    "image": "https://lumiere-a.akamaihd.net/v1/images/zoo2_payoff_1sht_awat50pc_1_bb673603.jpeg?region=0,0,2026,3000",
     "duration": 109,
     "genre": "Animation, Adventure, Comedy",
     "releaseDate": "2025-11-26",
@@ -47,8 +47,7 @@
     "languages": ["RO", "RU"],
     "status": "soon",
     "toptier": true,
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHQBbJ4cWPaHCFdih7zxlY4ZvrFEEjuccQqQ&s",
-    "duration": 118,
+    "image": "https://cineplex.md/posters/Scream%207%20RO2.jpg",
     "genre": "Horror, Thriller",
     "releaseDate": "2026-02-27",
     "screeningPeriod": {
@@ -66,8 +65,7 @@
     "languages": ["RO", "RU"],
     "status": "progress",
     "toptier": true,
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc9mQB86-J6K6oyiZ2W8MyCDSpl4IicDYKnA&s",
-    "duration": 140,
+    "image": "https://upload.wikimedia.org/wikipedia/en/thumb/3/37/Michael_%282026_film_poster%29.png/250px-Michael_%282026_film_poster%29.png",
     "genre": "Biography, Drama, Music",
     "releaseDate": "2025-10-03",
     "screeningPeriod": {
@@ -211,7 +209,7 @@
   {
     "id": 12,
     "title": "Twisters",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA1ybX5uL1bOIwscjQsycDwjM4FcBSkHnfwA&s",
+    "image": "https://m.media-amazon.com/images/M/MV5BNjM4MWEwMTEtNTcwYi00ZDI4LWEwMzUtNDMzODBhZmI5MWE1XkEyXkFqcGc@._V1_.jpg",
     "description": "Storm chasers risk everything to study unprecedented tornado outbreaks across the Midwest.",
     "href": "/twisters",
     "format": "3D",

@@ -31,6 +31,7 @@ const App: React.FC = () => {
           headerBg: isDark ? '#1e1b4b' : '#ffffff',
           siderBg: isDark ? '#1e1b4b' : '#ffffff',
           bodyBg: isDark ? '#0f172a' : '#f5f3ff',
+          footerBg: isDark ? '#1e1b4b' : '#ffffff',
         },
         Menu: {
           darkItemBg: isDark ? '#1e1b4b' : '#ffffff',

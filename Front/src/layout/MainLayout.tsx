@@ -2,14 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { Button, Layout, Menu, Typography, Drawer } from 'antd'
 import {
+  EnvironmentOutlined,
+  FacebookOutlined,
   FileTextOutlined,
   HomeOutlined,
+  InstagramOutlined,
   LogoutOutlined,
+  MailOutlined,
   MenuOutlined,
   MoonOutlined,
+  PhoneOutlined,
   SunOutlined,
   UserOutlined,
   VideoCameraOutlined,
+  YoutubeOutlined,
 } from '@ant-design/icons'
 
 const { Header, Footer, Content } = Layout
@@ -32,10 +38,12 @@ const menuItems = [
     label: <Link to="/news">News</Link>,
   },
 ]
-interface IMainLayotProps{
-  isDark:boolean;
-  setIsDark:(value: boolean) => void;
+
+interface IMainLayotProps {
+  isDark: boolean;
+  setIsDark: (value: boolean) => void;
 }
+
 const MainLayout = (props: IMainLayotProps) => {
   const { setIsDark, isDark } = props
   const [activeTab, setActiveTab] = useState<string>('home')
@@ -95,16 +103,17 @@ const MainLayout = (props: IMainLayotProps) => {
             CinemaUTM
           </Title>
           <div>
-            <Button 
-              icon={isDark ? <SunOutlined /> : <MoonOutlined />} 
-              type="primary" onClick={() => setIsDark(!isDark)}
+            <Button
+              icon={isDark ? <SunOutlined /> : <MoonOutlined />}
+              type="primary"
+              onClick={() => setIsDark(!isDark)}
             />
             {isLoggedIn ? (
               <>
                 <Button
                   icon={<UserOutlined />}
                   onClick={() => navigate('/profile')}
-                  className='ml-2'
+                  className="ml-2"
                 >
                   Profile
                 </Button>
@@ -112,7 +121,7 @@ const MainLayout = (props: IMainLayotProps) => {
                 <Button
                   icon={<LogoutOutlined />}
                   onClick={handleLogout}
-                  className='ml-2'
+                  className="ml-2"
                 >
                   Logout
                 </Button>
@@ -122,7 +131,7 @@ const MainLayout = (props: IMainLayotProps) => {
                 type="primary"
                 icon={<UserOutlined />}
                 onClick={() => navigate('/auth/login')}
-                className='ml-2'
+                className="ml-2"
               >
                 Login
               </Button>
@@ -134,13 +143,60 @@ const MainLayout = (props: IMainLayotProps) => {
           className="my-4 overflow-auto"
           style={{ margin: '24px 16px 0' }}
         >
-          <div className='py-0 px-6 min-h-full'>
+          <div className="py-0 px-6 min-h-full">
             <Outlet />
           </div>
         </Content>
+        <Footer className="mt-8 px-6 py-8" >
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div>
+              <Title level={5} className="!mb-3">
+                CinemaUTM
+              </Title>
+              <p className="m-0 text-sm opacity-80">
+                The best place to enjoy the latest movies, premieres, and unforgettable cinema nights.
+              </p>
+            </div>
 
-        <Footer className="text-center">
-          © 2026 All rights registered.
+            <div>
+              <Title level={5} className="!mb-3">
+                Contact
+              </Title>
+              <p className="mb-2 flex items-center gap-2">
+                <PhoneOutlined />
+                <a href="tel:+37322123456">+373 22 123 456</a>
+              </p>
+              <p className="mb-2 flex items-center gap-2">
+                <MailOutlined />
+                <a href="mailto:contact@cinemautm.md">contact@cinemautm.md</a>
+              </p>
+              <p className="m-0 flex items-center gap-2">
+                <EnvironmentOutlined />
+                168 Stefan cel Mare Blvd, Chisinau, Moldova
+              </p>
+            </div>
+
+            <div>
+              <Title level={5} className="!mb-3">
+                Follow us
+              </Title>
+              <div className="flex flex-wrap items-center gap-4 text-base">
+                <a href="https://facebook.com" target="_blank" rel="noreferrer">
+                  <FacebookOutlined /> Facebook
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noreferrer">
+                  <InstagramOutlined /> Instagram
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noreferrer">
+                  <YoutubeOutlined /> YouTube
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-solid border-gray-300 pt-4 text-center text-sm opacity-70">
+             2026 CinemaUTM. All rights reserved.
+          </div>
         </Footer>
       </Layout>
     </Layout>

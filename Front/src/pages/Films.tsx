@@ -31,17 +31,12 @@ const Films = () => {
                 flexDirection: 'column',
                 cursor: 'pointer'
               }}
-              bodyStyle={{ 
-                flex: 1, 
-                display: 'flex', 
-                flexDirection: 'column' 
-              }}
               cover={
                 <img
                   alt={film.title}
                   src={film.image}
                   style={{ 
-                    height: '300px', 
+                    height: '400px', 
                     objectFit: 'cover' 
                   }}
                 />
