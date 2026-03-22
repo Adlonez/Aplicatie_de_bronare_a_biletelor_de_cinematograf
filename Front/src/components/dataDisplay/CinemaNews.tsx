@@ -1,22 +1,24 @@
 import { useState } from "react";
-import { Row, Col, Typography, Card, Tag, Space, Button, Divider } from "antd";
+import { Row, Col, Typography, Button } from "antd";
 import { ArrowRightOutlined, CalendarOutlined } from "@ant-design/icons";
-import news from "../../_mock/films.json"
+import { useNavigate } from "react-router-dom";
 import type {NewsItem} from "../../types/ui"
 
 
 const { Text, Title, Paragraph } = Typography;
 
-const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
+const NewsCard: React.FC<{ item: NewsItem; featured?: boolean; onClick: () => void }> = ({
   item,
   featured = false,
+  onClick,
 }) => {
   const [hovered, setHovered] = useState(false);
-  
+
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
       style={{
         cursor: "pointer",
         height: "100%",
@@ -125,6 +127,7 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
 };
 
 const CinemaNews = ({items=[]}:any) => {
+  const navigate = useNavigate();
   return (
     <div>
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 48px" }}>
@@ -159,6 +162,7 @@ const CinemaNews = ({items=[]}:any) => {
 
           <Button
             type="link"
+            onClick={() => navigate('/news')}
             style={{
               fontSize: 11,
               fontWeight: 600,
@@ -181,7 +185,7 @@ const CinemaNews = ({items=[]}:any) => {
                   height: "100%",
                 }}
               >
-                <NewsCard item={item} />
+                <NewsCard item={item} onClick={() => navigate('/news')} />
               </div>
             </Col>
           ))}
