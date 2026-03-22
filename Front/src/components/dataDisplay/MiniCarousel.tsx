@@ -1,29 +1,23 @@
 import { useState } from "react";
-import { Button, Typography, Tag, Space, type CarouselProps } from "antd";
+import { Button, Typography, Space } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import type { Films } from "../../types/ui";
 
 
 const { Text, Title } = Typography;
 
-interface Film {
-  id: number;
-  title: string;
-  image: string;
-  format: "2D" | "3D" | "IMAX";
-  languages: string[];
-}
-
-
 const VISIBLE_COUNT = 4;
 
-const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
+const FilmCard: React.FC<{ film: Films }> = ({ film }) => {
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={() => navigate(`/films/${film.id}`)}
       style={{ cursor: "pointer" }}
     >
       <div
@@ -65,6 +59,7 @@ const FilmCard: React.FC<{ film: Film }> = ({ film }) => {
           <Button
             type="primary"
             shape="round"
+            onClick={(e) => { e.stopPropagation(); navigate(`/films/${film.id}`); }}
             style={{
               fontWeight: 700,
               fontSize: 11,
