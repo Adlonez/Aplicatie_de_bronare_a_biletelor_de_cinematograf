@@ -1,0 +1,22 @@
+# Build output
+bin/
+obj/
+
+# IDE
+.idea/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+*.DS_Store
+
+# Docker volumes
+mysql-data/
+
+# Secrets / environment overrides (keep appsettings.json, ignore local overrides)
+appsettings.Local.json
+appsettings.*.Local.json
+
+# EF Core migrations temp
+*.mdf
+*.ldf
