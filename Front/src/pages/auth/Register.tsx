@@ -1,38 +1,64 @@
-import { Form, Input, Button, Card, Typography, Space, Divider, theme } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { UserOutlined, MailOutlined, LockOutlined, UserAddOutlined } from '@ant-design/icons';
+import { useState } from 'react'
+import { Form, Input, Button, Card, Typography, Space, Divider, theme, Alert } from 'antd'
+import { useNavigate } from 'react-router-dom'
+import { UserOutlined, MailOutlined, LockOutlined, UserAddOutlined, PhoneOutlined } from '@ant-design/icons'
+import axiosInstance from '../../api/axiosInstance'
+import { useAuth } from '../../contexts/AuthContext'
+import { paths } from '../../routes/paths'
 
-const { Title, Text } = Typography;
-const { useToken } = theme;
+const { Title, Text } = Typography
+const { useToken } = theme
 
 interface RegisterFormValues {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
+  name: string
+  email: string
+  phone: string
+  password: string
+  confirmPassword: string
 }
 
 const Register = () => {
-  const { token } = useToken();
-  const navigate = useNavigate();
+  const { token } = useToken()
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const onFinish = (values: RegisterFormValues) => {
-    console.log('Register:', values);
-    // Add registration logic here
-  };
+  const onFinish = async (values: RegisterFormValues) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const { data } = await axiosInstance.post('/api/auth/register', {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        password: values.password,
+      })
+      login(data.data.token, {
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+      })
+      navigate(paths.home)
+    } catch (err: any) {
+      setError(err.response?.data?.message ?? 'Registration failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
       minHeight: '100vh',
       padding: '40px 20px',
       background: token.colorBgLayout
     }}>
-      <Card 
-        style={{ 
-          width: 450, 
+      <Card
+        style={{
+          width: 450,
           boxShadow: `0 8px 32px ${token.colorPrimary}33`,
           background: token.colorBgElevated,
           border: `1px solid ${token.colorPrimary}4D`
@@ -49,7 +75,11 @@ const Register = () => {
           </div>
 
           <Divider style={{ borderColor: token.colorBorder, margin: '8px 0' }} />
-          
+
+          {error && (
+            <Alert message={error} type="error" showIcon closable onClose={() => setError(null)} />
+          )}
+
           <Form
             name="register"
             onFinish={onFinish}
@@ -61,9 +91,9 @@ const Register = () => {
               name="name"
               rules={[{ required: true, message: 'Please input your name!' }]}
             >
-              <Input 
+              <Input
                 prefix={<UserOutlined style={{ color: token.colorPrimary }} />}
-                placeholder="Full name" 
+                placeholder="Full name"
               />
             </Form.Item>
 
@@ -74,9 +104,19 @@ const Register = () => {
                 { type: 'email', message: 'Please enter a valid email!' }
               ]}
             >
-              <Input 
+              <Input
                 prefix={<MailOutlined style={{ color: token.colorPrimary }} />}
-                placeholder="Email address" 
+                placeholder="Email address"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="phone"
+              rules={[{ required: true, message: 'Please input your phone number!' }]}
+            >
+              <Input
+                prefix={<PhoneOutlined style={{ color: token.colorPrimary }} />}
+                placeholder="Phone number"
               />
             </Form.Item>
 
@@ -87,9 +127,9 @@ const Register = () => {
                 { min: 6, message: 'Password must be at least 6 characters!' }
               ]}
             >
-              <Input.Password 
+              <Input.Password
                 prefix={<LockOutlined style={{ color: token.colorPrimary }} />}
-                placeholder="Password (min 6 characters)" 
+                placeholder="Password (min 6 characters)"
               />
             </Form.Item>
 
@@ -101,29 +141,28 @@ const Register = () => {
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('password') === value) {
-                      return Promise.resolve();
+                      return Promise.resolve()
                     }
-                    return Promise.reject(new Error('Passwords do not match!'));
+                    return Promise.reject(new Error('Passwords do not match!'))
                   },
                 }),
               ]}
             >
-              <Input.Password 
+              <Input.Password
                 prefix={<LockOutlined style={{ color: token.colorPrimary }} />}
-                placeholder="Confirm password" 
+                placeholder="Confirm password"
               />
             </Form.Item>
 
             <Form.Item style={{ marginBottom: 0 }}>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 block
                 icon={<UserAddOutlined />}
                 size="large"
-                style={{
-                  fontWeight: 600
-                }}
+                loading={loading}
+                style={{ fontWeight: 600 }}
               >
                 Create Account
               </Button>
@@ -134,13 +173,10 @@ const Register = () => {
 
           <div style={{ textAlign: 'center' }}>
             <Text style={{ color: token.colorTextSecondary }}>Already have an account? </Text>
-            <Button 
-              type="link" 
-              onClick={() => navigate('/auth/login')} 
-              style={{ 
-                padding: 0,
-                fontWeight: 600
-              }}
+            <Button
+              type="link"
+              onClick={() => navigate(paths.auth.login)}
+              style={{ padding: 0, fontWeight: 600 }}
             >
               Login
             </Button>
@@ -148,7 +184,7 @@ const Register = () => {
         </Space>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register
