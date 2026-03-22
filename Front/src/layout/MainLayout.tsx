@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { Button, Layout, Menu, Typography, Drawer } from 'antd'
 import {
@@ -7,10 +7,12 @@ import {
   LogoutOutlined,
   MenuOutlined,
   MoonOutlined,
+  SettingOutlined,
   SunOutlined,
   UserOutlined,
   VideoCameraOutlined,
 } from '@ant-design/icons'
+import { useAuth } from '../contexts/AuthContext'
 
 const { Header, Footer, Content } = Layout
 const { Title } = Typography
@@ -41,16 +43,10 @@ const MainLayout = (props: IMainLayotProps) => {
   const [activeTab, setActiveTab] = useState<string>('home')
   const [open, setOpen] = useState<boolean>(false)
   const navigate = useNavigate()
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token')
-    setIsLoggedIn(!!token)
-  }, [])
+  const { isAuthenticated, isAdmin, user, logout } = useAuth()
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token')
-    setIsLoggedIn(false)
+    logout()
     navigate('/')
   }
 
@@ -83,7 +79,7 @@ const MainLayout = (props: IMainLayotProps) => {
         />
       </Drawer>
 
-      <Layout>
+      <Layout style={{ minHeight: '100vh' }}>
         <Header className="h-16 flex justify-between items-center">
           <Button
             type="text"
@@ -91,7 +87,12 @@ const MainLayout = (props: IMainLayotProps) => {
             onClick={() => setOpen(true)}
             style={{ fontSize: '18px' }}
           />
-          <Title level={4} className="hidden lg:block m-0 absolute left-1/2 -translate-x-1/2">
+          <Title
+            level={4}
+            className="hidden lg:block m-0 absolute left-1/2 -translate-x-1/2"
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          >
             CinemaUTM
           </Title>
           <div>
@@ -99,16 +100,24 @@ const MainLayout = (props: IMainLayotProps) => {
               icon={isDark ? <SunOutlined /> : <MoonOutlined />} 
               type="primary" onClick={() => setIsDark(!isDark)}
             />
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <>
+                {isAdmin && (
+                  <Button
+                    icon={<SettingOutlined />}
+                    onClick={() => navigate('/admin/dashboard')}
+                    className='ml-2'
+                  >
+                    Admin Panel
+                  </Button>
+                )}
                 <Button
                   icon={<UserOutlined />}
-                  onClick={() => navigate('/profile')}
                   className='ml-2'
+                  disabled
                 >
-                  Profile
+                  {user?.name}
                 </Button>
-
                 <Button
                   icon={<LogoutOutlined />}
                   onClick={handleLogout}
