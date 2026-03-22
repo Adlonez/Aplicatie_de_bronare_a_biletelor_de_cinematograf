@@ -1,5 +1,6 @@
 using System.Text;
 using CinemaBooking.Api.Hubs;
+using CinemaBooking.Api.Seeder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -69,6 +70,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Seed database with mock data on first run
+DbSeeder.Seed();
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
