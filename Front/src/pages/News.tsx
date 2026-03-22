@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Row, Col, Typography, Tag, Modal } from 'antd';
 import { CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
+import { useLocation, useNavigate } from 'react-router-dom';
 import newsDataJson from '../_mock/news.json';
 
 const { Title, Paragraph } = Typography;
@@ -18,6 +19,8 @@ interface NewsItem {
 const newsData: NewsItem[] = newsDataJson as NewsItem[];
 
 const News = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
@@ -30,6 +33,22 @@ const News = () => {
     setIsModalOpen(false);
     setSelectedNews(null);
   };
+
+  useEffect(() => {
+    const selectedNewsId = location.state?.selectedNewsId;
+
+    if (!selectedNewsId) {
+      return;
+    }
+
+    const newsItem = newsData.find((item) => item.id === selectedNewsId);
+    if (newsItem) {
+      setSelectedNews(newsItem);
+      setIsModalOpen(true);
+    }
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   return (
     <div style={{ padding: '20px' }}>

@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { Row, Col, Typography, Card, Tag, Space, Button, Divider } from "antd";
+import { Row, Col, Typography, Button } from "antd";
 import { ArrowRightOutlined, CalendarOutlined } from "@ant-design/icons";
-import news from "../../_mock/films.json"
+import { useNavigate } from "react-router-dom";
 import type {NewsItem} from "../../types/ui"
 
 
-const { Text, Title, Paragraph } = Typography;
+const { Text } = Typography;
 
-const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
+const NewsCard: React.FC<{ item: NewsItem; featured?: boolean; onReadMore: (newsId: number) => void }> = ({
   item,
   featured = false,
+  onReadMore,
 }) => {
   const [hovered, setHovered] = useState(false);
   
@@ -104,6 +105,7 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
 
         <div style={{ marginTop: 14 }}>
           <Text
+            onClick={() => onReadMore(item.id)}
             style={{
               fontSize: 11,
               fontWeight: 700,
@@ -113,6 +115,7 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
               alignItems: "center",
               gap: 5,
               transition: "gap 0.2s",
+              cursor: "pointer",
             }}
           >
             Read more
@@ -125,6 +128,11 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean }> = ({
 };
 
 const CinemaNews = ({items=[]}:any) => {
+  const navigate = useNavigate();
+  const handleReadMore = (newsId: number) => {
+    navigate("/news", { state: { selectedNewsId: newsId } });
+  };
+
   return (
     <div>
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 48px" }}>
@@ -159,6 +167,7 @@ const CinemaNews = ({items=[]}:any) => {
 
           <Button
             type="link"
+            onClick={() => navigate("/news")}
             style={{
               fontSize: 11,
               fontWeight: 600,
@@ -181,7 +190,7 @@ const CinemaNews = ({items=[]}:any) => {
                   height: "100%",
                 }}
               >
-                <NewsCard item={item} />
+                <NewsCard item={item} onReadMore={handleReadMore} />
               </div>
             </Col>
           ))}
