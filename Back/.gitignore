@@ -9,6 +9,7 @@ obj/
 *.suo
 *.sln.docstates
 *.DS_Store
+*.vs
 
 # Docker volumes
 mysql-data/
