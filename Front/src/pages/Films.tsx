@@ -55,7 +55,7 @@ const Films = () => {
                 <img
                   alt={film.title}
                   src={film.image}
-                  style={{ height: '300px', objectFit: 'cover' }}
+                  style={{ height: '400px', objectFit: 'cover' }}
                 />
               }
             >

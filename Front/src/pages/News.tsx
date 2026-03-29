@@ -1,12 +1,15 @@
+import { CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react'
 import { Card, Row, Col, Typography, Tag, Modal, Spin, Alert } from 'antd'
-import { CalendarOutlined, FileTextOutlined } from '@ant-design/icons'
 import type { NewsItem } from '../types/ui'
 import axiosInstance from '../api/axiosInstance'
 
 const { Title, Paragraph } = Typography
 
 const News = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [newsData, setNewsData] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -32,6 +35,22 @@ const News = () => {
 
   if (loading) return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 100 }} />
   if (error) return <Alert message={error} type="error" style={{ margin: 24 }} />
+
+  useEffect(() => {
+    const selectedNewsId = location.state?.selectedNewsId;
+
+    if (!selectedNewsId) {
+      return;
+    }
+
+    const newsItem = newsData.find((item) => item.id === selectedNewsId);
+    if (newsItem) {
+      setSelectedNews(newsItem);
+      setIsModalOpen(true);
+    }
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   return (
     <div style={{ padding: '20px' }}>
@@ -110,4 +129,4 @@ const News = () => {
   )
 }
 
-export default News
+export default News;

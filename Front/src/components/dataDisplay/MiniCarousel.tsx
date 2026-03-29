@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import type { Films } from "../../types/ui";
 
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const VISIBLE_COUNT = 4;
 
-const FilmCard: React.FC<{ film: Films }> = ({ film }) => {
+const FilmCard: React.FC<{ film: Films; onBuyTicket: (filmId: number) => void }> = ({ film, onBuyTicket }) => {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
 
@@ -59,7 +59,7 @@ const FilmCard: React.FC<{ film: Films }> = ({ film }) => {
           <Button
             type="primary"
             shape="round"
-            onClick={(e) => { e.stopPropagation(); navigate(`/films/${film.id}`); }}
+            onClick={() => onBuyTicket(film.id)}
             style={{
               fontWeight: 700,
               fontSize: 11,
@@ -94,7 +94,7 @@ const FilmCard: React.FC<{ film: Films }> = ({ film }) => {
           <Text style={{ fontSize: 12, fontWeight: 700 }}>
             {film.format}
           </Text>
-          {film.languages.map((lang, i) => (
+          {film.languages.map((lang) => (
             <Space key={lang} size={2} style={{ display: "flex", alignItems: "center" }}>
               <Text style={{ fontWeight: 300, fontSize: 12 }}>·</Text>
               <Text
@@ -121,6 +121,7 @@ type CinemaCarouselProps={
 
 const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
   const [offset, setOffset] = useState<number>(0);
+  const navigate = useNavigate();
 
   const maxOffset = items.length - VISIBLE_COUNT;
   const canPrev = offset > 0;
@@ -128,6 +129,7 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
 
   const prev = () => setOffset((o) => Math.max(0, o - 1));
   const next = () => setOffset((o) => Math.min(maxOffset, o + 1));
+  const handleBuyTicket = (filmId: number) => navigate(`/films/${filmId}/book`);
 
   const arrowStyle = (enabled: boolean): React.CSSProperties => ({
     position: "absolute",
@@ -195,7 +197,7 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
                     width: `calc((100% - ${(VISIBLE_COUNT - 1) * 16}px) / ${VISIBLE_COUNT})`,
                   }}
                 >
-                  <FilmCard film={film} />
+                  <FilmCard film={film} onBuyTicket={handleBuyTicket} />
                 </div>
               ))}
             </div>

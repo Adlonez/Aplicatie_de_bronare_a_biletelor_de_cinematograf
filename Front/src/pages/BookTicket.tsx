@@ -83,7 +83,7 @@ const BookTicket = () => {
   const getSeatColor = (status: string) => {
     switch (status) {
       case 'selected':
-        return '#7c3aed'; // Purple
+        return '#7c3aed';
       case 'occupied':
         return '#666';
       case 'available':
