@@ -1,36 +1,56 @@
-import { Form, Input, Button, Card, Typography, Space, Divider, theme } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { MailOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
+import { useState } from 'react'
+import { Form, Input, Button, Card, Typography, Space, Divider, theme, Alert } from 'antd'
+import { useNavigate } from 'react-router-dom'
+import { MailOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons'
+import axiosInstance from '../../api/axiosInstance'
+import { useAuth } from '../../contexts/AuthContext'
+import { paths } from '../../routes/paths'
 
-const { Title, Text } = Typography;
-const { useToken } = theme;
+const { Title, Text } = Typography
+const { useToken } = theme
 
 interface LoginFormValues {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 const Login = () => {
-  const { token } = useToken();
-  const navigate = useNavigate();
+  const { token } = useToken()
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const onFinish = (values: LoginFormValues) => {
-    console.log('Login:', values);
-    // Add login logic here
-  };
+  const onFinish = async (values: LoginFormValues) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const { data } = await axiosInstance.post('/api/auth/login', values)
+      login(data.data.token, {
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+      })
+      navigate(paths.home)
+    } catch (err: any) {
+      setError(err.response?.data?.message ?? 'Login failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
       minHeight: '100vh',
       padding: '40px 20px',
       background: token.colorBgLayout
     }}>
-      <Card 
-        style={{ 
-          width: 450, 
+      <Card
+        style={{
+          width: 450,
           boxShadow: `0 8px 32px ${token.colorPrimary}33`,
           background: token.colorBgElevated,
           border: `1px solid ${token.colorPrimary}4D`
@@ -47,7 +67,11 @@ const Login = () => {
           </div>
 
           <Divider style={{ borderColor: token.colorBorder, margin: '8px 0' }} />
-          
+
+          {error && (
+            <Alert message={error} type="error" showIcon closable onClose={() => setError(null)} />
+          )}
+
           <Form
             name="login"
             onFinish={onFinish}
@@ -62,9 +86,9 @@ const Login = () => {
                 { type: 'email', message: 'Please enter a valid email!' }
               ]}
             >
-              <Input 
+              <Input
                 prefix={<MailOutlined style={{ color: token.colorPrimary }} />}
-                placeholder="Email address" 
+                placeholder="Email address"
               />
             </Form.Item>
 
@@ -72,22 +96,21 @@ const Login = () => {
               name="password"
               rules={[{ required: true, message: 'Please input your password!' }]}
             >
-              <Input.Password 
+              <Input.Password
                 prefix={<LockOutlined style={{ color: token.colorPrimary }} />}
-                placeholder="Password" 
+                placeholder="Password"
               />
             </Form.Item>
 
             <Form.Item style={{ marginBottom: 0 }}>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 block
                 icon={<LoginOutlined />}
                 size="large"
-                style={{
-                  fontWeight: 600
-                }}
+                loading={loading}
+                style={{ fontWeight: 600 }}
               >
                 Login
               </Button>
@@ -98,13 +121,10 @@ const Login = () => {
 
           <div style={{ textAlign: 'center' }}>
             <Text style={{ color: token.colorTextSecondary }}>Don't have an account? </Text>
-            <Button 
-              type="link" 
-              onClick={() => navigate('/auth/register')} 
-              style={{ 
-                padding: 0,
-                fontWeight: 600
-              }}
+            <Button
+              type="link"
+              onClick={() => navigate(paths.auth.register)}
+              style={{ padding: 0, fontWeight: 600 }}
             >
               Sign Up
             </Button>
@@ -112,7 +132,7 @@ const Login = () => {
         </Space>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

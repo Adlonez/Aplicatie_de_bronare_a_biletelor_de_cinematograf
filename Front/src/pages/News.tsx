@@ -1,38 +1,40 @@
-import { useEffect, useState } from 'react';
-import { Card, Row, Col, Typography, Tag, Modal } from 'antd';
 import { CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
-import newsDataJson from '../_mock/news.json';
+import { useEffect, useState } from 'react'
+import { Card, Row, Col, Typography, Tag, Modal, Spin, Alert } from 'antd'
+import type { NewsItem } from '../types/ui'
+import axiosInstance from '../api/axiosInstance'
 
-const { Title, Paragraph } = Typography;
-
-interface NewsItem {
-  id: number;
-  title: string;
-  date: string;
-  category: string;
-  content: string;
-  image: string;
-  fullContent: string;
-}
-
-const newsData: NewsItem[] = newsDataJson as NewsItem[];
+const { Title, Paragraph } = Typography
 
 const News = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
+  const [newsData, setNewsData] = useState<NewsItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null)
+
+  useEffect(() => {
+    axiosInstance.get('/api/news/list')
+      .then((res) => setNewsData(res.data.data))
+      .catch(() => setError('Failed to load news. Please try again later.'))
+      .finally(() => setLoading(false))
+  }, [])
 
   const handleNewsClick = (news: NewsItem) => {
-    setSelectedNews(news);
-    setIsModalOpen(true);
-  };
+    setSelectedNews(news)
+    setIsModalOpen(true)
+  }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedNews(null);
-  };
+    setIsModalOpen(false)
+    setSelectedNews(null)
+  }
+
+  if (loading) return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 100 }} />
+  if (error) return <Alert message={error} type="error" style={{ margin: 24 }} />
 
   useEffect(() => {
     const selectedNewsId = location.state?.selectedNewsId;
@@ -56,7 +58,7 @@ const News = () => {
         <FileTextOutlined style={{ marginRight: '10px' }} />
         Latest News & Updates
       </Title>
-      
+
       <Row gutter={[24, 24]}>
         {newsData.map((news) => (
           <Col xs={24} sm={24} md={12} lg={12} key={news.id}>
@@ -67,32 +69,21 @@ const News = () => {
                 <img
                   alt={news.title}
                   src={news.image}
-                  style={{ 
-                    height: '250px', 
-                    objectFit: 'cover' 
-                  }}
+                  style={{ height: '250px', objectFit: 'cover' }}
                 />
               }
               style={{ height: '100%', cursor: 'pointer' }}
             >
               <div style={{ marginBottom: '12px' }}>
                 <Tag color="purple">{news.category}</Tag>
-                <span style={{ 
-                  color: '#60157A', 
-                  fontSize: '12px',
-                  marginLeft: '8px'
-                }}>
+                <span style={{ color: '#60157A', fontSize: '12px', marginLeft: '8px' }}>
                   <CalendarOutlined /> {news.date}
                 </span>
               </div>
-              
-              <Title level={4} style={{ marginBottom: '12px' }}>
-                {news.title}
-              </Title>
-              
-              <Paragraph style={{ color: '#ccc' }}>
-                {news.content}
-              </Paragraph>
+
+              <Title level={4} style={{ marginBottom: '12px' }}>{news.title}</Title>
+
+              <Paragraph style={{ color: '#ccc' }}>{news.content}</Paragraph>
             </Card>
           </Col>
         ))}
@@ -101,9 +92,7 @@ const News = () => {
       <Modal
         title={
           <div>
-            <Title level={3} style={{ marginBottom: '8px' }}>
-              {selectedNews?.title}
-            </Title>
+            <Title level={3} style={{ marginBottom: '8px' }}>{selectedNews?.title}</Title>
             <div>
               <Tag color="purple">{selectedNews?.category}</Tag>
               <span style={{ color: '#60157A', fontSize: '12px', marginLeft: '8px' }}>
@@ -137,7 +126,7 @@ const News = () => {
         )}
       </Modal>
     </div>
-  );
-};
+  )
+}
 
 export default News;

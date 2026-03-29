@@ -1,0 +1,142 @@
+using CinemaBooking.DataAccessLayer.Context;
+using CinemaBooking.Domain.Entities.Screening;
+using CinemaBooking.Domain.Models.Screening;
+using CinemaBooking.Domain.Models.Service;
+
+namespace CinemaBooking.BusinessLayer.Structure;
+
+public class ScreeningActions
+{
+    protected readonly CinemaDbContext _context = new();
+
+    protected ServiceResponse CreateScreeningAction(ScreeningCreateDto dto)
+    {
+        try
+        {
+            var entity = new ScreeningEntity
+            {
+                MovieId = dto.MovieId,
+                MovieTitle = dto.MovieTitle,
+                Hall = dto.Hall,
+                Date = DateTime.Parse(dto.Date),
+                Time = dto.Time
+            };
+
+            _context.Screenings.Add(entity);
+            _context.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Screening created successfully", Data = entity.Id };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    protected ServiceResponse GetScreeningByIdAction(int id)
+    {
+        try
+        {
+            var entity = _context.Screenings.FirstOrDefault(s => s.Id == id && !s.Deleted);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "Screening not found" };
+
+            return new ServiceResponse { IsSuccess = true, Data = MapToDto(entity) };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    protected ServiceResponse GetScreeningListAction()
+    {
+        try
+        {
+            var screenings = _context.Screenings
+                .Where(s => !s.Deleted)
+                .Select(s => MapToDto(s))
+                .ToList();
+
+            return new ServiceResponse { IsSuccess = true, Data = screenings };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    protected ServiceResponse GetScreeningsByMovieIdAction(int movieId)
+    {
+        try
+        {
+            var screenings = _context.Screenings
+                .Where(s => s.MovieId == movieId && !s.Deleted)
+                .Select(s => MapToDto(s))
+                .ToList();
+
+            return new ServiceResponse { IsSuccess = true, Data = screenings };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    protected ServiceResponse UpdateScreeningAction(int id, ScreeningCreateDto dto)
+    {
+        try
+        {
+            var entity = _context.Screenings.FirstOrDefault(s => s.Id == id && !s.Deleted);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "Screening not found" };
+
+            entity.MovieId = dto.MovieId;
+            entity.MovieTitle = dto.MovieTitle;
+            entity.Hall = dto.Hall;
+            entity.Date = DateTime.Parse(dto.Date);
+            entity.Time = dto.Time;
+
+            _context.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Screening updated successfully" };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    protected ServiceResponse DeleteScreeningAction(int id)
+    {
+        try
+        {
+            var entity = _context.Screenings.FirstOrDefault(s => s.Id == id);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "Screening not found" };
+
+            entity.Deleted = true;
+            _context.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Screening deleted successfully" };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    private static ScreeningInfoDto MapToDto(ScreeningEntity entity)
+    {
+        return new ScreeningInfoDto
+        {
+            Id = entity.Id,
+            MovieId = entity.MovieId,
+            MovieTitle = entity.MovieTitle,
+            Hall = entity.Hall,
+            Date = entity.Date.ToString("yyyy-MM-dd"),
+            Time = entity.Time,
+            Deleted = entity.Deleted
+        };
+    }
+}

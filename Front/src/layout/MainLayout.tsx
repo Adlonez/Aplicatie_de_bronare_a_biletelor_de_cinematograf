@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { Button, Layout, Menu, Typography, Drawer } from 'antd'
 import {
@@ -12,11 +12,13 @@ import {
   MenuOutlined,
   MoonOutlined,
   PhoneOutlined,
+  SettingOutlined,
   SunOutlined,
   UserOutlined,
   VideoCameraOutlined,
   YoutubeOutlined,
 } from '@ant-design/icons'
+import { useAuth } from '../contexts/AuthContext'
 
 const { Header, Footer, Content } = Layout
 const { Title } = Typography
@@ -49,16 +51,10 @@ const MainLayout = (props: IMainLayotProps) => {
   const [activeTab, setActiveTab] = useState<string>('home')
   const [open, setOpen] = useState<boolean>(false)
   const navigate = useNavigate()
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token')
-    setIsLoggedIn(!!token)
-  }, [])
+  const { isAuthenticated, isAdmin, user, logout } = useAuth()
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token')
-    setIsLoggedIn(false)
+    logout()
     navigate('/')
   }
 
@@ -91,7 +87,7 @@ const MainLayout = (props: IMainLayotProps) => {
         />
       </Drawer>
 
-      <Layout>
+      <Layout style={{ minHeight: '100vh' }}>
         <Header className="h-16 flex justify-between items-center">
           <Button
             type="text"
@@ -99,7 +95,12 @@ const MainLayout = (props: IMainLayotProps) => {
             onClick={() => setOpen(true)}
             style={{ fontSize: '18px' }}
           />
-          <Title level={4} className="hidden lg:block m-0 absolute left-1/2 -translate-x-1/2">
+          <Title
+            level={4}
+            className="hidden lg:block m-0 absolute left-1/2 -translate-x-1/2"
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          >
             CinemaUTM
           </Title>
           <div>
@@ -108,16 +109,24 @@ const MainLayout = (props: IMainLayotProps) => {
               type="primary"
               onClick={() => setIsDark(!isDark)}
             />
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <>
+                {isAdmin && (
+                  <Button
+                    icon={<SettingOutlined />}
+                    onClick={() => navigate('/admin/dashboard')}
+                    className='ml-2'
+                  >
+                    Admin Panel
+                  </Button>
+                )}
                 <Button
                   icon={<UserOutlined />}
                   onClick={() => navigate('/profile')}
                   className="ml-2"
                 >
-                  Profile
+                  {user?.name}
                 </Button>
-
                 <Button
                   icon={<LogoutOutlined />}
                   onClick={handleLogout}
@@ -150,7 +159,7 @@ const MainLayout = (props: IMainLayotProps) => {
         <Footer className="mt-8 px-6 py-8" >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div>
-              <Title level={5} className="!mb-3">
+              <Title level={5} className="mb-3!">
                 CinemaUTM
               </Title>
               <p className="m-0 text-sm opacity-80">
@@ -159,7 +168,7 @@ const MainLayout = (props: IMainLayotProps) => {
             </div>
 
             <div>
-              <Title level={5} className="!mb-3">
+              <Title level={5} className="mb-3!">
                 Contact
               </Title>
               <p className="mb-2 flex items-center gap-2">
@@ -177,7 +186,7 @@ const MainLayout = (props: IMainLayotProps) => {
             </div>
 
             <div>
-              <Title level={5} className="!mb-3">
+              <Title level={5} className="mb-3!">
                 Follow us
               </Title>
               <div className="flex flex-wrap items-center gap-4 text-base">

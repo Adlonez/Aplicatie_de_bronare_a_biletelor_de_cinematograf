@@ -13,11 +13,12 @@ const NewsCard: React.FC<{ item: NewsItem; featured?: boolean; onReadMore: (news
   onReadMore,
 }) => {
   const [hovered, setHovered] = useState(false);
-  
+
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      // onClick={onReadMore}
       style={{
         cursor: "pointer",
         height: "100%",
@@ -132,7 +133,6 @@ const CinemaNews = ({items=[]}:any) => {
   const handleReadMore = (newsId: number) => {
     navigate("/news", { state: { selectedNewsId: newsId } });
   };
-
   return (
     <div>
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 48px" }}>

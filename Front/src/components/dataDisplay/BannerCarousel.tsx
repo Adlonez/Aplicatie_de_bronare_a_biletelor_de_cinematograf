@@ -5,7 +5,7 @@ import type { CarouselRef } from "antd/es/carousel";
 import type {Films} from "../../types/ui"
 interface SlideItemProps {
   slide: Films;
-  onNavigate: (href: string) => void;
+  onNavigate: (id: number) => void;
 }
 
 const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
@@ -13,13 +13,13 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
    
   return (
     <div
-      onClick={() => onNavigate(slide.href)}
+      onClick={() => onNavigate(slide.id)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       role="link"
       tabIndex={0}
       aria-label={`Go to ${slide.title}`}
-      onKeyDown={(e) => e.key === "Enter" && onNavigate(slide.href)}
+      onKeyDown={(e) => e.key === "Enter" && onNavigate(slide.id)}
       style={{
         position: "relative",
         height: 520,
@@ -135,9 +135,9 @@ const BannerCarousel: React.FC<BannerCarouselItemsProps> = ({slides}) => {
     isDragging.current = true;
   };
 
-  const handleNavigate = (href: string) => {
+  const handleNavigate = (id: number) => {
     if (!isDragging.current) {
-      navigate(href);
+      navigate(`/films/${id}`);
     }
   };
 

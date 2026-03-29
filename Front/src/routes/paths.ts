@@ -21,5 +21,12 @@ export const paths = {
     bookings: "bookings",
   },
 
+  errors: {
+    notFound: "/not-found",
+    unauthorized: "/unauthorized",
+    forbidden: "/forbidden",
+    serverError: "/server-error",
+  },
+
   notFound: "*",
 }

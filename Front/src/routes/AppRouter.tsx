@@ -16,13 +16,25 @@ import Movies from '../pages/admin/Movies'
 import Users from '../pages/admin/Users'
 import Bookings from '../pages/admin/Bookings'
 import Screenings from '../pages/admin/Screenings'
-import NotFound from '../pages/errors/NotFound'
 
-import { paths } from "./paths"
+import NotFound from '../pages/errors/NotFound'
+import Unauthorized from '../pages/errors/Unauthorized'
+import ForbiddenUser from '../pages/errors/ForbiddenUser'
+import ServerError from '../pages/errors/ServerError'
+
+import { useAuth } from '../contexts/AuthContext'
+import { paths } from './paths'
 
 type AppRouterProps = {
   isDark: boolean
   setIsDark: (value: boolean) => void
+}
+
+const AdminGuard = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isAdmin } = useAuth()
+  if (!isAuthenticated) return <Navigate to={paths.auth.login} replace />
+  if (!isAdmin) return <Navigate to={paths.errors.unauthorized} replace />
+  return <>{children}</>
 }
 
 const AppRouter = ({ isDark, setIsDark }: AppRouterProps) => {
@@ -41,7 +53,14 @@ const AppRouter = ({ isDark, setIsDark }: AppRouterProps) => {
         <Route path={paths.auth.login} element={<Login />} />
         <Route path={paths.auth.register} element={<Register />} />
 
-        <Route path={paths.admin.root} element={<AdminLayout />}>
+        <Route
+          path={paths.admin.root}
+          element={
+            <AdminGuard>
+              <AdminLayout />
+            </AdminGuard>
+          }
+        >
           <Route index element={<Navigate to={paths.admin.dashboard} replace />} />
           <Route path={paths.admin.dashboard} element={<Dashboard />} />
           <Route path={paths.admin.movies} element={<Movies />} />
@@ -50,6 +69,10 @@ const AppRouter = ({ isDark, setIsDark }: AppRouterProps) => {
           <Route path={paths.admin.bookings} element={<Bookings />} />
         </Route>
 
+        <Route path={paths.errors.unauthorized} element={<Unauthorized />} />
+        <Route path={paths.errors.forbidden} element={<ForbiddenUser />} />
+        <Route path={paths.errors.serverError} element={<ServerError />} />
+        <Route path={paths.errors.notFound} element={<NotFound />} />
         <Route path={paths.notFound} element={<NotFound />} />
 
       </Routes>

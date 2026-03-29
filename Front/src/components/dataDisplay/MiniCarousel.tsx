@@ -7,24 +7,17 @@ import type { Films } from "../../types/ui";
 
 const { Text } = Typography;
 
-interface Film {
-  id: number;
-  title: string;
-  image: string;
-  format: "2D" | "3D" | "IMAX";
-  languages: string[];
-}
-
-
 const VISIBLE_COUNT = 4;
 
-const FilmCard: React.FC<{ film: Film; onBuyTicket: (filmId: number) => void }> = ({ film, onBuyTicket }) => {
+const FilmCard: React.FC<{ film: Films; onBuyTicket: (filmId: number) => void }> = ({ film, onBuyTicket }) => {
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={() => navigate(`/films/${film.id}`)}
       style={{ cursor: "pointer" }}
     >
       <div
@@ -101,7 +94,7 @@ const FilmCard: React.FC<{ film: Film; onBuyTicket: (filmId: number) => void }> 
           <Text style={{ fontSize: 12, fontWeight: 700 }}>
             {film.format}
           </Text>
-          {film.languages.map((lang, i) => (
+          {film.languages.map((lang) => (
             <Space key={lang} size={2} style={{ display: "flex", alignItems: "center" }}>
               <Text style={{ fontWeight: 300, fontSize: 12 }}>·</Text>
               <Text

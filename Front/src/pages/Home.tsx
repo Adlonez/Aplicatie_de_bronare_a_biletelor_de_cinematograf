@@ -193,14 +193,14 @@ const Home: React.FC = () => {
         </Card>
 
         <BannerCarousel slides={topTierItems} />
-        <Divider/>
+        <Divider />
         <CinemaCarousel title="In progress" items={inProgressItems} />
         <CinemaCarousel title="Coming Soon" items={comingSoonItems} />
-        <Divider/>
+        <Divider />
         <CinemaNews items={news} />
       </Space>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
