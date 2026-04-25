@@ -67,6 +67,13 @@ public class BookingController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
+    public IActionResult UpdateBooking(int id, [FromBody] BookingCreateDto bookingDto){
+        var res = _bookingLogic.UpdateBooking(id, bookingDto);
+        return res.IsSuccess ? Ok(res) : BadRequest(res);
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin")]
     public IActionResult DeleteBooking(int id)

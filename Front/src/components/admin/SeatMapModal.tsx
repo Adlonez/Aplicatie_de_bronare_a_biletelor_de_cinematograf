@@ -1,6 +1,7 @@
 import { useState, type FC } from 'react';
 import { Modal, Form, Input, InputNumber, Select, Button, Tag, message, theme } from 'antd';
 import SeatMap from './SeatMap';
+import axiosInstance from '../../api/axiosInstance';
 import type { Screening, Booking, Hall } from '../../types/ui';
 
 interface Props {
@@ -17,6 +18,7 @@ const SeatMapModal: FC<Props> = ({ screening, halls, bookings, onBookingsChange,
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [saving, setSaving] = useState(false);
   const [bookingForm] = Form.useForm();
 
   if (!screening) return null;
@@ -52,19 +54,46 @@ const SeatMapModal: FC<Props> = ({ screening, halls, bookings, onBookingsChange,
     setBookingModalOpen(true);
   };
 
-  const saveBooking = () => {
+  const saveBooking = async () => {
     if (!selectedSeat) return;
 
-    bookingForm.validateFields().then((values) => {
+    try {
+      const values = await bookingForm.validateFields();
+      setSaving(true);
+
+      const payload = {
+        movieId: screening.movieId,
+        movieTitle: screening.movieTitle,
+        customerName: values.customerName,
+        customerEmail: values.customerEmail,
+        customerPhone: values.customerPhone,
+        hall: screening.hall,
+        seats: [selectedSeat],
+        status: values.status,
+        showtime: screeningDateTime,
+        totalPrice: values.totalPrice,
+        screeningId: screening.id,
+      };
+
       if (editingBooking) {
-        onBookingsChange(bookings.map((b) => (b.id === editingBooking.id ? { ...editingBooking, ...values } : b)));
-        message.success('Booking updated');
-      } else {
-        const newBooking: Booking = {
-          id: Date.now(),
+        await axiosInstance.put(`/api/bookings/${editingBooking.id}`, payload);
+        onBookingsChange(bookings.map((b) => (b.id === editingBooking.id ? {
+          ...editingBooking,
+          ...values,
           movieId: screening.movieId,
           movieTitle: screening.movieTitle,
+          hall: screening.hall,
+          seats: [selectedSeat],
+          showtime: screeningDateTime,
+        } : b)));
+        message.success('Booking updated');
+      } else {
+        const { data } = await axiosInstance.post('/api/bookings/create', payload);
+        const newBooking: Booking = {
+          id: Number(data?.data ?? Date.now()),
           ...values,
+          movieId: screening.movieId,
+          movieTitle: screening.movieTitle,
           hall: screening.hall,
           seats: [selectedSeat],
           bookingDate: new Date().toISOString().split('T')[0],
@@ -75,7 +104,12 @@ const SeatMapModal: FC<Props> = ({ screening, halls, bookings, onBookingsChange,
       }
       setBookingModalOpen(false);
       bookingForm.resetFields();
-    });
+    } catch (error) {
+      if (error && typeof error === 'object' && 'errorFields' in error) return;
+      message.error('Unable to save booking');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteBooking = () => {
@@ -124,7 +158,7 @@ const SeatMapModal: FC<Props> = ({ screening, halls, bookings, onBookingsChange,
         footer={[
           editingBooking && <Button key="delete" danger onClick={deleteBooking}>Delete</Button>,
           <Button key="cancel" onClick={() => { setBookingModalOpen(false); bookingForm.resetFields(); }}>Cancel</Button>,
-          <Button key="submit" type="primary" onClick={saveBooking}>{editingBooking ? 'Update' : 'Create'}</Button>,
+          <Button key="submit" type="primary" loading={saving} onClick={saveBooking}>{editingBooking ? 'Update' : 'Create'}</Button>,
         ]}
         width={600}
       >

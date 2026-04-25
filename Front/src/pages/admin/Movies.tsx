@@ -1,9 +1,9 @@
-import { useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Popconfirm, Tag, Row, Col, Select, DatePicker, Switch, Typography, Tooltip } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, VideoCameraOutlined, ClearOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import moviesDataJson from '../../_mock/films.json';
+import axiosInstance from '../../api/axiosInstance';
 import type { Films } from '../../types/ui';
 import { dateRangeFilter, sliderRangeFilter, sortDeletedLast } from '../../components/admin/shared/tableFilters';
 
@@ -11,14 +11,74 @@ const { Title } = Typography;
 
 const req = (label: string) => [{ required: true, message: `Enter ${label.toLowerCase()}` }];
 
+type MovieFormValues = Omit<Films, 'id' | 'genre' | 'releaseDate' | 'screeningPeriod'> & {
+  genre?: string[];
+  releaseDate?: dayjs.Dayjs;
+  screeningStart?: dayjs.Dayjs;
+  screeningEnd?: dayjs.Dayjs;
+};
+
+type FilmPayload = {
+  title: string;
+  poster: string;
+  image: string;
+  description: string;
+  href: string;
+  format: string;
+  languages: string[];
+  status: string;
+  toptier: boolean;
+  duration?: number;
+  genre?: string;
+  releaseDate?: string;
+  screeningPeriodStart?: string;
+  screeningPeriodEnd?: string;
+};
+
+const toFilmPayload = (values: MovieFormValues): FilmPayload => ({
+  title: values.title,
+  poster: values.poster || '',
+  image: values.image,
+  description: values.description,
+  href: values.href || '',
+  format: values.format || '2D',
+  languages: values.languages || [],
+  status: values.status || 'progress',
+  toptier: Boolean(values.toptier),
+  duration: values.duration,
+  genre: Array.isArray(values.genre) ? values.genre.join(', ') : values.genre,
+  releaseDate: values.releaseDate ? dayjs(values.releaseDate).format('YYYY-MM-DD') : undefined,
+  screeningPeriodStart: values.screeningStart ? dayjs(values.screeningStart).format('YYYY-MM-DD') : undefined,
+  screeningPeriodEnd: values.screeningEnd ? dayjs(values.screeningEnd).format('YYYY-MM-DD') : undefined,
+});
+
 const Movies: FC = () => {
-  const [movies, setMovies] = useState<Films[]>(moviesDataJson as Films[]);
+  const [movies, setMovies] = useState<Films[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Films | null>(null);
   const [form] = Form.useForm();
   const [tableKey, setTableKey] = useState(0);
 
   const allGenres = Array.from(new Set(movies.flatMap(m => m.genre ? m.genre.split(', ') : []))).map(g => ({ label: g, value: g }));
+
+  const loadMovies = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axiosInstance.get('/api/films/list');
+      setMovies((data?.data ?? []) as Films[]);
+    } catch {
+      setMovies([]);
+      message.error('Unable to load movies');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadMovies();
+  }, []);
 
   const openModal = (movie?: Films) => {
     setEditing(movie || null);
@@ -36,41 +96,40 @@ const Movies: FC = () => {
     setModalOpen(true);
   };
 
-  const saveMovie = () => {
-    form.validateFields().then((values) => {
-      const { screeningStart, screeningEnd, ...rest } = values;
-      const movieData: Films = {
-        ...(editing ?? {} as Films),
-        id: editing?.id || Date.now(),
-        ...rest,
-        genre: Array.isArray(values.genre) ? values.genre.join(', ') : values.genre,
-        releaseDate: values.releaseDate ? dayjs(values.releaseDate).format('YYYY-MM-DD') : undefined,
-        screeningPeriod: {
-          start: screeningStart ? dayjs(screeningStart).format('YYYY-MM-DD') : '',
-          end: screeningEnd ? dayjs(screeningEnd).format('YYYY-MM-DD') : '',
-        },
-      };
-
+  const saveMovie = async () => {
+    try {
+      const values = await form.validateFields();
+      setSaving(true);
+      const payload = toFilmPayload(values as MovieFormValues);
       if (editing) {
-        setMovies(prev => prev.map((m) => (m.id === editing.id ? movieData : m)));
+        await axiosInstance.put(`/api/films/${editing.id}`, payload);
         message.success('Movie updated');
       } else {
-        setMovies(prev => [...prev, movieData]);
+        await axiosInstance.post('/api/films/create', payload);
         message.success('Movie added');
       }
       setModalOpen(false);
       form.resetFields();
-    });
+      await loadMovies();
+    } catch (error) {
+      if (error && typeof error === 'object' && 'errorFields' in error) return;
+      message.error('Unable to save movie');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const deleteMovie = (id: number) => {
-    setMovies(prev => prev.map((m) => m.id === id ? { ...m, deleted: true } : m));
-    message.success('Movie marked as deleted');
-  };
-
-  const restoreMovie = (id: number) => {
-    setMovies(prev => prev.map((m) => m.id === id ? { ...m, deleted: false } : m));
-    message.success('Movie restored');
+  const deleteMovie = async (id: number) => {
+    try {
+      setLoading(true);
+      await axiosInstance.delete(`/api/films/${id}`);
+      message.success('Movie deleted');
+      await loadMovies();
+    } catch {
+      message.error('Unable to delete movie');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns: ColumnType<Films>[] = [
@@ -126,13 +185,9 @@ const Movies: FC = () => {
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(movie)} disabled={movie.deleted}>
             Edit
           </Button>
-          {movie.deleted ? (
-            <Button type="primary" onClick={() => restoreMovie(movie.id)} size="small">Restore</Button>
-          ) : (
-            <Popconfirm title="Delete this movie?" onConfirm={() => deleteMovie(movie.id)} okText="Yes" cancelText="No">
-              <Button type="primary" danger icon={<DeleteOutlined />} size="small">Delete</Button>
-            </Popconfirm>
-          )}
+          <Popconfirm title="Delete this movie?" onConfirm={() => deleteMovie(movie.id)} okText="Yes" cancelText="No" disabled={movie.deleted}>
+            <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={movie.deleted}>Delete</Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -149,10 +204,10 @@ const Movies: FC = () => {
       </div>
 
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <Table key={tableKey} dataSource={sortDeletedLast(movies)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
+        <Table key={tableKey} dataSource={sortDeletedLast(movies)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} loading={loading} />
       </div>
 
-      <Modal title={editing ? 'Edit Movie' : 'Add Movie'} open={modalOpen} onOk={saveMovie} onCancel={() => setModalOpen(false)} width={800}>
+      <Modal title={editing ? 'Edit Movie' : 'Add Movie'} open={modalOpen} onOk={saveMovie} confirmLoading={saving} onCancel={() => setModalOpen(false)} width={800}>
         <Form form={form} layout="vertical">
           <Row gutter={16}>
             <Col span={12}>

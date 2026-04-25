@@ -1,32 +1,63 @@
-import { useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { Table, Button, Tag, message, Space, Popconfirm, Typography } from 'antd';
 import { CheckCircleOutlined, StopOutlined, DeleteOutlined, UserOutlined, ClearOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table';
-import usersDataJson from '../../_mock/users.json';
+import axiosInstance from '../../api/axiosInstance';
 import type { User } from '../../types/ui';
 import { dateRangeFilter, textSearchFilter, sortDeletedLast } from '../../components/admin/shared/tableFilters';
 
 const { Title } = Typography;
 
 const Users: FC = () => {
-  const [users, setUsers] = useState<User[]>(usersDataJson as User[]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
   const [tableKey, setTableKey] = useState(0);
 
-  const toggleStatus = (id: number) => {
-    setUsers(prev => prev.map((u) =>
-      u.id === id ? { ...u, status: u.status === 'active' ? 'inactive' as const : 'active' as const } : u,
-    ));
-    message.success('Status updated');
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axiosInstance.get('/api/users/list');
+      setUsers((data?.data ?? []) as User[]);
+    } catch {
+      setUsers([]);
+      message.error('Unable to load users');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteUser = (id: number) => {
-    setUsers(prev => prev.map((u) => (u.id === id ? { ...u, deleted: true } : u)));
-    message.success('User marked as deleted');
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const toggleStatus = async (user: User) => {
+    const nextStatus: User['status'] = user.status === 'active' ? 'inactive' : 'active';
+
+    try {
+      setLoading(true);
+      await axiosInstance.put(`/api/users/${user.id}/status`, nextStatus, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      message.success('Status updated');
+      await loadUsers();
+    } catch {
+      message.error('Unable to update user status');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const restoreUser = (id: number) => {
-    setUsers(prev => prev.map((u) => (u.id === id ? { ...u, deleted: false } : u)));
-    message.success('User restored');
+  const deleteUser = async (id: number) => {
+    try {
+      setLoading(true);
+      await axiosInstance.delete(`/api/users/${id}`);
+      message.success('User deleted');
+      await loadUsers();
+    } catch {
+      message.error('Unable to delete user');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns: ColumnType<User>[] = [
@@ -69,7 +100,7 @@ const Users: FC = () => {
           type="primary"
           icon={status === 'active' ? <CheckCircleOutlined /> : <StopOutlined />}
           size="small"
-          onClick={() => toggleStatus(u.id)}
+          onClick={() => toggleStatus(u)}
           disabled={u.deleted}
           style={{
             backgroundColor: status === 'active' ? '#52c41a' : '#ff4d4f',
@@ -87,13 +118,9 @@ const Users: FC = () => {
       title: 'Actions',
       render: (_: unknown, u: User) => (
         <Space>
-          {u.deleted ? (
-            <Button type="primary" onClick={() => restoreUser(u.id)} size="small" style={{ width: 90 }}>Restore</Button>
-          ) : (
-            <Popconfirm title="Delete this user?" onConfirm={() => deleteUser(u.id)} okText="Yes" cancelText="No">
-              <Button type="primary" danger icon={<DeleteOutlined />} size="small" style={{ width: 90 }}>Delete</Button>
-            </Popconfirm>
-          )}
+          <Popconfirm title="Delete this user?" onConfirm={() => deleteUser(u.id)} okText="Yes" cancelText="No" disabled={u.deleted}>
+            <Button type="primary" danger icon={<DeleteOutlined />} size="small" style={{ width: 90 }} disabled={u.deleted}>Delete</Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -106,7 +133,7 @@ const Users: FC = () => {
         <Button icon={<ClearOutlined />} onClick={() => setTableKey(k => k + 1)}>Reset All Filters</Button>
       </div>
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <Table key={tableKey} dataSource={sortDeletedLast(users)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} />
+        <Table key={tableKey} dataSource={sortDeletedLast(users)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} loading={loading} />
       </div>
     </div>
   );
