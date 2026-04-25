@@ -61,23 +61,33 @@ const SeatMapModal: FC<Props> = ({ screening, halls, bookings, onBookingsChange,
       const values = await bookingForm.validateFields();
       setSaving(true);
 
+      const payload = {
+        movieId: screening.movieId,
+        movieTitle: screening.movieTitle,
+        customerName: values.customerName,
+        customerEmail: values.customerEmail,
+        customerPhone: values.customerPhone,
+        hall: screening.hall,
+        seats: [selectedSeat],
+        status: values.status,
+        showtime: screeningDateTime,
+        totalPrice: values.totalPrice,
+        screeningId: screening.id,
+      };
+
       if (editingBooking) {
-        onBookingsChange(bookings.map((b) => (b.id === editingBooking.id ? { ...editingBooking, ...values } : b)));
-        message.success('Booking updated');
-      } else {
-        const payload = {
+        await axiosInstance.put(`/api/bookings/${editingBooking.id}`, payload);
+        onBookingsChange(bookings.map((b) => (b.id === editingBooking.id ? {
+          ...editingBooking,
+          ...values,
           movieId: screening.movieId,
           movieTitle: screening.movieTitle,
-          customerName: values.customerName,
-          customerEmail: values.customerEmail,
-          customerPhone: values.customerPhone,
           hall: screening.hall,
           seats: [selectedSeat],
-          status: values.status,
           showtime: screeningDateTime,
-          totalPrice: values.totalPrice,
-          screeningId: screening.id,
-        };
+        } : b)));
+        message.success('Booking updated');
+      } else {
         const { data } = await axiosInstance.post('/api/bookings/create', payload);
         const newBooking: Booking = {
           id: Number(data?.data ?? Date.now()),
@@ -90,7 +100,7 @@ const SeatMapModal: FC<Props> = ({ screening, halls, bookings, onBookingsChange,
           showtime: screeningDateTime,
         };
         onBookingsChange([...bookings, newBooking]);
-      message.success('Booking created');
+        message.success('Booking created');
       }
       setBookingModalOpen(false);
       bookingForm.resetFields();
