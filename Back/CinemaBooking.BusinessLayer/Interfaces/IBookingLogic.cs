@@ -10,5 +10,6 @@ public interface IBookingLogic
     ServiceResponse GetBookingList();
     ServiceResponse GetBookingsByUserId(int userId);
     ServiceResponse UpdateBookingStatus(int id, string status);
+    ServiceResponse UpdateBooking(int id, BookingCreateDto bookingDto);
     ServiceResponse DeleteBooking(int id);
 }

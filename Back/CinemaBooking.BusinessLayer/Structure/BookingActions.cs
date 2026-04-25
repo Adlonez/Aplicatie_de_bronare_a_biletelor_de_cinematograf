@@ -110,6 +110,30 @@ public class BookingActions
         }
     }
 
+    protected ServiceResponse UpdateBookingAction(int id, BookingCreateDto bookingDto)
+    {
+        try
+        {
+            var entity = _context.Bookings.FirstOrDefault(b => b.Id == id && !b.Deleted);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "Booking not found" };
+
+            entity.CustomerEmail = bookingDto.CustomerEmail;
+            entity.CustomerName = bookingDto.CustomerName;
+            entity.TotalPrice = bookingDto.TotalPrice;
+            entity.CustomerPhone = bookingDto.CustomerPhone;
+            entity.Status = bookingDto.Status;
+            
+            _context.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Booking status updated successfully" };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
     protected ServiceResponse DeleteBookingAction(int id)
     {
         try
