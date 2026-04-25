@@ -22,7 +22,6 @@ import {
   ClockCircleOutlined,
   WarningOutlined
 } from '@ant-design/icons';
-import filmsData from '../_mock/films.json';
 
 const { Title, Text } = Typography;
 
@@ -39,7 +38,7 @@ const BookTicket = () => {
   const location = useLocation();
   const selectedTime = location.state?.time || '19:00';
   
-  const movie = filmsData.find(film => film.id === Number(id));
+  const movie = null;//filmsData.find(film => film.id === Number(id));
   const initializeSeats = (): Seat[] => {
     const seats: Seat[] = [];
     const occupiedSeats = ['3-5', '3-6', '4-7', '5-5', '5-6', '5-7', '6-8'];
@@ -159,7 +158,7 @@ const BookTicket = () => {
       </Button>
 
       <Alert
-        message="Important: Payment Deadline"
+        title="Important: Payment Deadline"
         description={`Complete your payment at least 45 minutes before showtime (${selectedTime}) to secure your booking.`}
         type="warning"
         showIcon
