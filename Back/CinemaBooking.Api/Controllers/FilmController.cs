@@ -1,6 +1,7 @@
 using CinemaBooking.BusinessLayer;
 using CinemaBooking.BusinessLayer.Interfaces;
 using CinemaBooking.Domain.Models.Film;
+using CinemaBooking.Domain.Models.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,9 +20,11 @@ public class FilmController : ControllerBase
     }
 
     [HttpGet("list")]
-    public IActionResult GetFilmList()
+    public IActionResult GetFilmList([FromQuery] AdminListQuery query)
     {
-        var response = _filmLogic.GetFilmList();
+        var response = Request.Query.Count == 0
+            ? _filmLogic.GetFilmList()
+            : _filmLogic.GetFilmList(query);
         if (!response.IsSuccess)
             return BadRequest(response);
         return Ok(response);

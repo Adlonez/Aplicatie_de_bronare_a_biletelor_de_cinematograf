@@ -10,6 +10,7 @@ public class BookingLogic : BookingActions, IBookingLogic
     public ServiceResponse CreateBooking(BookingCreateDto booking) => CreateBookingAction(booking);
     public ServiceResponse GetBookingById(int id) => GetBookingByIdAction(id);
     public ServiceResponse GetBookingList() => GetBookingListAction();
+    public ServiceResponse GetBookingList(AdminListQuery query) => GetBookingListAction(query);
     public ServiceResponse GetBookingsByUserId(int userId) => GetBookingsByUserIdAction(userId);
     public ServiceResponse UpdateBookingStatus(int id, string status) => UpdateBookingStatusAction(id, status);
     public ServiceResponse UpdateBooking(int id, BookingCreateDto bookingDto) => UpdateBookingAction(id, bookingDto);

@@ -7,6 +7,7 @@ public interface IUserLogic
 {
     ServiceResponse GetUserById(int id);
     ServiceResponse GetUserList();
+    ServiceResponse GetUserList(AdminListQuery query);
     ServiceResponse UpdateUserStatus(int id, string status);
     ServiceResponse DeleteUser(int id);
 }

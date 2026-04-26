@@ -1,6 +1,7 @@
 using CinemaBooking.BusinessLayer;
 using CinemaBooking.BusinessLayer.Interfaces;
 using CinemaBooking.Domain.Models.Screening;
+using CinemaBooking.Domain.Models.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,9 +20,11 @@ public class ScreeningController : ControllerBase
     }
 
     [HttpGet("list")]
-    public IActionResult GetScreeningList()
+    public IActionResult GetScreeningList([FromQuery] AdminListQuery query)
     {
-        var response = _screeningLogic.GetScreeningList();
+        var response = Request.Query.Count == 0
+            ? _screeningLogic.GetScreeningList()
+            : _screeningLogic.GetScreeningList(query);
         if (!response.IsSuccess)
             return BadRequest(response);
         return Ok(response);

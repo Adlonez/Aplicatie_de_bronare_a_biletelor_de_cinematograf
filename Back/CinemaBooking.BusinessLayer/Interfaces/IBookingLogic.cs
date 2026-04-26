@@ -8,6 +8,7 @@ public interface IBookingLogic
     ServiceResponse CreateBooking(BookingCreateDto booking);
     ServiceResponse GetBookingById(int id);
     ServiceResponse GetBookingList();
+    ServiceResponse GetBookingList(AdminListQuery query);
     ServiceResponse GetBookingsByUserId(int userId);
     ServiceResponse UpdateBookingStatus(int id, string status);
     ServiceResponse UpdateBooking(int id, BookingCreateDto bookingDto);
