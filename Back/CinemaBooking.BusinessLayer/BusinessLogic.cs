@@ -12,4 +12,5 @@ public class BusinessLogic
     public IAuthLogic GetAuthLogic() => new AuthLogic();
     public IHallLogic GetHallLogic() => new HallLogic();
     public INewsLogic GetNewsLogic() => new NewsLogic();
+    public IDashboardLogic GetDashboardLogic() => new DashboardLogic();
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FC, type ReactNode, type CSSProperties } from 'react';
+import { useEffect, useState, type FC, type ReactNode, type CSSProperties } from 'react';
 import { Alert, Card, Row, Col, Statistic, Table, theme, Typography } from 'antd';
 import { UserOutlined, TeamOutlined, DollarOutlined, UnorderedListOutlined, TrophyOutlined, DashboardOutlined } from '@ant-design/icons';
 import axiosInstance from '../../api/axiosInstance';
@@ -18,31 +18,69 @@ const StatCard = ({ title, value, icon, precision, valueStyle, suffix, loading }
 );
 
 interface UserApi {
-  id: number;
-  status?: string;
-  deleted?: boolean;
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  adminUsers: number;
+  newUsersThisWeek: number;
+  newUsersThisMonth: number;
 }
 
 interface BookingApi {
-  id: number;
-  movieId: number;
-  movieTitle?: string;
-  bookingDate?: string;
-  totalPrice?: number;
-  deleted?: boolean;
+  totalBookings: number;
+  bookingsThisWeek: number;
+  bookingsThisMonth: number;
+  bookedBookings: number;
+  boughtBookings: number;
+  totalSeatsBooked: number;
 }
 
-interface FilmApi {
-  id: number;
-  title: string;
-  deleted?: boolean;
+interface RevenueApi {
+  totalRevenue: number;
+  revenueThisWeek: number;
+  revenueThisMonth: number;
+  averageBookingValue: number;
 }
+
+interface TopMovieApi {
+  movieId: number;
+  title: string;
+  bookingCount: number;
+  seatsBooked: number;
+  revenue: number;
+}
+
+const emptyUserStats: UserApi = {
+  totalUsers: 0,
+  activeUsers: 0,
+  inactiveUsers: 0,
+  adminUsers: 0,
+  newUsersThisWeek: 0,
+  newUsersThisMonth: 0,
+};
+
+const emptyBookingStats: BookingApi = {
+  totalBookings: 0,
+  bookingsThisWeek: 0,
+  bookingsThisMonth: 0,
+  bookedBookings: 0,
+  boughtBookings: 0,
+  totalSeatsBooked: 0,
+};
+
+const emptyRevenueStats: RevenueApi = {
+  totalRevenue: 0,
+  revenueThisWeek: 0,
+  revenueThisMonth: 0,
+  averageBookingValue: 0,
+};
 
 const Dashboard: FC = () => {
   const { token } = theme.useToken();
-  const [users, setUsers] = useState<UserApi[]>([]);
-  const [bookings, setBookings] = useState<BookingApi[]>([]);
-  const [films, setFilms] = useState<FilmApi[]>([]);
+  const [userStats, setUserStats] = useState<UserApi>(emptyUserStats);
+  const [bookingStats, setBookingStats] = useState<BookingApi>(emptyBookingStats);
+  const [revenueStats, setRevenueStats] = useState<RevenueApi>(emptyRevenueStats);
+  const [topMovies, setTopMovies] = useState<TopMovieApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,23 +92,26 @@ const Dashboard: FC = () => {
         setLoading(true);
         setError(null);
 
-        const [usersRes, bookingsRes, filmsRes] = await Promise.all([
-          axiosInstance.get('/api/users/list'),
-          axiosInstance.get('/api/bookings/list'),
-          axiosInstance.get('/api/films/list'),
+        const [userStatsRes, bookingStatsRes, revenueStatsRes, topMoviesRes] = await Promise.all([
+          axiosInstance.get('/api/dashboard/user-statistics'),
+          axiosInstance.get('/api/dashboard/booking-statistics'),
+          axiosInstance.get('/api/dashboard/revenue-analytics'),
+          axiosInstance.get('/api/dashboard/top-movies'),
         ]);
 
         if (!mounted) return;
 
-        setUsers((usersRes.data?.data ?? []) as UserApi[]);
-        setBookings((bookingsRes.data?.data ?? []) as BookingApi[]);
-        setFilms((filmsRes.data?.data ?? []) as FilmApi[]);
+        setUserStats((userStatsRes.data?.data ?? emptyUserStats) as UserApi);
+        setBookingStats((bookingStatsRes.data?.data ?? emptyBookingStats) as BookingApi);
+        setRevenueStats((revenueStatsRes.data?.data ?? emptyRevenueStats) as RevenueApi);
+        setTopMovies((topMoviesRes.data?.data ?? []) as TopMovieApi[]);
       } catch {
         if (!mounted) return;
 
-        setUsers([]);
-        setBookings([]);
-        setFilms([]);
+        setUserStats(emptyUserStats);
+        setBookingStats(emptyBookingStats);
+        setRevenueStats(emptyRevenueStats);
+        setTopMovies([]);
         setError('Unable to load dashboard data.');
       } finally {
         if (mounted) {
@@ -86,77 +127,6 @@ const Dashboard: FC = () => {
     };
   }, []);
 
-  const stats = useMemo(() => {
-    const now = new Date();
-    const weekOffset = (now.getDay() + 6) % 7;
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfWeek = new Date(startOfToday);
-    startOfWeek.setDate(startOfWeek.getDate() - weekOffset);
-
-    const activeUsersList = users.filter((u) => !u.deleted);
-    const activeBookingsList = bookings.filter((b) => !b.deleted);
-
-    const parseDate = (value?: string) => {
-      if (!value) return null;
-      const parsed = new Date(value);
-      return Number.isNaN(parsed.getTime()) ? null : parsed;
-    };
-
-    const bookingsThisWeek = activeBookingsList.filter((booking) => {
-      const bookingDate = parseDate(booking.bookingDate);
-      return bookingDate ? bookingDate >= startOfWeek : false;
-    });
-
-    const bookingsThisMonth = activeBookingsList.filter((booking) => {
-      const bookingDate = parseDate(booking.bookingDate);
-      return bookingDate
-        ? bookingDate.getMonth() === now.getMonth() && bookingDate.getFullYear() === now.getFullYear()
-        : false;
-    });
-
-    const activeUsers = activeUsersList.filter((user) => (user.status || '').toLowerCase() === 'active').length;
-    const totalRevenue = activeBookingsList.reduce((sum, booking) => sum + Number(booking.totalPrice || 0), 0);
-
-    return {
-      totalUsers: activeUsersList.length,
-      activeUsers,
-      inactiveUsers: activeUsersList.length - activeUsers,
-      totalBookings: activeBookingsList.length,
-      bookingsThisWeek: bookingsThisWeek.length,
-      bookingsThisMonth: bookingsThisMonth.length,
-      totalRevenue,
-      revenueThisWeek: bookingsThisWeek.reduce((sum, booking) => sum + Number(booking.totalPrice || 0), 0),
-      revenueThisMonth: bookingsThisMonth.reduce((sum, booking) => sum + Number(booking.totalPrice || 0), 0),
-    };
-  }, [users, bookings]);
-
-  const topMovies = useMemo(() => {
-    const filmTitleById = new Map<number, string>();
-    films.filter((f) => !f.deleted).forEach((film) => filmTitleById.set(film.id, film.title));
-
-    const movieStats = new Map<number, { movieId: number; title: string; bookingCount: number; revenue: number }>();
-
-    bookings
-      .filter((booking) => !booking.deleted)
-      .forEach((booking) => {
-        const current = movieStats.get(booking.movieId);
-        if (current) {
-          current.bookingCount += 1;
-          current.revenue += Number(booking.totalPrice || 0);
-          return;
-        }
-
-        movieStats.set(booking.movieId, {
-          movieId: booking.movieId,
-          title: filmTitleById.get(booking.movieId) || booking.movieTitle || `Film #${booking.movieId}`,
-          bookingCount: 1,
-          revenue: Number(booking.totalPrice || 0),
-        });
-      });
-
-    return Array.from(movieStats.values()).sort((a, b) => b.bookingCount - a.bookingCount);
-  }, [bookings, films]);
-
   return (
     <div style={{ height: '100%', overflowY: 'auto', paddingRight: '12px' }}>
       <Title level={2} style={{ marginBottom: '24px', marginTop: 0 }}><DashboardOutlined /> Dashboard</Title>
@@ -167,18 +137,18 @@ const Dashboard: FC = () => {
         <TeamOutlined style={{ marginRight: 8 }} /> User Statistics
       </Title>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={8}><StatCard title="Total Users" value={stats.totalUsers} icon={<UserOutlined />} loading={loading} /></Col>
-        <Col xs={24} sm={8}><StatCard title="Active Users" value={stats.activeUsers} icon={<UserOutlined />} valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
-        <Col xs={24} sm={8}><StatCard title="Inactive Users" value={stats.inactiveUsers} icon={<UserOutlined />} valueStyle={{ color: token.colorError }} loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="Total Users" value={userStats.totalUsers} icon={<UserOutlined />} loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="Active Users" value={userStats.activeUsers} icon={<UserOutlined />} valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="Inactive Users" value={userStats.inactiveUsers} icon={<UserOutlined />} valueStyle={{ color: token.colorError }} loading={loading} /></Col>
       </Row>
 
       <Title level={4} style={{ marginTop: '32px', marginBottom: '16px' }}>
         <UnorderedListOutlined style={{ marginRight: 8 }} /> Bookings
       </Title>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={8}><StatCard title="Total Bookings" value={stats.totalBookings} suffix="bookings" loading={loading} /></Col>
-        <Col xs={24} sm={8}><StatCard title="This Week" value={stats.bookingsThisWeek} suffix="bookings" loading={loading} /></Col>
-        <Col xs={24} sm={8}><StatCard title="This Month" value={stats.bookingsThisMonth} suffix="bookings" loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="Total Bookings" value={bookingStats.totalBookings} suffix="bookings" loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Week" value={bookingStats.bookingsThisWeek} suffix="bookings" loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Month" value={bookingStats.bookingsThisMonth} suffix="bookings" loading={loading} /></Col>
       </Row>
 
 
@@ -186,9 +156,9 @@ const Dashboard: FC = () => {
         <DollarOutlined style={{ marginRight: 8 }} /> Revenue Analytics
       </Title>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={8}><StatCard title="Total Revenue" value={stats.totalRevenue} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
-        <Col xs={24} sm={8}><StatCard title="This Week" value={stats.revenueThisWeek} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
-        <Col xs={24} sm={8}><StatCard title="This Month" value={stats.revenueThisMonth} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="Total Revenue" value={revenueStats.totalRevenue} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Week" value={revenueStats.revenueThisWeek} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
+        <Col xs={24} sm={8}><StatCard title="This Month" value={revenueStats.revenueThisMonth} precision={2} icon="$" valueStyle={{ color: token.colorSuccess }} loading={loading} /></Col>
       </Row>
 
       <Title level={4} style={{ marginTop: '32px', marginBottom: '16px' }}>

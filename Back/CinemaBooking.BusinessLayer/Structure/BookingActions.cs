@@ -168,8 +168,13 @@ public class BookingActions
             Status = entity.Status,
             BookingDate = entity.BookingDate.ToString("yyyy-MM-dd"),
             Showtime = entity.Showtime,
-            TotalPrice = entity.TotalPrice,
+            TotalPrice = TruncateToTwoDecimals(entity.TotalPrice),
             Deleted = entity.Deleted
         };
+    }
+
+    private static decimal TruncateToTwoDecimals(decimal value)
+    {
+        return Math.Truncate(value * 100) / 100;
     }
 }
