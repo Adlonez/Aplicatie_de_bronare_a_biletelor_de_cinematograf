@@ -8,6 +8,7 @@ public interface IScreeningLogic
     ServiceResponse CreateScreening(ScreeningCreateDto screening);
     ServiceResponse GetScreeningById(int id);
     ServiceResponse GetScreeningList();
+    ServiceResponse GetScreeningList(AdminListQuery query);
     ServiceResponse GetScreeningsByMovieId(int movieId);
     ServiceResponse UpdateScreening(int id, ScreeningCreateDto screening);
     ServiceResponse DeleteScreening(int id);

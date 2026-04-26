@@ -1,13 +1,14 @@
-import { useEffect, useState, type FC } from 'react';
+import { useCallback, useEffect, useState, type FC, type Key } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Popconfirm, Tag, Row, Col, Select, DatePicker, Switch, Typography, Tooltip } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, VideoCameraOutlined, ClearOutlined } from '@ant-design/icons';
-import type { ColumnType } from 'antd/es/table';
+import type { ColumnType, TableProps } from 'antd/es/table';
+import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
 import axiosInstance from '../../api/axiosInstance';
 import type { Films } from '../../types/ui';
-import { dateRangeFilter, sliderRangeFilter, sortDeletedLast } from '../../components/admin/shared/tableFilters';
 
 const { Title } = Typography;
+const { RangePicker } = DatePicker;
 
 const req = (label: string) => [{ required: true, message: `Enter ${label.toLowerCase()}` }];
 
@@ -35,6 +36,60 @@ type FilmPayload = {
   screeningPeriodEnd?: string;
 };
 
+type PagedResult<T> = {
+  items: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+};
+
+type MovieFilters = {
+  search?: string;
+  status?: Films['status'];
+  format?: Films['format'];
+  genre?: string;
+  dateRange?: [dayjs.Dayjs, dayjs.Dayjs] | null;
+  minDuration?: number;
+  maxDuration?: number;
+};
+
+type MovieSort = {
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+};
+
+const encodeDateRange = (dateRange?: MovieFilters['dateRange']) => {
+  if (!dateRange?.[0] || !dateRange?.[1]) return undefined;
+  return `${dateRange[0].format('YYYY-MM-DD')}|${dateRange[1].format('YYYY-MM-DD')}`;
+};
+
+const decodeDateRange = (value?: Key | boolean): MovieFilters['dateRange'] => {
+  if (typeof value !== 'string') return null;
+  const [start, end] = value.split('|');
+  return start && end ? [dayjs(start), dayjs(end)] : null;
+};
+
+const encodeDurationRange = (minDuration?: number, maxDuration?: number) => {
+  if (minDuration == null && maxDuration == null) return undefined;
+  return `${minDuration ?? ''}|${maxDuration ?? ''}`;
+};
+
+const decodeDurationRange = (value?: Key | boolean) => {
+  if (typeof value !== 'string') return {};
+  const [minDuration, maxDuration] = value.split('|');
+  return {
+    minDuration: minDuration ? Number(minDuration) : undefined,
+    maxDuration: maxDuration ? Number(maxDuration) : undefined,
+  };
+};
+
+const FilterButtons = ({ confirm, clearFilters, hasFilter }: { confirm: () => void; clearFilters?: () => void; hasFilter: boolean }) => (
+  <Space style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+    <Button onClick={() => { clearFilters?.(); confirm(); }} size="small" style={{ width: 90 }} disabled={!hasFilter}>Reset</Button>
+    <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>OK</Button>
+  </Space>
+);
+
 const toFilmPayload = (values: MovieFormValues): FilmPayload => ({
   title: values.title,
   poster: values.poster || '',
@@ -58,27 +113,79 @@ const Movies: FC = () => {
   const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Films | null>(null);
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [filters, setFilters] = useState<MovieFilters>({});
+  const [sort, setSort] = useState<MovieSort>({});
   const [form] = Form.useForm();
   const [tableKey, setTableKey] = useState(0);
 
   const allGenres = Array.from(new Set(movies.flatMap(m => m.genre ? m.genre.split(', ') : []))).map(g => ({ label: g, value: g }));
+  const dateFilterValue = encodeDateRange(filters.dateRange);
+  const durationFilterValue = encodeDurationRange(filters.minDuration, filters.maxDuration);
 
-  const loadMovies = async () => {
+  const loadMovies = useCallback(async (
+    pageNumber: number,
+    pageSize: number,
+    nextFilters: MovieFilters,
+    nextSort: MovieSort,
+  ) => {
     try {
       setLoading(true);
-      const { data } = await axiosInstance.get('/api/films/list');
-      setMovies((data?.data ?? []) as Films[]);
+      const params = {
+        pageNumber,
+        pageSize,
+        search: nextFilters.search || undefined,
+        status: nextFilters.status,
+        format: nextFilters.format,
+        genre: nextFilters.genre || undefined,
+        dateFrom: nextFilters.dateRange?.[0]?.format('YYYY-MM-DD'),
+        dateTo: nextFilters.dateRange?.[1]?.format('YYYY-MM-DD'),
+        minDuration: nextFilters.minDuration,
+        maxDuration: nextFilters.maxDuration,
+        sortBy: nextSort.sortBy,
+        sortDirection: nextSort.sortDirection,
+      };
+
+      const { data } = await axiosInstance.get('/api/films/list', { params });
+      const result = data?.data as PagedResult<Films> | Films[] | undefined;
+
+      if (Array.isArray(result)) {
+        setMovies(result);
+        setPagination((prev) => ({ ...prev, current: 1, total: result.length }));
+        return;
+      }
+
+      setMovies(result?.items ?? []);
+      setPagination({
+        current: result?.pageNumber ?? pageNumber,
+        pageSize: result?.pageSize ?? pageSize,
+        total: result?.totalCount ?? 0,
+      });
     } catch {
       setMovies([]);
       message.error('Unable to load movies');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadMovies();
-  }, []);
+    loadMovies(1, 10, {}, {});
+  }, [loadMovies]);
+
+  const updateFilters = async (nextFilters: MovieFilters) => {
+    setFilters(nextFilters);
+    await loadMovies(1, pagination.pageSize, nextFilters, sort);
+  };
+
+  const resetFilters = async () => {
+    const emptyFilters: MovieFilters = {};
+    const emptySort: MovieSort = {};
+    setFilters(emptyFilters);
+    setSort(emptySort);
+    setTableKey(k => k + 1);
+    await loadMovies(1, pagination.pageSize, emptyFilters, emptySort);
+  };
 
   const openModal = (movie?: Films) => {
     setEditing(movie || null);
@@ -110,7 +217,7 @@ const Movies: FC = () => {
       }
       setModalOpen(false);
       form.resetFields();
-      await loadMovies();
+      await loadMovies(pagination.current, pagination.pageSize, filters, sort);
     } catch (error) {
       if (error && typeof error === 'object' && 'errorFields' in error) return;
       message.error('Unable to save movie');
@@ -124,7 +231,7 @@ const Movies: FC = () => {
       setLoading(true);
       await axiosInstance.delete(`/api/films/${id}`);
       message.success('Movie deleted');
-      await loadMovies();
+      await loadMovies(pagination.current, pagination.pageSize, filters, sort);
     } catch {
       message.error('Unable to delete movie');
     } finally {
@@ -144,11 +251,7 @@ const Movies: FC = () => {
     {
       title: 'Title',
       dataIndex: 'title',
-      sorter: (a, b) => a.title.localeCompare(b.title),
-      filters: movies.map((m) => ({ text: m.title, value: m.title })),
-      filterSearch: true,
-      filterDropdownProps: { overlayStyle: { width: 250 } },
-      onFilter: (value, record) => record.title === value,
+      sorter: true,
       render: (text: string, movie: Films) => (
         <Space>
           <Tooltip title={text}>
@@ -156,30 +259,71 @@ const Movies: FC = () => {
           </Tooltip>
           {movie.deleted && <Tag color="red">Deleted</Tag>}
         </Space>
-      ),
+      )
     },
     {
       title: 'Genre',
       dataIndex: 'genre',
-      sorter: (a, b) => (a.genre || '').localeCompare(b.genre || ''),
-      filters: Array.from(new Set(movies.flatMap(m => (m.genre || '').split(', ')))).filter(Boolean).map(g => ({ text: g, value: g })),
-      filterSearch: true,
-      onFilter: (value, record) => (record.genre || '').includes(value as string),
+      sorter: true,
     },
     {
       title: 'Duration (min)',
       dataIndex: 'duration',
-      sorter: (a, b) => (a.duration || 0) - (b.duration || 0),
-      ...sliderRangeFilter<Films>((r) => r.duration || 0, 30, 240),
+      sorter: true,
+      filteredValue: durationFilterValue ? [durationFilterValue] : null,
+      filterDropdown: ({ selectedKeys, setSelectedKeys, confirm, clearFilters }: FilterDropdownProps) => {
+        const { minDuration, maxDuration } = decodeDurationRange(selectedKeys[0]);
+
+        const updateDurationKeys = (nextMin?: number, nextMax?: number) => {
+          const encoded = encodeDurationRange(nextMin, nextMax);
+          setSelectedKeys(encoded ? [encoded] : []);
+        };
+
+        return (
+          <div style={{ padding: 8, width: 220 }} onKeyDown={(event) => event.stopPropagation()}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <InputNumber
+                min={1}
+                placeholder="Min minutes"
+                value={minDuration}
+                onChange={(value) => updateDurationKeys(value ?? undefined, maxDuration)}
+                style={{ width: '100%' }}
+              />
+              <InputNumber
+                min={1}
+                placeholder="Max minutes"
+                value={maxDuration}
+                onChange={(value) => updateDurationKeys(minDuration, value ?? undefined)}
+                style={{ width: '100%' }}
+              />
+            </Space>
+            <FilterButtons confirm={confirm} clearFilters={clearFilters} hasFilter={selectedKeys.length > 0} />
+          </div>
+        );
+      },
     },
     {
       title: 'Release Date',
       dataIndex: 'releaseDate',
-      sorter: (a, b) => new Date(a.releaseDate || 0).getTime() - new Date(b.releaseDate || 0).getTime(),
-      ...dateRangeFilter<Films>((r) => r.releaseDate || ''),
+      sorter: true,
+      filteredValue: dateFilterValue ? [dateFilterValue] : null,
+      filterDropdown: ({ selectedKeys, setSelectedKeys, confirm, clearFilters }: FilterDropdownProps) => (
+        <div style={{ padding: 8 }} onKeyDown={(event) => event.stopPropagation()}>
+          <RangePicker
+            value={decodeDateRange(selectedKeys[0])}
+            onChange={(dateRange) => {
+              const encoded = encodeDateRange(dateRange as MovieFilters['dateRange']);
+              setSelectedKeys(encoded ? [encoded] : []);
+            }}
+            style={{ marginBottom: 8, display: 'flex' }}
+          />
+          <FilterButtons confirm={confirm} clearFilters={clearFilters} hasFilter={selectedKeys.length > 0} />
+        </div>
+      ),
     },
     {
       title: 'Actions',
+      fixed: 'end',
       render: (_: unknown, movie: Films) => (
         <Space>
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(movie)} disabled={movie.deleted}>
@@ -193,18 +337,96 @@ const Movies: FC = () => {
     },
   ];
 
+  const handleTableChange: TableProps<Films>['onChange'] = async (nextPagination, tableFilters, sorter) => {
+    const activeSorter = Array.isArray(sorter) ? sorter[0] : sorter;
+    const nextSort: MovieSort = activeSorter?.order
+      ? {
+          sortBy: String(activeSorter.field),
+          sortDirection: activeSorter.order === 'descend' ? 'desc' : 'asc',
+      }
+      : {};
+    const nextDateRange = decodeDateRange(tableFilters.releaseDate?.[0]);
+    const nextDurationRange = decodeDurationRange(tableFilters.duration?.[0]);
+    const nextFilters: MovieFilters = {
+      ...filters,
+      dateRange: nextDateRange,
+      minDuration: nextDurationRange.minDuration,
+      maxDuration: nextDurationRange.maxDuration,
+    };
+
+    setFilters(nextFilters);
+    setSort(nextSort);
+    await loadMovies(nextPagination.current ?? 1, nextPagination.pageSize ?? 10, nextFilters, nextSort);
+  };
+
   return (
-    <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'scroll' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0 }}><VideoCameraOutlined /> Movie Management</Title>
         <Space>
-          <Button icon={<ClearOutlined />} onClick={() => setTableKey(k => k + 1)}>Reset All Filters</Button>
+          <Button icon={<ClearOutlined />} onClick={resetFilters}>Reset All Filters</Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>Add Movie</Button>
         </Space>
       </div>
 
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        <Table key={tableKey} dataSource={sortDeletedLast(movies)} columns={columns} rowKey="id" pagination={false} scroll={{ y: 'calc(100vh - 310px)' }} loading={loading} />
+      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+        <Col xs={24} md={8} lg={6}>
+          <Input.Search
+            allowClear
+            placeholder="Search title, genre, description"
+            value={filters.search}
+            onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
+            onSearch={(value) => updateFilters({ ...filters, search: value || undefined })}
+          />
+        </Col>
+        <Col xs={12} md={4} lg={3}>
+          <Select
+            allowClear
+            placeholder="Status"
+            value={filters.status}
+            onChange={(status) => updateFilters({ ...filters, status })}
+            options={[{ value: 'progress', label: 'In Progress' }, { value: 'soon', label: 'Coming Soon' }]}
+            style={{ width: '100%' }}
+          />
+        </Col>
+        <Col xs={12} md={4} lg={3}>
+          <Select
+            allowClear
+            placeholder="Format"
+            value={filters.format}
+            onChange={(format) => updateFilters({ ...filters, format })}
+            options={[{ value: '2D', label: '2D' }, { value: '3D', label: '3D' }]}
+            style={{ width: '100%' }}
+          />
+        </Col>
+        <Col xs={24} md={8} lg={4}>
+          <Input
+            allowClear
+            placeholder="Genre"
+            value={filters.genre}
+            onChange={(event) => setFilters((current) => ({ ...current, genre: event.target.value }))}
+            onPressEnter={() => updateFilters(filters)}
+            onBlur={() => updateFilters(filters)}
+          />
+        </Col>
+      </Row>
+
+      <div style={{ flex: 1, overflow: 'scroll' }}>
+        <Table
+          key={tableKey}
+          dataSource={movies}
+          columns={columns}
+          rowKey="id"
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showSizeChanger: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+          }}
+          loading={loading}
+          onChange={handleTableChange}
+        />
       </div>
 
       <Modal title={editing ? 'Edit Movie' : 'Add Movie'} open={modalOpen} onOk={saveMovie} confirmLoading={saving} onCancel={() => setModalOpen(false)} width={800}>

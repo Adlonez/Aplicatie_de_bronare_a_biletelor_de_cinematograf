@@ -9,6 +9,7 @@ public class UserLogic : UserActions, IUserLogic
 {
     public ServiceResponse GetUserById(int id) => GetUserByIdAction(id);
     public ServiceResponse GetUserList() => GetUserListAction();
+    public ServiceResponse GetUserList(AdminListQuery query) => GetUserListAction(query);
     public ServiceResponse UpdateUserStatus(int id, string status) => UpdateUserStatusAction(id, status);
     public ServiceResponse DeleteUser(int id) => DeleteUserAction(id);
 }

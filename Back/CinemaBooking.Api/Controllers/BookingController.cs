@@ -1,6 +1,7 @@
 using CinemaBooking.BusinessLayer;
 using CinemaBooking.BusinessLayer.Interfaces;
 using CinemaBooking.Domain.Models.Booking;
+using CinemaBooking.Domain.Models.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,9 +21,11 @@ public class BookingController : ControllerBase
 
     [HttpGet("list")]
     [Authorize(Roles = "admin")]
-    public IActionResult GetBookingList()
+    public IActionResult GetBookingList([FromQuery] AdminListQuery query)
     {
-        var response = _bookingLogic.GetBookingList();
+        var response = Request.Query.Count == 0
+            ? _bookingLogic.GetBookingList()
+            : _bookingLogic.GetBookingList(query);
         if (!response.IsSuccess)
             return BadRequest(response);
         return Ok(response);

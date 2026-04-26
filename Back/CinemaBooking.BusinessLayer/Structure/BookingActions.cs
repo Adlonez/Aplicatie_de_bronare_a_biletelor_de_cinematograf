@@ -3,6 +3,7 @@ using CinemaBooking.DataAccessLayer.Context;
 using CinemaBooking.Domain.Entities.Booking;
 using CinemaBooking.Domain.Models.Booking;
 using CinemaBooking.Domain.Models.Service;
+using Microsoft.EntityFrameworkCore;
 
 namespace CinemaBooking.BusinessLayer.Structure;
 
@@ -62,11 +63,77 @@ public class BookingActions
         try
         {
             var bookings = _context.Bookings
+                .AsNoTracking()
                 .Where(b => !b.Deleted)
                 .Select(b => MapToDto(b))
                 .ToList();
 
             return new ServiceResponse { IsSuccess = true, Data = bookings };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    protected ServiceResponse GetBookingListAction(AdminListQuery query)
+    {
+        try
+        {
+            var bookingsQuery = _context.Bookings
+                .AsNoTracking()
+                .Where(b => !b.Deleted);
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                var search = query.Search.Trim();
+                bookingsQuery = bookingsQuery.Where(b =>
+                    b.MovieTitle.Contains(search) ||
+                    b.CustomerName.Contains(search) ||
+                    b.CustomerEmail.Contains(search) ||
+                    b.CustomerPhone.Contains(search) ||
+                    b.Hall.Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Status))
+                bookingsQuery = bookingsQuery.Where(b => b.Status == query.Status);
+
+            if (!string.IsNullOrWhiteSpace(query.Hall))
+                bookingsQuery = bookingsQuery.Where(b => b.Hall == query.Hall);
+
+            if (query.DateFrom.HasValue)
+                bookingsQuery = bookingsQuery.Where(b => b.BookingDate >= query.DateFrom.Value);
+
+            if (query.DateTo.HasValue)
+            {
+                var dateToExclusive = query.DateTo.Value.Date.AddDays(1);
+                bookingsQuery = bookingsQuery.Where(b => b.BookingDate < dateToExclusive);
+            }
+
+            if (query.MinPrice.HasValue)
+                bookingsQuery = bookingsQuery.Where(b => b.TotalPrice >= query.MinPrice.Value);
+
+            if (query.MaxPrice.HasValue)
+                bookingsQuery = bookingsQuery.Where(b => b.TotalPrice <= query.MaxPrice.Value);
+
+            var totalCount = bookingsQuery.Count();
+            var orderedQuery = ApplyBookingSorting(bookingsQuery, query);
+            var bookings = orderedQuery
+                .Skip(query.Skip)
+                .Take(query.PageSize)
+                .AsEnumerable()
+                .Select(MapToDto)
+                .ToList();
+
+            var result = new PagedResult<BookingInfoDto>
+            {
+                Items = bookings,
+                PageNumber = query.PageNumber,
+                PageSize = query.PageSize,
+                TotalCount = totalCount
+            };
+
+            return new ServiceResponse { IsSuccess = true, Data = result };
         }
         catch (Exception ex)
         {
@@ -176,5 +243,30 @@ public class BookingActions
     private static decimal TruncateToTwoDecimals(decimal value)
     {
         return Math.Truncate(value * 100) / 100;
+    }
+
+    private static IOrderedQueryable<BookingEntity> ApplyBookingSorting(IQueryable<BookingEntity> bookings, AdminListQuery query)
+    {
+        var sortBy = query.SortBy?.Trim().ToLowerInvariant();
+
+        return (sortBy, query.SortDescending) switch
+        {
+            ("movietitle", true) => bookings.OrderByDescending(b => b.MovieTitle).ThenBy(b => b.Id),
+            ("movietitle", false) => bookings.OrderBy(b => b.MovieTitle).ThenBy(b => b.Id),
+            ("customername", true) => bookings.OrderByDescending(b => b.CustomerName).ThenBy(b => b.Id),
+            ("customername", false) => bookings.OrderBy(b => b.CustomerName).ThenBy(b => b.Id),
+            ("customeremail", true) => bookings.OrderByDescending(b => b.CustomerEmail).ThenBy(b => b.Id),
+            ("customeremail", false) => bookings.OrderBy(b => b.CustomerEmail).ThenBy(b => b.Id),
+            ("hall", true) => bookings.OrderByDescending(b => b.Hall).ThenBy(b => b.Id),
+            ("hall", false) => bookings.OrderBy(b => b.Hall).ThenBy(b => b.Id),
+            ("status", true) => bookings.OrderByDescending(b => b.Status).ThenBy(b => b.Id),
+            ("status", false) => bookings.OrderBy(b => b.Status).ThenBy(b => b.Id),
+            ("bookingdate", false) => bookings.OrderBy(b => b.BookingDate).ThenBy(b => b.Id),
+            ("totalprice", true) => bookings.OrderByDescending(b => b.TotalPrice).ThenBy(b => b.Id),
+            ("totalprice", false) => bookings.OrderBy(b => b.TotalPrice).ThenBy(b => b.Id),
+            ("id", false) => bookings.OrderBy(b => b.Id),
+            ("id", true) => bookings.OrderByDescending(b => b.Id),
+            _ => bookings.OrderByDescending(b => b.BookingDate).ThenByDescending(b => b.Id)
+        };
     }
 }

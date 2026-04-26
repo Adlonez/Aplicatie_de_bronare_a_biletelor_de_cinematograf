@@ -3,6 +3,7 @@ using CinemaBooking.DataAccessLayer.Context;
 using CinemaBooking.Domain.Entities.Film;
 using CinemaBooking.Domain.Models.Film;
 using CinemaBooking.Domain.Models.Service;
+using Microsoft.EntityFrameworkCore;
 
 namespace CinemaBooking.BusinessLayer.Structure;
 
@@ -64,11 +65,78 @@ public class FilmActions
         try
         {
             var films = _context.Films
+                .AsNoTracking()
                 .Where(f => !f.Deleted)
                 .Select(f => MapToDto(f))
                 .ToList();
 
             return new ServiceResponse { IsSuccess = true, Data = films };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+        }
+    }
+
+    protected ServiceResponse GetFilmListAction(AdminListQuery query)
+    {
+        try
+        {
+            var filmsQuery = _context.Films
+                .AsNoTracking()
+                .Where(f => !f.Deleted);
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                var search = query.Search.Trim();
+                filmsQuery = filmsQuery.Where(f =>
+                    f.Title.Contains(search) ||
+                    (f.Genre != null && f.Genre.Contains(search)) ||
+                    f.Description.Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Status))
+                filmsQuery = filmsQuery.Where(f => f.Status == query.Status);
+
+            if (!string.IsNullOrWhiteSpace(query.Genre))
+                filmsQuery = filmsQuery.Where(f => f.Genre != null && f.Genre.Contains(query.Genre));
+
+            if (!string.IsNullOrWhiteSpace(query.Format))
+                filmsQuery = filmsQuery.Where(f => f.Format == query.Format);
+
+            if (query.DateFrom.HasValue)
+                filmsQuery = filmsQuery.Where(f => f.ReleaseDate >= query.DateFrom.Value);
+
+            if (query.DateTo.HasValue)
+            {
+                var dateToExclusive = query.DateTo.Value.Date.AddDays(1);
+                filmsQuery = filmsQuery.Where(f => f.ReleaseDate < dateToExclusive);
+            }
+
+            if (query.MinDuration.HasValue)
+                filmsQuery = filmsQuery.Where(f => f.Duration >= query.MinDuration.Value);
+
+            if (query.MaxDuration.HasValue)
+                filmsQuery = filmsQuery.Where(f => f.Duration <= query.MaxDuration.Value);
+
+            var totalCount = filmsQuery.Count();
+            var orderedQuery = ApplyFilmSorting(filmsQuery, query);
+            var films = orderedQuery
+                .Skip(query.Skip)
+                .Take(query.PageSize)
+                .AsEnumerable()
+                .Select(MapToDto)
+                .ToList();
+
+            var result = new PagedResult<FilmInfoDto>
+            {
+                Items = films,
+                PageNumber = query.PageNumber,
+                PageSize = query.PageSize,
+                TotalCount = totalCount
+            };
+
+            return new ServiceResponse { IsSuccess = true, Data = result };
         }
         catch (Exception ex)
         {
@@ -151,6 +219,27 @@ public class FilmActions
                 End = entity.ScreeningPeriodEnd?.ToString("yyyy-MM-dd") ?? ""
             } : null,
             Deleted = entity.Deleted
+        };
+    }
+
+    private static IOrderedQueryable<FilmEntity> ApplyFilmSorting(IQueryable<FilmEntity> films, AdminListQuery query)
+    {
+        var sortBy = query.SortBy?.Trim().ToLowerInvariant();
+
+        return (sortBy, query.SortDescending) switch
+        {
+            ("title", true) => films.OrderByDescending(f => f.Title).ThenBy(f => f.Id),
+            ("title", false) => films.OrderBy(f => f.Title).ThenBy(f => f.Id),
+            ("genre", true) => films.OrderByDescending(f => f.Genre).ThenBy(f => f.Id),
+            ("genre", false) => films.OrderBy(f => f.Genre).ThenBy(f => f.Id),
+            ("duration", true) => films.OrderByDescending(f => f.Duration).ThenBy(f => f.Id),
+            ("duration", false) => films.OrderBy(f => f.Duration).ThenBy(f => f.Id),
+            ("releasedate", true) => films.OrderByDescending(f => f.ReleaseDate).ThenBy(f => f.Id),
+            ("releasedate", false) => films.OrderBy(f => f.ReleaseDate).ThenBy(f => f.Id),
+            ("status", true) => films.OrderByDescending(f => f.Status).ThenBy(f => f.Id),
+            ("status", false) => films.OrderBy(f => f.Status).ThenBy(f => f.Id),
+            ("id", true) => films.OrderByDescending(f => f.Id),
+            _ => films.OrderBy(f => f.Id)
         };
     }
 }
