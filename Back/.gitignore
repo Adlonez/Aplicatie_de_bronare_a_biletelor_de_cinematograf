@@ -17,6 +17,7 @@ mysql-data/
 # Secrets / environment overrides (keep appsettings.json, ignore local overrides)
 appsettings.Local.json
 appsettings.*.Local.json
+.build*
 
 # EF Core migrations temp
 *.mdf
