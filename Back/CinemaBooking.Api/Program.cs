@@ -1,7 +1,9 @@
 using System.Text;
 using CinemaBooking.Api.Hubs;
 using CinemaBooking.Api.Seeder;
+using CinemaBooking.DataAccessLayer.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using CinemaBooking.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +40,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddSignalR();
+builder.Services.AddDbContext<CinemaDbContext>();
 
 // JWT Authentication — reads from appsettings.json
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
@@ -98,8 +101,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Seed database with mock data on first run
-DbSeeder.Seed();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<CinemaDbContext>();
+    dbContext.Database.Migrate();
+
+    // Seed database with mock data on first run
+    DbSeeder.Seed(dbContext);
+}
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();

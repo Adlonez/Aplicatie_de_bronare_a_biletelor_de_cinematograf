@@ -19,7 +19,7 @@ public static class DbSeeder
         PropertyNameCaseInsensitive = true
     };
 
-    public static void Seed()
+    public static void Seed(CinemaDbContext context)
     {
         using var context = new CinemaDbContext();
 
