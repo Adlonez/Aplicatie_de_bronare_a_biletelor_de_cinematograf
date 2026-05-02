@@ -11,6 +11,15 @@ namespace CinemaBooking.DataAccessLayer.Context;
 
 public sealed class CinemaDbContext : DbContext
 {
+    public CinemaDbContext()
+    {
+    }
+
+    public CinemaDbContext(DbContextOptions<CinemaDbContext> options)
+        : base(options)
+    {
+    }
+
     public DbSet<FilmEntity> Films { get; set; }
     public DbSet<ScreeningEntity> Screenings { get; set; }
     public DbSet<BookingEntity> Bookings { get; set; }
@@ -23,6 +32,7 @@ public sealed class CinemaDbContext : DbContext
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false)
+            .AddEnvironmentVariables()
             .Build();
 
         return configuration.GetConnectionString("DefaultConnection")
@@ -31,6 +41,11 @@ public sealed class CinemaDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (optionsBuilder.IsConfigured)
+        {
+            return;
+        }
+
         var connectionString = GetConnectionString();
         optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
     }

@@ -24,7 +24,7 @@
 
 ## Configuration
 
-All settings are in one file: **`CinemaBooking.Api/appsettings.json`**
+Local defaults live in **`CinemaBooking.Api/appsettings.json`**, but Docker and deployment can override them through environment variables.
 
 If your MySQL credentials differ from the defaults, edit that file before running:
 ```json
@@ -33,7 +33,12 @@ If your MySQL credentials differ from the defaults, edit that file before runnin
 }
 ```
 
-No other files need to be touched.
+For deployment, `docker-compose.deploy.yml` sets:
+```yaml
+ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=cinemabooking;User=root;Password=${MYSQL_ROOT_PASSWORD:-root};
+```
+
+The backend now reads environment variables as overrides, so the same code works locally and in Docker.
 
 ---
 
@@ -92,6 +97,20 @@ dotnet run --project CinemaBooking.Api
 
 The API starts at: **http://localhost:5087**
 Swagger UI: **http://localhost:5087/swagger**
+
+On startup the API also applies pending EF migrations before seeding mock data.
+
+If you run the frontend with Vite locally, requests to `/api` are proxied to `http://localhost:5087` by `Front/vite.config.ts`.
+
+## Deployment Notes
+
+For the domain deployment:
+- backend uses the Docker MySQL service via `ConnectionStrings__DefaultConnection`
+- frontend calls the API with same-origin `/api` requests
+- Nginx proxies `/api/` to the backend container
+- migrations run automatically when the backend starts
+
+If you add a new environment, keep the API base path and DB connection override aligned with the deployment compose file.
 
 ---
 
