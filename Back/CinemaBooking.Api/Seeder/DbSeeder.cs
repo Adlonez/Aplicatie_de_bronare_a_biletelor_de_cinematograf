@@ -21,8 +21,6 @@ public static class DbSeeder
 
     public static void Seed(CinemaDbContext context)
     {
-        using var context = new CinemaDbContext();
-
         // Wait for the database to be ready (retry up to 10 times)
         var retries = 0;
         const int maxRetries = 10;
