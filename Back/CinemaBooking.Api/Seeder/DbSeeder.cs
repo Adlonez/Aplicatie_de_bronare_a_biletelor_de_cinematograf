@@ -1,6 +1,7 @@
 // Transfer data from mock to the database(if empty)
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using CinemaBooking.DataAccessLayer.Context;
 using CinemaBooking.Domain.Entities.Booking;
 using CinemaBooking.Domain.Entities.Film;
@@ -20,6 +21,32 @@ public static class DbSeeder
 
     public static void Seed(CinemaDbContext context)
     {
+        using var context = new CinemaDbContext();
+
+        // Wait for the database to be ready (retry up to 10 times)
+        var retries = 0;
+        const int maxRetries = 10;
+        while (retries < maxRetries)
+        {
+            try
+            {
+                if (context.Database.CanConnect()) break;
+            }
+            catch
+            {
+                // Ignore exceptions and retry
+            }
+            retries++;
+            Console.WriteLine($"[DbSeeder] Waiting for database... (Attempt {retries}/{maxRetries})");
+            Thread.Sleep(2000);
+        }
+
+        if (retries == maxRetries)
+        {
+            Console.WriteLine("[DbSeeder] Could not connect to database after several attempts. Skipping seed.");
+            return;
+        }
+
         // Only seed if database is empty
         if (context.Films.Any()) return;
 
