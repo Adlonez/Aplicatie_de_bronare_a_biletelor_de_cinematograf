@@ -4,7 +4,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, VideoCameraOutlined, ClearO
 import type { ColumnType, TableProps } from 'antd/es/table';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import type { Films } from '../../types/ui';
 
 const { Title } = Typography;
@@ -161,9 +161,9 @@ const Movies: FC = () => {
         pageSize: result?.pageSize ?? pageSize,
         total: result?.totalCount ?? 0,
       });
-    } catch {
+    } catch (err) {
       setMovies([]);
-      message.error('Unable to load movies');
+      message.error(getErrorMessage(err, 'Unable to load movies'));
     } finally {
       setLoading(false);
     }
@@ -218,9 +218,9 @@ const Movies: FC = () => {
       setModalOpen(false);
       form.resetFields();
       await loadMovies(pagination.current, pagination.pageSize, filters, sort);
-    } catch (error) {
-      if (error && typeof error === 'object' && 'errorFields' in error) return;
-      message.error('Unable to save movie');
+    } catch (err) {
+      if (err && typeof err === 'object' && 'errorFields' in err) return;
+      message.error(getErrorMessage(err, 'Unable to save movie'));
     } finally {
       setSaving(false);
     }
@@ -232,8 +232,8 @@ const Movies: FC = () => {
       await axiosInstance.delete(`/api/films/${id}`);
       message.success('Movie deleted');
       await loadMovies(pagination.current, pagination.pageSize, filters, sort);
-    } catch {
-      message.error('Unable to delete movie');
+    } catch (err) {
+      message.error(getErrorMessage(err, 'Unable to delete movie'));
     } finally {
       setLoading(false);
     }

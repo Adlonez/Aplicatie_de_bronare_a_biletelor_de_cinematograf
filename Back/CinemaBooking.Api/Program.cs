@@ -3,6 +3,8 @@ using CinemaBooking.Api.Hubs;
 using CinemaBooking.Api.Seeder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using CinemaBooking.DataAccessLayer.Context;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

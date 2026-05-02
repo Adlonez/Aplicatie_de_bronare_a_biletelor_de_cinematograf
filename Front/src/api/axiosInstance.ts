@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5087',
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5087' : ''),
   timeout: 10000,
 })
 
@@ -12,16 +12,31 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, config.params || '')
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('[API Request Error]', error)
+    return Promise.reject(error)
+  }
 )
 
 // Response interceptor — handle HTTP errors globally
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url} | Status: ${response.status}`)
+    return response
+  },
   (error) => {
     const status = error.response?.status
+    const url = error.config?.url
+    const method = error.config?.method?.toUpperCase()
+
+    console.error(`[API Error] ${method} ${url} | Status: ${status || 'TIMEOUT/NETWORK'} | Message: ${error.message}`)
+    
+    if (error.response?.data) {
+      console.error('[API Error Detail]', error.response.data)
+    }
 
     if (status === 401) {
       localStorage.removeItem('token')
@@ -36,5 +51,24 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+/**
+ * Extracts a user-friendly error message from an Axios error.
+ */
+export const getErrorMessage = (error: any, defaultMessage: string = 'An unexpected error occurred'): string => {
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  if (error.response?.data?.error) {
+    return error.response.data.error;
+  }
+  if (error.message === 'Network Error') {
+    return 'Network connection failed. Please check your internet or tunnel.';
+  }
+  if (error.code === 'ECONNABORTED') {
+    return 'Request timed out. The server might be busy.';
+  }
+  return `${defaultMessage} (${error.message || 'Unknown'})`;
+};
 
 export default axiosInstance

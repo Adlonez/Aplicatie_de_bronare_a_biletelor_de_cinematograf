@@ -4,7 +4,7 @@ import { DeleteOutlined, InfoCircleOutlined, BookOutlined, ClearOutlined, Search
 import type { ColumnType, TableProps } from 'antd/es/table';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import type { Booking, Hall } from '../../types/ui';
 
 const { Title } = Typography;
@@ -177,10 +177,10 @@ const Bookings: FC = () => {
       }
 
       setHalls(getListData<Hall>(hallsRes.data?.data));
-    } catch {
+    } catch (err) {
       setBookings([]);
       setHalls([]);
-      message.error('Unable to load bookings');
+      message.error(getErrorMessage(err, 'Unable to load bookings'));
     } finally {
       setLoading(false);
     }
@@ -207,8 +207,8 @@ const Bookings: FC = () => {
       });
       message.success('Booking status updated');
       await loadBookingData(pagination.current, pagination.pageSize, filters, sort);
-    } catch {
-      message.error('Unable to update booking status');
+    } catch (err) {
+      message.error(getErrorMessage(err, 'Unable to update booking status'));
     } finally {
       setLoading(false);
     }
@@ -220,8 +220,8 @@ const Bookings: FC = () => {
       await axiosInstance.delete(`/api/bookings/${id}`);
       message.success('Booking deleted');
       await loadBookingData(pagination.current, pagination.pageSize, filters, sort);
-    } catch {
-      message.error('Unable to delete booking');
+    } catch (err) {
+      message.error(getErrorMessage(err, 'Unable to delete booking'));
     } finally {
       setLoading(false);
     }

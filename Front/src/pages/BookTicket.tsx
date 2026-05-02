@@ -22,6 +22,7 @@ import {
   ClockCircleOutlined,
   WarningOutlined
 } from '@ant-design/icons';
+import type { Films } from '../types/ui';
 
 const { Title, Text } = Typography;
 
@@ -37,8 +38,7 @@ const BookTicket = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const selectedTime = location.state?.time || '19:00';
-  
-  const movie = null;//filmsData.find(film => film.id === Number(id));
+  const movie = (location.state as { movie?: Films } | null)?.movie ?? null;
   const initializeSeats = (): Seat[] => {
     const seats: Seat[] = [];
     const occupiedSeats = ['3-5', '3-6', '4-7', '5-5', '5-6', '5-7', '6-8'];

@@ -4,7 +4,7 @@ import { CheckCircleOutlined, StopOutlined, DeleteOutlined, UserOutlined, ClearO
 import type { ColumnType, TableProps } from 'antd/es/table';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import type { User } from '../../types/ui';
 
 const { Title } = Typography;
@@ -109,9 +109,9 @@ const Users: FC = () => {
         pageSize: result?.pageSize ?? pageSize,
         total: result?.totalCount ?? 0,
       });
-    } catch {
+    } catch (err) {
       setUsers([]);
-      message.error('Unable to load users');
+      message.error(getErrorMessage(err, 'Unable to load users'));
     } finally {
       setLoading(false);
     }
@@ -140,8 +140,8 @@ const Users: FC = () => {
       });
       message.success('Status updated');
       await loadUsers(pagination.current, pagination.pageSize, filters, sort);
-    } catch {
-      message.error('Unable to update user status');
+    } catch (err) {
+      message.error(getErrorMessage(err, 'Unable to update user status'));
     } finally {
       setLoading(false);
     }
@@ -153,8 +153,8 @@ const Users: FC = () => {
       await axiosInstance.delete(`/api/users/${id}`);
       message.success('User deleted');
       await loadUsers(pagination.current, pagination.pageSize, filters, sort);
-    } catch {
-      message.error('Unable to delete user');
+    } catch (err) {
+      message.error(getErrorMessage(err, 'Unable to delete user'));
     } finally {
       setLoading(false);
     }

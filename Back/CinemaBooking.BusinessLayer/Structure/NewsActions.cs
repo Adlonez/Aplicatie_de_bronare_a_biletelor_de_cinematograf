@@ -30,7 +30,8 @@ public class NewsActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[NewsActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -46,7 +47,8 @@ public class NewsActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[NewsActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -63,7 +65,8 @@ public class NewsActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[NewsActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -87,7 +90,8 @@ public class NewsActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[NewsActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -106,7 +110,8 @@ public class NewsActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[NewsActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
