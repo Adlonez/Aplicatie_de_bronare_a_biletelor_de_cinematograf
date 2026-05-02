@@ -4,7 +4,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, CalendarOutlined, EyeOutlin
 import type { ColumnType, TableProps } from 'antd/es/table';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import SeatMapModal from '../../components/admin/SeatMapModal';
 import type { Screening, Booking, Hall, Films } from '../../types/ui';
 
@@ -142,12 +142,12 @@ const Screenings: FC = () => {
       setMovies(getListData<Films>(filmsRes.data?.data));
       setHalls(getListData<Hall>(hallsRes.data?.data));
       setBookings(getListData<Booking>(bookingsRes.data?.data));
-    } catch {
+    } catch (err) {
       setScreenings([]);
       setMovies([]);
       setHalls([]);
       setBookings([]);
-      message.error('Unable to load screenings');
+      message.error(getErrorMessage(err, 'Unable to load screenings'));
     } finally {
       setLoading(false);
     }
@@ -212,8 +212,8 @@ const Screenings: FC = () => {
           setModalOpen(false);
           form.resetFields();
           await loadScreeningData(pagination.current, pagination.pageSize, filters, sort);
-        } catch {
-          message.error('Unable to save screening');
+        } catch (err) {
+          message.error(getErrorMessage(err, 'Unable to save screening'));
         } finally {
           setSaving(false);
         }
@@ -250,8 +250,8 @@ const Screenings: FC = () => {
         await axiosInstance.delete(`/api/screenings/${id}`);
         message.success('Screening deleted');
         await loadScreeningData(pagination.current, pagination.pageSize, filters, sort);
-      } catch {
-        message.error('Unable to delete screening');
+      } catch (err) {
+        message.error(getErrorMessage(err, 'Unable to delete screening'));
       } finally {
         setLoading(false);
       }

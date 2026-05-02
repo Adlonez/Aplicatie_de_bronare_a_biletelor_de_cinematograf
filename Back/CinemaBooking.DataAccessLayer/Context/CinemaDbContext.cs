@@ -20,13 +20,17 @@ public sealed class CinemaDbContext : DbContext
 
     private static string GetConnectionString()
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+        
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile($"appsettings.{env}.json", optional: true)
+            .AddEnvironmentVariables()
             .Build();
 
         return configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json.");
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

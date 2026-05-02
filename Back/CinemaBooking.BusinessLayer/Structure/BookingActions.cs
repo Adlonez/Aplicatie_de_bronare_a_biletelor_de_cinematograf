@@ -38,7 +38,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -54,7 +55,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -72,7 +74,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -137,7 +140,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -154,7 +158,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -173,7 +178,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -197,7 +203,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
@@ -216,7 +223,8 @@ public class BookingActions
         }
         catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = ex.Message };
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
     }
 
