@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Button, Layout, Menu, Typography, Drawer } from 'antd'
 import {
   EnvironmentOutlined,
@@ -21,7 +21,7 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 
 const { Header, Footer, Content } = Layout
-const { Title } = Typography
+const { Text, Title } = Typography
 
 const menuItems = [
   {
@@ -41,17 +41,23 @@ const menuItems = [
   },
 ]
 
-interface IMainLayotProps {
+interface IMainLayoutProps {
   isDark: boolean;
   setIsDark: (value: boolean) => void;
 }
 
-const MainLayout = (props: IMainLayotProps) => {
+const MainLayout = (props: IMainLayoutProps) => {
   const { setIsDark, isDark } = props
-  const [activeTab, setActiveTab] = useState<string>('home')
   const [open, setOpen] = useState<boolean>(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated, isAdmin, user, logout } = useAuth()
+
+  const activeTab = location.pathname.startsWith('/films')
+    ? 'filmlist'
+    : location.pathname.startsWith('/news')
+      ? 'news'
+      : 'home'
 
   const handleLogout = () => {
     logout()
@@ -59,12 +65,14 @@ const MainLayout = (props: IMainLayotProps) => {
   }
 
   return (
-    <Layout className="min-h-screen">
+    <Layout className="cinema-shell min-h-screen">
       <Drawer
         title={
           <div className="flex items-center gap-2">
-            <VideoCameraOutlined />
-            CinemaUTM
+            <span className="cinema-brand-mark">
+              <VideoCameraOutlined />
+            </span>
+            <span>CinemaUTM</span>
           </div>
         }
         placement="left"
@@ -79,35 +87,45 @@ const MainLayout = (props: IMainLayotProps) => {
         <Menu
           mode="inline"
           selectedKeys={[activeTab]}
-          onClick={({ key }) => {
-            setActiveTab(key)
-            setOpen(false)
-          }}
+          onClick={() => setOpen(false)}
           items={menuItems}
         />
       </Drawer>
 
       <Layout style={{ minHeight: '100vh' }}>
-        <Header className="h-16 flex justify-between items-center">
-          <Button
-            type="text"
-            icon={<MenuOutlined />}
-            onClick={() => setOpen(true)}
-            style={{ fontSize: '18px' }}
-          />
-          <Title
-            level={4}
-            className="hidden lg:block m-0 absolute left-1/2 -translate-x-1/2"
-            style={{ cursor: 'pointer' }}
-            onClick={() => navigate('/')}
-          >
-            CinemaUTM
-          </Title>
-          <div>
+        <Header className="cinema-header">
+          <div className="cinema-nav-frame">
+            <button
+              className="cinema-brand"
+              type="button"
+              onClick={() => navigate('/')}
+              aria-label="Go to homepage"
+            >
+              <span className="cinema-brand-mark">
+                <VideoCameraOutlined />
+              </span>
+              <span className="cinema-brand-title">CinemaUTM</span>
+            </button>
+
+            <Menu
+              className="cinema-nav-menu"
+              mode="horizontal"
+              selectedKeys={[activeTab]}
+              items={menuItems}
+            />
+
+            <div className="cinema-actions">
+              <Button
+                className="cinema-mobile-menu-button"
+                icon={<MenuOutlined />}
+                onClick={() => setOpen(true)}
+                aria-label="Open navigation"
+              />
             <Button
               icon={isDark ? <SunOutlined /> : <MoonOutlined />}
               type="primary"
               onClick={() => setIsDark(!isDark)}
+              aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
             />
             {isAuthenticated ? (
               <>
@@ -117,22 +135,22 @@ const MainLayout = (props: IMainLayotProps) => {
                     onClick={() => navigate('/admin/dashboard')}
                     className='ml-2'
                   >
-                    Admin Panel
+                    <span className="desktop-action-label">Admin Panel</span>
                   </Button>
                 )}
                 <Button
                   icon={<UserOutlined />}
-                  onClick={() => navigate('/profile')}
+                  onClick={() => navigate('/films')}
                   className="ml-2"
                 >
-                  {user?.name}
+                  <span className="desktop-action-label">{user?.name}</span>
                 </Button>
                 <Button
                   icon={<LogoutOutlined />}
                   onClick={handleLogout}
                   className="ml-2"
                 >
-                  Logout
+                  <span className="desktop-action-label">Logout</span>
                 </Button>
               </>
             ) : (
@@ -142,26 +160,27 @@ const MainLayout = (props: IMainLayotProps) => {
                 onClick={() => navigate('/auth/login')}
                 className="ml-2"
               >
-                Login
+                <span className="desktop-action-label">Sign in</span>
               </Button>
             )}
+            </div>
           </div>
         </Header>
 
-        <Content
-          className="my-4 overflow-auto"
-          style={{ margin: '24px 16px 0' }}
-        >
-          <div className="py-0 px-6 min-h-full">
+        <Content className="cinema-main">
+          <div className="cinema-content">
             <Outlet />
           </div>
         </Content>
-        <Footer className="mt-8 px-6 py-8" >
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Footer className="cinema-footer">
+          <div className="cinema-footer-inner">
             <div>
-              <Title level={5} className="mb-3!">
-                CinemaUTM
-              </Title>
+              <div className="cinema-brand" style={{ cursor: 'default', marginBottom: 18 }}>
+                <span className="cinema-brand-mark">
+                  <VideoCameraOutlined />
+                </span>
+                <span className="cinema-brand-title">CinemaUTM</span>
+              </div>
               <p className="m-0 text-sm opacity-80">
                 The best place to enjoy the latest movies, premieres, and unforgettable cinema nights.
               </p>
@@ -169,7 +188,7 @@ const MainLayout = (props: IMainLayotProps) => {
 
             <div>
               <Title level={5} className="mb-3!">
-                Contact
+                Visit
               </Title>
               <p className="mb-2 flex items-center gap-2">
                 <PhoneOutlined />
@@ -187,24 +206,38 @@ const MainLayout = (props: IMainLayotProps) => {
 
             <div>
               <Title level={5} className="mb-3!">
-                Follow us
+                Pages
               </Title>
-              <div className="flex flex-wrap items-center gap-4 text-base">
-                <a href="https://facebook.com" target="_blank" rel="noreferrer">
-                  <FacebookOutlined /> Facebook
+              <div className="flex flex-col gap-2 text-sm opacity-90">
+                <Link to="/">Home</Link>
+                <Link to="/films">Film List</Link>
+                <Link to="/news">News</Link>
+              </div>
+            </div>
+
+            <div className="cinema-footer-callout">
+              <Title level={5} className="mb-3!">
+                Stay connected
+              </Title>
+              <Text style={{ color: 'rgba(255,255,255,0.78)', display: 'block', marginBottom: 16 }}>
+                Follow premieres, schedule updates, and offers from our cinema.
+              </Text>
+              <div className="flex flex-wrap items-center gap-3 text-base">
+                <a aria-label="Facebook" href="https://facebook.com" target="_blank" rel="noreferrer">
+                  <FacebookOutlined />
                 </a>
-                <a href="https://instagram.com" target="_blank" rel="noreferrer">
-                  <InstagramOutlined /> Instagram
+                <a aria-label="Instagram" href="https://instagram.com" target="_blank" rel="noreferrer">
+                  <InstagramOutlined />
                 </a>
-                <a href="https://youtube.com" target="_blank" rel="noreferrer">
-                  <YoutubeOutlined /> YouTube
+                <a aria-label="YouTube" href="https://youtube.com" target="_blank" rel="noreferrer">
+                  <YoutubeOutlined />
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 border-t border-solid border-gray-300 pt-4 text-center text-sm opacity-70">
-             2026 CinemaUTM. All rights reserved.
+          <div className="cinema-footer-bottom">
+            2026 CinemaUTM. All rights reserved.
           </div>
         </Footer>
       </Layout>

@@ -5,6 +5,7 @@ import { UserOutlined, MailOutlined, LockOutlined, UserAddOutlined, PhoneOutline
 import axiosInstance from '../../api/axiosInstance'
 import { useAuth } from '../../contexts/AuthContext'
 import { paths } from '../../routes/paths'
+import type { AxiosError } from 'axios'
 
 const { Title, Text } = Typography
 const { useToken } = theme
@@ -15,6 +16,10 @@ interface RegisterFormValues {
   phone: string
   password: string
   confirmPassword: string
+}
+
+type AuthErrorResponse = {
+  message?: string
 }
 
 const Register = () => {
@@ -40,27 +45,20 @@ const Register = () => {
         role: data.data.role,
       })
       navigate(paths.home)
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? 'Registration failed. Please try again.')
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<AuthErrorResponse>
+      setError(axiosError.response?.data?.message ?? 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      padding: '40px 20px',
-      background: token.colorBgLayout
-    }}>
+    <div className="auth-page">
       <Card
+        className="auth-card"
         style={{
-          width: 450,
           boxShadow: `0 8px 32px ${token.colorPrimary}33`,
-          background: token.colorBgElevated,
           border: `1px solid ${token.colorPrimary}4D`
         }}
       >

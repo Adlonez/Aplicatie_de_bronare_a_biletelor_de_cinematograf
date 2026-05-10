@@ -1,117 +1,76 @@
 import React, { useState } from "react";
-import { Carousel } from "antd";
+import { Button, Carousel } from "antd";
+import { PlayCircleOutlined, RightOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import type { CarouselRef } from "antd/es/carousel";
-import type {Films} from "../../types/ui"
+import type { Films } from "../../types/ui";
+
 interface SlideItemProps {
   slide: Films;
   onNavigate: (id: number) => void;
+  onBook: (slide: Films) => void;
 }
 
-const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate }) => {
+const SlideItem: React.FC<SlideItemProps> = ({ slide, onNavigate, onBook }) => {
   const [hovered, setHovered] = useState(false);
-   
+
   return (
     <div
+      className={`hero-slide ${hovered ? "is-hovered" : ""}`}
       onClick={() => onNavigate(slide.id)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       role="link"
       tabIndex={0}
       aria-label={`Go to ${slide.title}`}
-      onKeyDown={(e) => e.key === "Enter" && onNavigate(slide.id)}
-      style={{
-        position: "relative",
-        height: 520,
-        cursor: "pointer",
-        overflow: "hidden",
-        userSelect: "none",
-        background: "#1c0a00",
-      }}
+      onKeyDown={(event) => event.key === "Enter" && onNavigate(slide.id)}
     >
       <img
+        className="hero-slide-image"
         src={slide.poster}
         alt={slide.title}
         draggable={false}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition: "center",
-          transform: hovered ? "scale(1.07)" : "scale(1.0)",
-          transition: "transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-          willChange: "transform",
-          opacity:0.65,
-        }}
       />
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: "48px 60px",
-        }}
-      >
-        <div
-          style={{
-            width: hovered ? 80 : 40,
-            height: 3,
-            background: "#ffffff",
-            marginBottom: 20,
-            transition: "width 0.4s ease",
-          }}
-        />
+      <div className="hero-content">
+        <div className="hero-copy">
+          <div className="hero-badges">
+            {slide.genre && <span className="cinema-pill">{slide.genre}</span>}
+            <span className="cinema-pill">{slide.format}</span>
+            <span className="cinema-pill">{slide.languages.join(", ")}</span>
+          </div>
 
-        <h2
-          style={{
-            margin: 0,
-            fontSize: 52,
-            fontWeight: 900,
-            lineHeight: 1.05,
-            color: "#ffffff",
-            letterSpacing: "-0.02em",
-            marginBottom: 16,
-            fontFamily: "Georgia, serif",
-          }}
-        >
-          {slide.title}
-        </h2>
+          <h1 className="hero-title">{slide.title}</h1>
+          <p className="hero-description">{slide.description}</p>
 
-        <p
-          style={{
-            margin: 0,
-            fontSize: 16,
-            color: "#ffffff",
-            maxWidth: 400,
-            lineHeight: 1.6,
-            marginBottom: 32,
-          }}
-        >
-          {slide.description}
-        </p>
+          <div className="hero-actions">
+            <Button
+              type="primary"
+              size="large"
+              onClick={(event) => {
+                event.stopPropagation();
+                onBook(slide);
+              }}
+            >
+              Book tickets
+            </Button>
+            <Button
+              size="large"
+              icon={<PlayCircleOutlined />}
+              onClick={(event) => {
+                event.stopPropagation();
+                onNavigate(slide.id);
+              }}
+            >
+              Watch trailer
+            </Button>
+          </div>
+        </div>
 
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "12px 28px",
-            border: `1.5px solid ${"#ffffff"}`,
-            color: "#ffffff",
-            fontSize: 13,
-            fontFamily: "'Courier New', monospace",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            background: hovered ? `${"#ffffff"}22` : "transparent",
-            transition: "background 0.3s ease",
-          }}
-        >
-          Explore
-          <span style={{ fontSize: 16 }}>→</span>
+        <div className="hero-poster-wrap">
+          <div className="hero-poster">
+            <img src={slide.image} alt={`${slide.title} poster`} draggable={false} />
+          </div>
         </div>
       </div>
     </div>
@@ -122,7 +81,7 @@ interface BannerCarouselItemsProps {
   slides: Films[];
 }
 
-const BannerCarousel: React.FC<BannerCarouselItemsProps> = ({slides}) => {
+const BannerCarousel: React.FC<BannerCarouselItemsProps> = ({ slides }) => {
   const navigate = useNavigate();
   const carouselRef = React.useRef<CarouselRef>(null);
   const isDragging = React.useRef(false);
@@ -141,17 +100,54 @@ const BannerCarousel: React.FC<BannerCarouselItemsProps> = ({slides}) => {
     }
   };
 
+  const handleBook = (slide: Films) => {
+    navigate(`/films/${slide.id}`, {
+      state: {
+        movie: slide,
+      },
+    });
+  };
+
+  if (slides.length === 0) {
+    return (
+      <section className="hero-carousel">
+        <div className="hero-slide">
+          <div className="hero-content">
+            <div className="hero-copy">
+              <div className="hero-badges">
+                <span className="cinema-pill">CinemaUTM</span>
+                <span className="cinema-pill">Premieres</span>
+              </div>
+              <h1 className="hero-title">Movies feel better on the big screen.</h1>
+              <p className="hero-description">
+                Browse the current schedule, pick your seats, and plan your next cinema night.
+              </p>
+              <div className="hero-actions">
+                <Button type="primary" size="large" onClick={() => navigate("/films")}>
+                  Browse films
+                </Button>
+                <Button size="large" icon={<RightOutlined />} onClick={() => navigate("/news")}>
+                  Latest news
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div
+      className="hero-carousel"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
-      style={{ position: "relative" }}
     >
       <Carousel
         ref={carouselRef}
         autoplay
         autoplaySpeed={5000}
-        dots={{ className: "custom-dots" }}
+        dots={{ className: "hero-dots" }}
         draggable
         effect="scrollx"
       >
@@ -160,25 +156,10 @@ const BannerCarousel: React.FC<BannerCarouselItemsProps> = ({slides}) => {
             key={slide.id}
             slide={slide}
             onNavigate={handleNavigate}
+            onBook={handleBook}
           />
         ))}
       </Carousel>
-
-      <style>{`
-        .custom-dots {
-          bottom: 24px !important;
-        }
-        .custom-dots li button {
-          background: rgba(255, 255, 255, 0.35) !important;
-          border-radius: 2px !important;
-          width: 24px !important;
-          height: 3px !important;
-        }
-        .custom-dots li.slick-active button {
-          background: #ffffff !important;
-          width: 48px !important;
-        }
-      `}</style>
     </div>
   );
 };

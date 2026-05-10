@@ -1,201 +1,134 @@
-import { useState } from "react";
-import { Button, Typography, Space } from "antd";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { Button, Typography } from "antd";
+import { LeftOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import type { Films } from "../../types/ui";
 
-
 const { Text } = Typography;
 
-const VISIBLE_COUNT = 4;
+const ITEM_GAP = 22;
 
-const FilmCard: React.FC<{ film: Films; onBuyTicket: (filmId: number) => void }> = ({ film, onBuyTicket }) => {
-  const [hovered, setHovered] = useState(false);
+const getVisibleCount = () => {
+  if (typeof window === "undefined") return 5;
+  if (window.innerWidth < 640) return 1;
+  if (window.innerWidth < 860) return 2;
+  if (window.innerWidth < 1100) return 4;
+  return 5;
+};
+
+const FilmCard: React.FC<{
+  film: Films;
+  onBuyTicket: (film: Films) => void;
+}> = ({ film, onBuyTicket }) => {
   const navigate = useNavigate();
 
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => navigate(`/films/${film.id}`)}
-      style={{ cursor: "pointer" }}
-    >
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          paddingBottom: "150%",
-          borderRadius: 8,
-          overflow: "hidden",
-        }}
-      >
-        <img
-          src={film.image}
-          alt={film.title}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.45s ease",
-            transform: hovered ? "scale(1.06)" : "scale(1)",
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,0.48)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            opacity: hovered ? 1 : 0,
-            transition: "opacity 0.25s ease",
-            borderRadius: 8,
-          }}
-        >
+    <div className="movie-card" onClick={() => navigate(`/films/${film.id}`)}>
+      <div className="movie-poster">
+        <img src={film.image} alt={film.title} />
+        <span className="movie-rating">
+          <StarFilled />
+          4.8
+        </span>
+        <div className="movie-card-overlay">
           <Button
             type="primary"
-            shape="round"
-            onClick={() => onBuyTicket(film.id)}
-            style={{
-              fontWeight: 700,
-              fontSize: 11,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              padding: "0 20px",
-              height: 36,
-              boxShadow: "0 4px 18px rgba(0,0,0,0.4)",
-              border: "none",
+            onClick={(event) => {
+              event.stopPropagation();
+              onBuyTicket(film);
             }}
           >
-            Buy a ticket
+            Buy ticket
           </Button>
         </div>
       </div>
 
-      <div style={{ marginTop: 10, padding: "0 2px" }}>
-        <Text
-          strong
-          ellipsis
-          style={{
-            display: "block",
-            fontSize: 13,
-            marginBottom: 5,
-            lineHeight: "1.3",
-          }}
-        >
+      <div className="movie-card-body">
+        <Text className="movie-title" ellipsis>
           {film.title}
         </Text>
-
-        <Space size={2} wrap={false} style={{ display: "flex", alignItems: "center" }}>
-          <Text style={{ fontSize: 12, fontWeight: 700 }}>
-            {film.format}
-          </Text>
-          {film.languages.map((lang) => (
-            <Space key={lang} size={2} style={{ display: "flex", alignItems: "center" }}>
-              <Text style={{ fontWeight: 300, fontSize: 12 }}>·</Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
-              >
-                {lang}
-              </Text>
-            </Space>
-          ))}
-        </Space>
+        <div className="movie-meta">
+          {film.format}
+          {film.genre ? ` | ${film.genre}` : ""}
+        </div>
+        <div className="movie-languages">{film.languages.join(", ")}</div>
       </div>
     </div>
   );
 };
 
-type CinemaCarouselProps={
-    title:string;
-    items:Films[];
+type CinemaCarouselProps = {
+  title: string;
+  items: Films[];
+};
 
-}
-
-const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
+const CinemaCarousel = ({ title, items = [] }: CinemaCarouselProps) => {
   const [offset, setOffset] = useState<number>(0);
+  const [visibleCount, setVisibleCount] = useState<number>(getVisibleCount);
   const navigate = useNavigate();
 
-  const maxOffset = items.length - VISIBLE_COUNT;
+  useEffect(() => {
+    const handleResize = () => {
+      setVisibleCount(getVisibleCount());
+      setOffset((current) => Math.min(current, Math.max(0, items.length - getVisibleCount())));
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [items.length]);
+
+  const maxOffset = Math.max(0, items.length - visibleCount);
   const canPrev = offset > 0;
   const canNext = offset < maxOffset;
+  const itemWidth = `calc((100% - ${(visibleCount - 1) * ITEM_GAP}px) / ${visibleCount})`;
 
-  const prev = () => setOffset((o) => Math.max(0, o - 1));
-  const next = () => setOffset((o) => Math.min(maxOffset, o + 1));
-  const handleBuyTicket = (filmId: number) => navigate(`/films/${filmId}/book`);
-
-  const arrowStyle = (enabled: boolean): React.CSSProperties => ({
-    position: "absolute",
-    top: "calc(50% - 20px)",
-    transform: "translateY(-50%)",
-    zIndex: 20,
-    width: 42,
-    height: 42,
-    borderRadius: "50%",
-    border: `2px solid ${enabled ? "#bbb" : "#e8e8e8"}`,
-    boxShadow: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 0,
-  });
+  const prev = () => setOffset((current) => Math.max(0, current - 1));
+  const next = () => setOffset((current) => Math.min(maxOffset, current + 1));
+  const handleBuyTicket = (film: Films) => {
+    navigate(`/films/${film.id}`, {
+      state: {
+        movie: film,
+      },
+    });
+  };
 
   return (
-    <div>
-      
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 48px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <div
-            style={{
-              width: 4,
-              height: 18,
-              borderRadius: 2,
-              flexShrink: 0,
-            }}
-          />
-          <Text
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-            }}
-          >
-            {title}
-          </Text>
+    <div className="cinema-section-inner">
+      <div className="cinema-section-header">
+        <div>
+          <div className="cinema-section-kicker">Cinema schedule</div>
+          <h2 className="cinema-section-title">{title}</h2>
         </div>
+        <Button onClick={() => navigate("/films")} icon={<RightOutlined />} iconPosition="end">
+          View all
+        </Button>
+      </div>
 
-        <div style={{ position: "relative" }}>
+      {items.length === 0 ? (
+        <div className="cinema-empty-state">No movies are available in this section yet.</div>
+      ) : (
+        <div className="movie-carousel-shell">
           <Button
+            className="carousel-arrow carousel-arrow-prev"
             icon={<LeftOutlined />}
             onClick={prev}
             disabled={!canPrev}
-            style={{ ...arrowStyle(canPrev), left: -22 }}
+            aria-label={`Previous ${title} movies`}
           />
 
-          <div style={{ overflow: "hidden" }}>
+          <div className="movie-carousel-track-window">
             <div
+              className="movie-carousel-track"
               style={{
-                display: "flex",
-                gap: 16,
-                transform: `translateX(calc(-${offset} * ((100% + 16px) / ${VISIBLE_COUNT})))`,
-                transition: "transform 0.42s cubic-bezier(0.4, 0, 0.2, 1)",
+                transform: `translateX(calc(-${offset} * (${itemWidth} + ${ITEM_GAP}px)))`,
               }}
             >
-              {items.map((film:Films) => (
+              {items.map((film: Films) => (
                 <div
+                  className="movie-carousel-item"
                   key={film.id}
-                  style={{
-                    flexShrink: 0,
-                    width: `calc((100% - ${(VISIBLE_COUNT - 1) * 16}px) / ${VISIBLE_COUNT})`,
-                  }}
+                  style={{ width: itemWidth }}
                 >
                   <FilmCard film={film} onBuyTicket={handleBuyTicket} />
                 </div>
@@ -204,40 +137,26 @@ const CinemaCarousel = ({title,items=[]}:CinemaCarouselProps) => {
           </div>
 
           <Button
+            className="carousel-arrow carousel-arrow-next"
             icon={<RightOutlined />}
             onClick={next}
             disabled={!canNext}
-            style={{ ...arrowStyle(canNext), right: -22 }}
+            aria-label={`Next ${title} movies`}
           />
-        </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 6,
-            marginTop: 18,
-          }}
-        >
-          {Array.from({ length: maxOffset + 1 }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setOffset(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              style={{
-                height: 6,
-                width: i === offset ? 20 : 6,
-                borderRadius: 9999,
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                transition: "width 0.3s ease, background 0.3s ease",
-              }}
-            />
-          ))}
+          <div className="carousel-progress">
+            {Array.from({ length: maxOffset + 1 }).map((_, index) => (
+              <button
+                key={index}
+                className={index === offset ? "is-active" : undefined}
+                type="button"
+                onClick={() => setOffset(index)}
+                aria-label={`Go to ${title} slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

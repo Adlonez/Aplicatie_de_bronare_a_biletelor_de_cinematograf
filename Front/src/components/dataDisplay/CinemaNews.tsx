@@ -1,201 +1,74 @@
-import { useState } from "react";
 import { Row, Col, Typography, Button } from "antd";
 import { ArrowRightOutlined, CalendarOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import type {NewsItem} from "../../types/ui"
-
+import type { NewsItem } from "../../types/ui";
 
 const { Text } = Typography;
 
-const NewsCard: React.FC<{ item: NewsItem; featured?: boolean; onReadMore: (newsId: number) => void }> = ({
-  item,
-  featured = false,
-  onReadMore,
-}) => {
-  const [hovered, setHovered] = useState(false);
-
+const NewsCard: React.FC<{
+  item: NewsItem;
+  onReadMore: (newsId: number) => void;
+}> = ({ item, onReadMore }) => {
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      // onClick={onReadMore}
-      style={{
-        cursor: "pointer",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          paddingBottom: featured ? "58%" : "62%",
-          overflow: "hidden",
-          borderRadius: 6,
-          flexShrink: 0,
-        }}
-      >
-        <img
-          src={item.image}
-          alt={item.title}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.45s ease",
-            transform: hovered ? "scale(1.05)" : "scale(1)",
-          }}
-        />
-        <div style={{ position: "absolute", top: 12, left: 12 }}>
-          <span
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              padding: "3px 10px",
-              borderRadius: 3,
-              backdropFilter: "blur(4px)",
-            }}
-          >
-            {item.category}
-          </span>
-        </div>
+    <div className="news-card" onClick={() => onReadMore(item.id)}>
+      <div className="news-card-image" style={{ aspectRatio: "16 / 10" }}>
+        <img src={item.image} alt={item.title} />
+        <span className="news-category">{item.category}</span>
       </div>
 
-      <div style={{ paddingTop: 14, flex: 1, display: "flex", flexDirection: "column" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-            marginBottom: 8,
-          }}
-        >
-          <CalendarOutlined style={{ fontSize: 11 }} />
-          <Text style={{ fontSize: 11, letterSpacing: "0.04em" }}>
-            {item.date}
-          </Text>
+      <div className="news-card-body">
+        <div className="news-date">
+          <CalendarOutlined />
+          <span>{item.date}</span>
         </div>
-
-        <Text
-          strong
-          style={{
-            fontSize: featured ? 15 : 13,
-            lineHeight: 1.4,
-            display: "block",
-            marginBottom: 8,
-            transition: "color 0.2s ease",
-          }}
-        >
-          {item.title}
+        <Text className="news-title">{item.title}</Text>
+        <Text style={{ display: "block", marginTop: 10 }} type="secondary">
+          {item.content}
         </Text>
-
-        <Text
-          style={{
-            fontSize: 12,
-            lineHeight: 1.65,
-            flex: 1,
-          }}
-        >
-        </Text>
-
-        <div style={{ marginTop: 14 }}>
-          <Text
-            onClick={() => onReadMore(item.id)}
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              transition: "gap 0.2s",
-              cursor: "pointer",
-            }}
-          >
-            Read more
-            <ArrowRightOutlined style={{ fontSize: 10 }} />
-          </Text>
-        </div>
+        <span className="news-link">
+          Read more
+          <ArrowRightOutlined />
+        </span>
       </div>
     </div>
   );
 };
 
-const CinemaNews = ({items=[]}:any) => {
+type CinemaNewsProps = {
+  items?: NewsItem[];
+};
+
+const CinemaNews = ({ items = [] }: CinemaNewsProps) => {
   const navigate = useNavigate();
+
   const handleReadMore = (newsId: number) => {
     navigate("/news", { state: { selectedNewsId: newsId } });
   };
-  return (
-    <div>
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 48px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 28,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 4,
-                height: 18,
-                borderRadius: 2,
-                flexShrink: 0,
-              }}
-            />
-            <Text
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-              }}
-            >
-              News &amp; Promotions
-            </Text>
-          </div>
 
-          <Button
-            type="link"
-            onClick={() => navigate("/news")}
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              padding: 0,
-              height: "auto",
-            }}
-            icon={<ArrowRightOutlined />}
-            iconPlacement="end"
-          >
-            All news
-          </Button>
+  return (
+    <div className="cinema-section-inner">
+      <div className="cinema-section-header">
+        <div>
+          <div className="cinema-section-kicker">Offers and stories</div>
+          <h2 className="cinema-section-title">News & Promotions</h2>
         </div>
-        <Row gutter={[20, 0]} style={{ height: "100%" }}>
-          {items.map((item:NewsItem) => (
-            <Col key={item.id} xs={24} sm={8} md={8} style={{ height: "100%" }}>
-              <div
-                style={{
-                  height: "100%",
-                }}
-              >
-                <NewsCard item={item} onReadMore={handleReadMore} />
-              </div>
+
+        <Button onClick={() => navigate("/news")} icon={<ArrowRightOutlined />}>
+          All news
+        </Button>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="cinema-empty-state">No news items are available yet.</div>
+      ) : (
+        <Row gutter={[24, 28]}>
+          {items.map((item: NewsItem) => (
+            <Col key={item.id} xs={24} sm={8}>
+              <NewsCard item={item} onReadMore={handleReadMore} />
             </Col>
           ))}
         </Row>
-      </div>
+      )}
     </div>
   );
 };
