@@ -82,12 +82,12 @@ const BookTicket = () => {
   const getSeatColor = (status: string) => {
     switch (status) {
       case 'selected':
-        return '#7c3aed';
+        return 'var(--cinema-primary)';
       case 'occupied':
-        return '#666';
+        return '#5f536b';
       case 'available':
       default:
-        return '#1890ff';
+        return '#14b8a6';
     }
   };
 
@@ -148,7 +148,7 @@ const BookTicket = () => {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="cinema-page-shell">
       <Button 
         icon={<ArrowLeftOutlined />} 
         onClick={() => navigate(`/films/${id}`)}
@@ -158,7 +158,7 @@ const BookTicket = () => {
       </Button>
 
       <Alert
-        title="Important: Payment Deadline"
+        message="Important: Payment Deadline"
         description={`Complete your payment at least 45 minutes before showtime (${selectedTime}) to secure your booking.`}
         type="warning"
         showIcon
@@ -169,7 +169,7 @@ const BookTicket = () => {
 
       <Row gutter={[32, 32]}>
         <Col xs={24} lg={16}>
-          <Card>
+          <Card className="cinema-content-card">
             <Title level={3} style={{ textAlign: 'center', marginBottom: 8 }}>
               {movie.title}
             </Title>
@@ -178,14 +178,7 @@ const BookTicket = () => {
             </Text>
 
             {/* Screen */}
-            <div style={{ 
-              background: 'linear-gradient(180deg, #333 0%, #666 100%)',
-              padding: '12px',
-              textAlign: 'center',
-              marginBottom: '40px',
-              borderRadius: '0 0 50% 50%',
-              border: '2px solid #999'
-            }}>
+            <div className="booking-screen">
               <Text strong style={{ fontSize: '16px' }}>SCREEN</Text>
             </div>
 
@@ -208,13 +201,10 @@ const BookTicket = () => {
                     .map(seat => (
                       <Button
                         key={seat.id}
+                        className="seat-button"
                         onClick={() => handleSeatClick(seat.id)}
                         disabled={seat.status === 'occupied'}
                         style={{
-                          width: '40px',
-                          height: '40px',
-                          margin: '0 4px',
-                          padding: '0',
                           backgroundColor: getSeatColor(seat.status),
                           borderColor: getSeatColor(seat.status),
                           cursor: seat.status === 'occupied' ? 'not-allowed' : 'pointer'
@@ -234,7 +224,7 @@ const BookTicket = () => {
                 <div style={{ 
                   width: '20px', 
                   height: '20px', 
-                  backgroundColor: '#1890ff',
+                  backgroundColor: '#14b8a6',
                   borderRadius: '4px'
                 }} />
                 <Text>Available</Text>
@@ -243,7 +233,7 @@ const BookTicket = () => {
                 <div style={{ 
                   width: '20px', 
                   height: '20px', 
-                  backgroundColor: '#7c3aed',
+                  backgroundColor: 'var(--cinema-primary)',
                   borderRadius: '4px'
                 }} />
                 <Text>Selected</Text>
@@ -252,6 +242,7 @@ const BookTicket = () => {
                 <div style={{ 
                   width: '20px', 
                   height: '20px', 
+                  backgroundColor: '#5f536b',
                   borderRadius: '4px'
                 }} />
                 <Text>Occupied</Text>
@@ -261,16 +252,14 @@ const BookTicket = () => {
         </Col>
 
         <Col xs={24} lg={8}>
-          <Card style={{ 
-            border: '2px dashed #999'
-          }}>
+          <Card className="ticket-summary">
             <div style={{ 
               fontFamily: '"Courier New", Courier, monospace',
               padding: '0'
             }}>
               <div style={{ 
                 textAlign: 'center',
-                borderBottom: '2px dashed #000',
+                borderBottom: '2px dashed var(--cinema-border)',
                 paddingBottom: '12px',
                 marginBottom: '16px'
               }}>
@@ -319,8 +308,8 @@ const BookTicket = () => {
                 </div>
 
                 <div style={{ 
-                  borderTop: '1px dashed #000',
-                  borderBottom: '1px dashed #000',
+                  borderTop: '1px dashed var(--cinema-border)',
+                  borderBottom: '1px dashed var(--cinema-border)',
                   paddingTop: '12px',
                   paddingBottom: '12px'
                 }}>
@@ -374,14 +363,14 @@ const BookTicket = () => {
                 </Button>
 
                 <div style={{ 
-                  border: '1px solid #ffe58f',
+                  border: '1px solid var(--cinema-accent)',
                   padding: '12px',
                   borderRadius: '4px',
                   fontFamily: '"Courier New", Courier, monospace',
                   fontSize: '12px'
                 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                    ⚠ DEADLINE REMINDER
+                    DEADLINE REMINDER
                   </div>
                   Payment must be completed 45 minutes before showtime
                 </div>
@@ -414,10 +403,10 @@ const BookTicket = () => {
           style={{ width: '100%' }}
         >
           <Space direction="vertical" style={{ width: '100%' }} size="large">
-            <Card hoverable style={{ cursor: 'pointer' }}>
+            <Card className="cinema-content-card" hoverable style={{ cursor: 'pointer' }}>
               <Radio value="Credit Card">
                 <Space>
-                  <CreditCardOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                  <CreditCardOutlined style={{ fontSize: '24px', color: '#14b8a6' }} />
                   <div>
                     <Text strong>Credit/Debit Card</Text>
                     <br />
@@ -429,7 +418,7 @@ const BookTicket = () => {
               </Radio>
             </Card>
 
-            <Card hoverable style={{ cursor: 'pointer' }}>
+            <Card className="cinema-content-card" hoverable style={{ cursor: 'pointer' }}>
               <Radio value="Cash">
                 <Space>
                   <DollarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
@@ -444,10 +433,10 @@ const BookTicket = () => {
               </Radio>
             </Card>
 
-            <Card hoverable style={{ cursor: 'pointer' }}>
+            <Card className="cinema-content-card" hoverable style={{ cursor: 'pointer' }}>
               <Radio value="Digital Wallet">
                 <Space>
-                  <WalletOutlined style={{ fontSize: '24px', color: '#7c3aed' }} />
+                  <WalletOutlined style={{ fontSize: '24px', color: 'var(--cinema-primary)' }} />
                   <div>
                     <Text strong>Digital Wallet</Text>
                     <br />

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { AxiosError } from 'axios'
 
 const axiosInstance = axios.create({
   baseURL: '',
@@ -55,20 +56,29 @@ axiosInstance.interceptors.response.use(
 /**
  * Extracts a user-friendly error message from an Axios error.
  */
-export const getErrorMessage = (error: any, defaultMessage: string = 'An unexpected error occurred'): string => {
-  if (error.response?.data?.message) {
-    return error.response.data.message;
+type ApiErrorData = {
+  message?: string
+  error?: string
+}
+
+export const getErrorMessage = (error: unknown, defaultMessage: string = 'An unexpected error occurred'): string => {
+  const axiosError = error as AxiosError<ApiErrorData>
+  const message = error instanceof Error ? error.message : undefined
+  const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : undefined
+
+  if (axiosError.response?.data?.message) {
+    return axiosError.response.data.message;
   }
-  if (error.response?.data?.error) {
-    return error.response.data.error;
+  if (axiosError.response?.data?.error) {
+    return axiosError.response.data.error;
   }
-  if (error.message === 'Network Error') {
+  if (message === 'Network Error') {
     return 'Network connection failed. Please check your internet or tunnel.';
   }
-  if (error.code === 'ECONNABORTED') {
+  if (code === 'ECONNABORTED') {
     return 'Request timed out. The server might be busy.';
   }
-  return `${defaultMessage} (${error.message || 'Unknown'})`;
+  return `${defaultMessage} (${message || 'Unknown'})`;
 };
 
 export default axiosInstance

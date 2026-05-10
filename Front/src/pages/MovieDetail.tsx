@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Typography, Button, Row, Col, Space, Tag, Divider, Spin, Alert, message } from 'antd'
+import { Card, Typography, Button, Space, Tag, Divider, Spin, Alert, message } from 'antd'
 import { PlayCircleOutlined, ArrowLeftOutlined, CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import type { Films } from '../types/ui'
 import axiosInstance from '../api/axiosInstance'
@@ -62,33 +62,25 @@ const MovieDetail = () => {
   const showtimes = ['10:00 AM', '1:30 PM', '4:00 PM', '7:30 PM', '10:00 PM']
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="cinema-page-shell">
       <Button
         icon={<ArrowLeftOutlined />}
         onClick={() => navigate('/films')}
-        style={{ marginBottom: '20px' }}
+        style={{ marginBottom: '24px' }}
       >
         Back to Movies
       </Button>
 
-      <Row gutter={[32, 32]}>
-        <Col xs={24} md={10}>
-          <Card
-            cover={
-              <img
-                alt={movie.title}
-                src={movie.image}
-                style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-              />
-            }
-            style={{ border: 'none' }}
-          />
-        </Col>
+      <div className="movie-detail-hero">
+        <div className="movie-detail-poster">
+          <img alt={movie.title} src={movie.image} />
+        </div>
 
-        <Col xs={24} md={14}>
+        <Card className="cinema-content-card">
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <div>
-              <Title level={1} style={{ marginBottom: '8px' }}>{movie.title}</Title>
+              <div className="cinema-section-kicker">Movie details</div>
+              <Title level={1} style={{ marginBottom: '10px' }}>{movie.title}</Title>
               {movie.genre && (
                 <Tag color="purple" style={{ fontSize: '14px', padding: '4px 12px' }}>
                   {movie.genre}
@@ -96,7 +88,7 @@ const MovieDetail = () => {
               )}
             </div>
 
-            <Divider style={{ borderColor: '#434343' }} />
+            <Divider style={{ borderColor: 'var(--cinema-border)' }} />
 
             <div>
               <Title level={4}>Description</Title>
@@ -107,7 +99,7 @@ const MovieDetail = () => {
 
             <div>
               <Title level={4}>Showtimes</Title>
-              <Space wrap>
+              <div className="showtime-grid">
                 {showtimes.map((time) => (
                   <Button
                     key={time}
@@ -118,10 +110,10 @@ const MovieDetail = () => {
                     {time}
                   </Button>
                 ))}
-              </Space>
+              </div>
             </div>
 
-            <Divider style={{ borderColor: '#434343' }} />
+            <Divider style={{ borderColor: 'var(--cinema-border)' }} />
 
             <Space size="middle" style={{ width: '100%' }} direction="vertical">
               <Button
@@ -146,8 +138,8 @@ const MovieDetail = () => {
               </Button>
             </Space>
           </Space>
-        </Col>
-      </Row>
+        </Card>
+      </div>
     </div>
   )
 }

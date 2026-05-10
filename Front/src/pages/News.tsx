@@ -1,6 +1,6 @@
 import { CalendarOutlined, FileTextOutlined } from '@ant-design/icons'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, Row, Col, Typography, Tag, Modal, Spin, Alert } from 'antd'
 import type { NewsItem } from '../types/ui'
 import axiosInstance from '../api/axiosInstance'
@@ -22,6 +22,8 @@ const News = () => {
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null)
 
   const selectedNewsId = (location.state as NewsLocationState)?.selectedNewsId
+  const initialSelectedNewsId = useRef(selectedNewsId)
+  const initialPathname = useRef(location.pathname)
 
   useEffect(() => {
     let isMounted = true
@@ -31,7 +33,24 @@ const News = () => {
       .then((res) => {
         if (!isMounted) return
 
-        setNewsData(res.data.data ?? [])
+        const items = res.data.data ?? []
+        setNewsData(items)
+
+        if (initialSelectedNewsId.current) {
+          const newsItem = items.find(
+            (item: NewsItem) => String(item.id) === String(initialSelectedNewsId.current)
+          )
+
+          if (newsItem) {
+            setSelectedNews(newsItem)
+            setIsModalOpen(true)
+          }
+
+          navigate(initialPathname.current, {
+            replace: true,
+            state: null
+          })
+        }
       })
       .catch(() => {
         if (!isMounted) return
@@ -47,26 +66,7 @@ const News = () => {
     return () => {
       isMounted = false
     }
-  }, [])
-
-  useEffect(() => {
-    if (loading) return
-    if (!selectedNewsId) return
-
-    const newsItem = newsData.find(
-      (item) => String(item.id) === String(selectedNewsId)
-    )
-
-    if (newsItem) {
-      setSelectedNews(newsItem)
-      setIsModalOpen(true)
-    }
-
-    navigate(location.pathname, {
-      replace: true,
-      state: null
-    })
-  }, [loading, selectedNewsId, newsData, location.pathname, navigate])
+  }, [navigate])
 
   const handleNewsClick = (news: NewsItem) => {
     setSelectedNews(news)
@@ -96,16 +96,22 @@ const News = () => {
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Title level={2} style={{ marginBottom: '30px' }}>
-        <FileTextOutlined style={{ marginRight: '10px' }} />
-        Latest News & Updates
-      </Title>
+    <div className="cinema-page-shell">
+      <div className="cinema-page-title">
+        <div className="cinema-section-kicker">
+          <FileTextOutlined />
+          Stories
+        </div>
+        <Title level={1} style={{ margin: 0 }}>
+          Latest News & Updates
+        </Title>
+      </div>
 
       <Row gutter={[24, 24]}>
         {newsData.map((news) => (
           <Col xs={24} sm={24} md={12} lg={12} key={news.id}>
             <Card
+              className="film-grid-card"
               hoverable
               onClick={() => handleNewsClick(news)}
               cover={
@@ -121,7 +127,7 @@ const News = () => {
                 <Tag color="purple">{news.category}</Tag>
                 <span
                   style={{
-                    color: '#60157A',
+                    color: 'var(--cinema-primary)',
                     fontSize: '12px',
                     marginLeft: '8px'
                   }}
@@ -134,7 +140,7 @@ const News = () => {
                 {news.title}
               </Title>
 
-              <Paragraph style={{ color: '#ccc' }}>
+              <Paragraph type="secondary">
                 {news.content}
               </Paragraph>
             </Card>
@@ -152,8 +158,8 @@ const News = () => {
             <div>
               <Tag color="purple">{selectedNews?.category}</Tag>
               <span
-                style={{
-                  color: '#60157A',
+                  style={{
+                  color: 'var(--cinema-primary)',
                   fontSize: '12px',
                   marginLeft: '8px'
                 }}

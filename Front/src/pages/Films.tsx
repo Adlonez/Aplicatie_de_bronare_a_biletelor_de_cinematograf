@@ -91,7 +91,7 @@ const Films = () => {
       )
         .sort((a, b) => a.localeCompare(b))
         .map((title) => ({ value: title, label: title })),
-    [films, selectedDate, selectedHour]
+    [screenings, selectedDate, selectedHour]
   );
 
   const canBuyTicket = useMemo(
@@ -117,8 +117,15 @@ const Films = () => {
       return;
     }
 
+    const movie = films.find((film) => film.id === screening.movieId);
+    if (!movie) {
+      setError("Movie details were not found for the selected screening.");
+      return;
+    }
+
     navigate(`/films/${screening.movieId}/book`, {
       state: {
+        movie,
         time: `${selectedDate} ${selectedHour}`,
         date: selectedDate,
         hour: selectedHour,
@@ -130,11 +137,16 @@ const Films = () => {
   if (error) return <Alert message={error} type="error" style={{ margin: 24 }} />
 
   return (
-    <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
-      <Title level={2} style={{ marginBottom: '30px' }}>
-        Available Movies
-      </Title>
-      <Card title="Find Your Screening">
+    <div className="cinema-page-shell">
+      <Space orientation="vertical" size={28} style={{ display: 'flex' }}>
+      <div className="cinema-page-title">
+        <div className="cinema-section-kicker">Show times</div>
+        <Title level={1} style={{ margin: 0 }}>
+          Available Movies
+        </Title>
+      </div>
+
+      <Card className="cinema-filter-card" title="Find Your Screening">
         <Form layout="vertical">
           <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
@@ -201,6 +213,7 @@ const Films = () => {
         {filteredFilms.map((film) => (
           <Col xs={24} sm={12} lg={8} xl={6} key={film.id}>
             <Card
+              className="film-grid-card"
               hoverable
               onClick={() => handleMovieClick(film.id)}
               style={{
@@ -209,16 +222,17 @@ const Films = () => {
                 flexDirection: 'column',
                 cursor: 'pointer'
               }}
-              bodyStyle={{
+              styles={{
+                body: {
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column'
+                }
               }}
               cover={
                 <img
                   alt={film.title}
                   src={film.image}
-                  style={{ height: '400px', objectFit: 'cover' }}
                 />
               }
             >
@@ -251,6 +265,7 @@ const Films = () => {
         ))}
       </Row>
     </Space>
+    </div>
   )
 }
 
