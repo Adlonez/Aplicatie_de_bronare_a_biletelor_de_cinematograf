@@ -1,4 +1,7 @@
+using System.Text.Json;
 using CinemaBooking.DataAccessLayer.Context;
+using CinemaBooking.Domain.Entities.Booking;
+using CinemaBooking.Domain.Models.Booking;
 using CinemaBooking.Domain.Models.Service;
 using CinemaBooking.Domain.Models.User;
 using CinemaBooking.Domain.Entities.User;
@@ -160,6 +163,87 @@ public class UserActions
             Console.WriteLine($"[UserActions Error] {ex.Message} {ex.InnerException?.Message}");
             return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
         }
+    }
+
+    protected ServiceResponse GetUserProfileAction(int id)
+    {
+        try
+        {
+            var entity = _context.Users.FirstOrDefault(u => u.Id == id && !u.Deleted);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            var bookings = _context.Bookings
+                .AsNoTracking()
+                .Where(b => b.UserId == id && !b.Deleted)
+                .ToList();
+
+            var bookingDtos = bookings.Select(b => MapBookingToDto(b)).ToList();
+
+            var userProfileDto = new UserProfileDto
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Email = entity.Email,
+                Phone = entity.Phone,
+                Status = entity.Status,
+                RegistrationDate = entity.RegistrationDate.ToString("yyyy-MM-dd"),
+                Role = entity.Role,
+                Deleted = entity.Deleted,
+                Bookings = bookingDtos
+            };
+
+            return new ServiceResponse { IsSuccess = true, Data = userProfileDto };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[UserActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
+        }
+    }
+
+    protected ServiceResponse UpdateUserProfileAction(int id, UserProfileUpdateDto dto)
+    {
+        try
+        {
+            var entity = _context.Users.FirstOrDefault(u => u.Id == id && !u.Deleted);
+            if (entity == null)
+                return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                return new ServiceResponse { IsSuccess = false, Message = "Name cannot be empty" };
+
+            entity.Name = dto.Name;
+            entity.Phone = dto.Phone;
+            _context.SaveChanges();
+
+            return GetUserProfileAction(id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[UserActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
+        }
+    }
+
+    private static BookingInfoDto MapBookingToDto(BookingEntity entity)
+    {
+        return new BookingInfoDto
+        {
+            Id = entity.Id,
+            MovieId = entity.MovieId,
+            MovieTitle = entity.MovieTitle,
+            CustomerName = entity.CustomerName,
+            CustomerEmail = entity.CustomerEmail,
+            CustomerPhone = entity.CustomerPhone,
+            Hall = entity.Hall,
+            Seats = JsonSerializer.Deserialize<string[]>(entity.Seats) ?? Array.Empty<string>(),
+            Status = entity.Status,
+            BookingDate = entity.BookingDate.ToString("yyyy-MM-dd"),
+            Showtime = entity.Showtime,
+            TotalPrice = Math.Truncate(entity.TotalPrice * 100) / 100,
+            Deleted = entity.Deleted
+        };
     }
 
     protected static UserInfoDto MapToDto(UserEntity entity)

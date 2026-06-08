@@ -6,6 +6,7 @@ export const paths = {
   films: "films",
   filmDetail: "films/:id",
   bookTicket: "films/:id/book",
+  profile: "profile",
 
   auth: {
     login: "/auth/login",

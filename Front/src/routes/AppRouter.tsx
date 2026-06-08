@@ -8,6 +8,7 @@ import News from '../pages/News'
 import Films from '../pages/Films'
 import MovieDetail from '../pages/MovieDetail'
 import BookTicket from '../pages/BookTicket'
+import Profile from '../pages/Profile'
 
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
@@ -48,6 +49,7 @@ const AppRouter = ({ isDark, setIsDark }: AppRouterProps) => {
           <Route path={paths.films} element={<Films />} />
           <Route path={paths.filmDetail} element={<MovieDetail />} />
           <Route path={paths.bookTicket} element={<BookTicket />} />
+          <Route path={paths.profile} element={<Profile />} />
         </Route>
 
         <Route path={paths.auth.login} element={<Login />} />
