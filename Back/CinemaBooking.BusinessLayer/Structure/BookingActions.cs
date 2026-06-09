@@ -11,7 +11,7 @@ public class BookingActions
 {
     protected readonly CinemaDbContext _context = new();
 
-    protected ServiceResponse CreateBookingAction(BookingCreateDto dto)
+    protected ServiceResponse CreateBookingAction(BookingCreateDto dto, int? userId = null)
     {
         try
         {
@@ -28,7 +28,8 @@ public class BookingActions
                 BookingDate = DateTime.UtcNow,
                 Showtime = dto.Showtime,
                 TotalPrice = dto.TotalPrice,
-                ScreeningId = dto.ScreeningId
+                ScreeningId = dto.ScreeningId,
+                UserId = userId
             };
 
             _context.Bookings.Add(entity);
@@ -220,6 +221,29 @@ public class BookingActions
             _context.SaveChanges();
 
             return new ServiceResponse { IsSuccess = true, Message = "Booking deleted successfully" };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[BookingActions Error] {ex.Message} {ex.InnerException?.Message}");
+            return new ServiceResponse { IsSuccess = false, Message = $"{ex.Message} {(ex.InnerException != null ? "| " + ex.InnerException.Message : "")}" };
+        }
+    }
+
+    protected ServiceResponse CancelOwnBookingAction(int id, int userId)
+    {
+        try
+        {
+            var entity = _context.Bookings.FirstOrDefault(b => b.Id == id && !b.Deleted);
+            if (entity == null || entity.UserId != userId)
+                return new ServiceResponse { IsSuccess = false, Message = "Booking not found" };
+
+            if (entity.Status != "booked")
+                return new ServiceResponse { IsSuccess = false, Message = "Only unpaid bookings can be cancelled" };
+
+            entity.Deleted = true;
+            _context.SaveChanges();
+
+            return new ServiceResponse { IsSuccess = true, Message = "Booking cancelled successfully" };
         }
         catch (Exception ex)
         {

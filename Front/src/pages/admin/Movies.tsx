@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState, type FC, type Key } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Popconfirm, Tag, Row, Col, Select, DatePicker, Switch, Typography, Tooltip } from 'antd';
+import { Grid, Table, Button, Card, Modal, Form, Input, InputNumber, Space, message, Popconfirm, Tag, Row, Col, Select, DatePicker, Switch, Typography, Tooltip } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, VideoCameraOutlined, ClearOutlined } from '@ant-design/icons';
 import type { ColumnType, TableProps } from 'antd/es/table';
+import MobileCardList from '../../components/admin/MobileCardList';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import { useAuth } from '../../contexts/AuthContext';
 import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import type { Films } from '../../types/ui';
 
@@ -108,6 +110,9 @@ const toFilmPayload = (values: MovieFormValues): FilmPayload => ({
 });
 
 const Movies: FC = () => {
+  const { isDemoAdmin } = useAuth();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const [movies, setMovies] = useState<Films[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -204,6 +209,10 @@ const Movies: FC = () => {
   };
 
   const saveMovie = async () => {
+    if (isDemoAdmin) {
+      message.error('Action denied: Demo user cannot modify data.');
+      return;
+    }
     try {
       const values = await form.validateFields();
       setSaving(true);
@@ -227,6 +236,10 @@ const Movies: FC = () => {
   };
 
   const deleteMovie = async (id: number) => {
+    if (isDemoAdmin) {
+      message.error('Action denied: Demo user cannot modify data.');
+      return;
+    }
     try {
       setLoading(true);
       await axiosInstance.delete(`/api/films/${id}`);
@@ -329,8 +342,8 @@ const Movies: FC = () => {
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(movie)} disabled={movie.deleted}>
             Edit
           </Button>
-          <Popconfirm title="Delete this movie?" onConfirm={() => deleteMovie(movie.id)} okText="Yes" cancelText="No" disabled={movie.deleted}>
-            <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={movie.deleted}>Delete</Button>
+          <Popconfirm title="Delete this movie?" onConfirm={() => deleteMovie(movie.id)} okText="Yes" cancelText="No" disabled={movie.deleted || isDemoAdmin}>
+            <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={movie.deleted || isDemoAdmin}>Delete</Button>
           </Popconfirm>
         </Space>
       ),
@@ -361,11 +374,11 @@ const Movies: FC = () => {
 
   return (
     <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'scroll' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
         <Title level={2} style={{ margin: 0 }}><VideoCameraOutlined /> Movie Management</Title>
         <Space>
           <Button icon={<ClearOutlined />} onClick={resetFilters}>Reset All Filters</Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>Add Movie</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()} disabled={isDemoAdmin}>Add Movie</Button>
         </Space>
       </div>
 
@@ -412,21 +425,62 @@ const Movies: FC = () => {
       </Row>
 
       <div style={{ flex: 1, overflow: 'scroll' }}>
-        <Table
-          key={tableKey}
-          dataSource={movies}
-          columns={columns}
-          rowKey="id"
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
-          }}
-          loading={loading}
-          onChange={handleTableChange}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={movies}
+            rowKey={(m) => m.id}
+            loading={loading}
+            emptyText="No movies found."
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              onChange: (page, ps) => loadMovies(page, ps, filters, sort),
+            }}
+            renderCard={(movie) => (
+              <Card size="small">
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  {movie.image && (
+                    <img src={movie.image} alt={movie.title} style={{ width: 48, height: 64, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Space wrap size={4} style={{ marginBottom: 4 }}>
+                      <Typography.Text strong style={{ fontSize: 15 }}>{movie.title}</Typography.Text>
+                      {movie.deleted && <Tag color="red">Deleted</Tag>}
+                    </Space>
+                    <div style={{ color: 'var(--ant-color-text-secondary, #666)', fontSize: 13 }}>
+                      {movie.genre && <div>{movie.genre}</div>}
+                      {movie.duration && <div>{movie.duration} min</div>}
+                      {movie.releaseDate && <div>{movie.releaseDate}</div>}
+                    </div>
+                  </div>
+                </div>
+                <Space wrap style={{ marginTop: 10 }}>
+                  <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(movie)} disabled={movie.deleted}>Edit</Button>
+                  <Popconfirm title="Delete this movie?" onConfirm={() => deleteMovie(movie.id)} okText="Yes" cancelText="No" disabled={movie.deleted || isDemoAdmin}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={movie.deleted || isDemoAdmin}>Delete</Button>
+                  </Popconfirm>
+                </Space>
+              </Card>
+            )}
+          />
+        ) : (
+          <Table
+            key={tableKey}
+            dataSource={movies}
+            columns={columns}
+            rowKey="id"
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+            }}
+            loading={loading}
+            onChange={handleTableChange}
+          />
+        )}
       </div>
 
       <Modal title={editing ? 'Edit Movie' : 'Add Movie'} open={modalOpen} onOk={saveMovie} confirmLoading={saving} onCancel={() => setModalOpen(false)} width={800}>

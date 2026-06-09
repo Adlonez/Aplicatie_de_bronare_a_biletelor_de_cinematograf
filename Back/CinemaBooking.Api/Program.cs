@@ -106,10 +106,30 @@ using (var scope = app.Services.CreateScope())
 
     // Seed database with mock data on first run
     DbSeeder.Seed(dbContext);
+
+    // Backfill UserId on existing bookings matched by email
+    var bookingsToFix = dbContext.Bookings
+        .Where(b => b.UserId == null && !b.Deleted)
+        .ToList();
+
+    if (bookingsToFix.Any())
+    {
+        var usersByEmail = dbContext.Users
+            .Where(u => !u.Deleted)
+            .ToDictionary(u => u.Email.ToLower());
+
+        foreach (var booking in bookingsToFix)
+        {
+            if (usersByEmail.TryGetValue(booking.CustomerEmail.ToLower(), out var user))
+                booking.UserId = user.Id;
+        }
+        dbContext.SaveChanges();
+    }
 }
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
+app.UseMiddleware<CinemaBooking.Api.Middleware.DemoReadOnlyMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<SeatHub>("/hubs/seats");

@@ -7,7 +7,7 @@ namespace CinemaBooking.BusinessLayer.Core;
 
 public class BookingLogic : BookingActions, IBookingLogic
 {
-    public ServiceResponse CreateBooking(BookingCreateDto booking) => CreateBookingAction(booking);
+    public ServiceResponse CreateBooking(BookingCreateDto booking, int? userId = null) => CreateBookingAction(booking, userId);
     public ServiceResponse GetBookingById(int id) => GetBookingByIdAction(id);
     public ServiceResponse GetBookingList() => GetBookingListAction();
     public ServiceResponse GetBookingList(AdminListQuery query) => GetBookingListAction(query);
@@ -15,4 +15,5 @@ public class BookingLogic : BookingActions, IBookingLogic
     public ServiceResponse UpdateBookingStatus(int id, string status) => UpdateBookingStatusAction(id, status);
     public ServiceResponse UpdateBooking(int id, BookingCreateDto bookingDto) => UpdateBookingAction(id, bookingDto);
     public ServiceResponse DeleteBooking(int id) => DeleteBookingAction(id);
+    public ServiceResponse CancelOwnBooking(int id, int userId) => CancelOwnBookingAction(id, userId);
 }

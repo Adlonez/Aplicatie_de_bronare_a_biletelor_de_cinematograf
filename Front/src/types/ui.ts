@@ -77,3 +77,30 @@ export interface Hall {
     }>;
   };
 }
+
+export interface BookingInfo {
+  id: number;
+  movieId: number;
+  movieTitle: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  hall: string;
+  seats: string[];
+  status: string;
+  bookingDate: string;
+  showtime: string;
+  totalPrice: number;
+}
+
+export interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  registrationDate: string;
+  role: string;
+  deleted?: boolean;
+  bookings: BookingInfo[];
+}

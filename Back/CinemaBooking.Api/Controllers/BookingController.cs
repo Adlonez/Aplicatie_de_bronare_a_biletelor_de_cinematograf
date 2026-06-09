@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CinemaBooking.BusinessLayer;
 using CinemaBooking.BusinessLayer.Interfaces;
 using CinemaBooking.Domain.Models.Booking;
@@ -45,6 +46,11 @@ public class BookingController : ControllerBase
     [Authorize]
     public IActionResult GetBookingsByUser(int userId)
     {
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentUserId))
+            return Unauthorized();
+        if (currentUserId != userId && !User.IsInRole("admin"))
+            return Forbid();
+
         var response = _bookingLogic.GetBookingsByUserId(userId);
         if (!response.IsSuccess)
             return BadRequest(response);
@@ -54,7 +60,11 @@ public class BookingController : ControllerBase
     [HttpPost("create")]
     public IActionResult CreateBooking([FromBody] BookingCreateDto dto)
     {
-        var response = _bookingLogic.CreateBooking(dto);
+        int? userId = null;
+        if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int parsedUserId))
+            userId = parsedUserId;
+
+        var response = _bookingLogic.CreateBooking(dto, userId);
         if (!response.IsSuccess)
             return BadRequest(response);
         return Ok(response);
@@ -82,6 +92,18 @@ public class BookingController : ControllerBase
     public IActionResult DeleteBooking(int id)
     {
         var response = _bookingLogic.DeleteBooking(id);
+        if (!response.IsSuccess)
+            return BadRequest(response);
+        return Ok(response);
+    }
+
+    [HttpPost("{id}/cancel")]
+    [Authorize]
+    public IActionResult CancelOwnBooking(int id)
+    {
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentUserId))
+            return Unauthorized();
+        var response = _bookingLogic.CancelOwnBooking(id, currentUserId);
         if (!response.IsSuccess)
             return BadRequest(response);
         return Ok(response);

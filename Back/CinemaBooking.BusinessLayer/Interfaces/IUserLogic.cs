@@ -10,4 +10,6 @@ public interface IUserLogic
     ServiceResponse GetUserList(AdminListQuery query);
     ServiceResponse UpdateUserStatus(int id, string status);
     ServiceResponse DeleteUser(int id);
+    ServiceResponse GetUserProfile(int id);
+    ServiceResponse UpdateUserProfile(int id, UserProfileUpdateDto dto);
 }

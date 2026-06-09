@@ -45,11 +45,26 @@ public static class DbSeeder
             return;
         }
 
+        SeedDemoUsers(context);
+
         // Only seed if database is empty
         if (context.Films.Any()) return;
 
-        // dotnet run sets CWD to the project folder (Back/CinemaBooking.Api/), so go up two levels
-        var seedsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "Front", "src", "_mock"));
+        // Try to find the seeds path
+        var seedsPath = Path.Combine(Directory.GetCurrentDirectory(), "seeds");
+        if (!Directory.Exists(seedsPath))
+        {
+            // Fallback for local development (dotnet run from Back/CinemaBooking.Api/)
+            seedsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "Front", "src", "_mock"));
+        }
+
+        if (!Directory.Exists(seedsPath))
+        {
+            Console.WriteLine($"[DbSeeder] Seeds directory not found at: {seedsPath}. Skipping detailed seeding.");
+            return;
+        }
+
+        Console.WriteLine($"[DbSeeder] Using seeds from: {seedsPath}");
 
         SeedFilms(context, seedsPath);
         SeedHalls(context, seedsPath);
@@ -60,13 +75,109 @@ public static class DbSeeder
         SeedBookings(context, seedsPath);
 
         Console.WriteLine("[DbSeeder] Database seeded successfully.");
+
+        SeedDemoBookings(context);
+    }
+
+    // ── Demo Users ────────────────────────────────────────────────────────
+
+    private static void SeedDemoUsers(CinemaDbContext context)
+    {
+        if (!context.Users.Any(u => u.Email == "user_demo@demo.com"))
+        {
+            context.Users.Add(new UserEntity
+            {
+                Name = "User Demo",
+                Email = "user_demo@demo.com",
+                Phone = "+1-555-0000",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("user_demo"),
+                Role = "user",
+                Status = "active",
+                RegistrationDate = DateTime.UtcNow,
+            });
+        }
+
+        if (!context.Users.Any(u => u.Email == "admin_demo@demo.com"))
+        {
+            context.Users.Add(new UserEntity
+            {
+                Name = "Admin Demo",
+                Email = "admin_demo@demo.com",
+                Phone = "+1-999-0000",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin_demo"),
+                Role = "admin",
+                Status = "active",
+                RegistrationDate = DateTime.UtcNow,
+            });
+        }
+
+        context.SaveChanges();
+        Console.WriteLine("[DbSeeder] Demo users created.");
+    }
+
+    private static void SeedDemoBookings(CinemaDbContext context)
+    {
+        var demoUser = context.Users.FirstOrDefault(u => u.Email == "user_demo@demo.com");
+        if (demoUser == null) return;
+
+        if (context.Bookings.Any(b => b.UserId == demoUser.Id)) return;
+
+        var screenings = context.Screenings.Take(2).ToList();
+        if (screenings.Count == 0) return;
+
+        var s1 = screenings[0];
+        var s2 = screenings.Count > 1 ? screenings[1] : s1;
+
+        context.Bookings.Add(new BookingEntity
+        {
+            MovieId = s1.MovieId,
+            MovieTitle = s1.MovieTitle,
+            CustomerName = demoUser.Name,
+            CustomerEmail = demoUser.Email,
+            CustomerPhone = demoUser.Phone,
+            Hall = s1.Hall,
+            Seats = JsonSerializer.Serialize(new[] { "A1" }),
+            Status = "booked",
+            BookingDate = DateTime.UtcNow.AddDays(-1),
+            Showtime = s1.Time,
+            TotalPrice = 15.00m,
+            UserId = demoUser.Id,
+            ScreeningId = s1.Id
+        });
+
+        context.Bookings.Add(new BookingEntity
+        {
+            MovieId = s2.MovieId,
+            MovieTitle = s2.MovieTitle,
+            CustomerName = demoUser.Name,
+            CustomerEmail = demoUser.Email,
+            CustomerPhone = demoUser.Phone,
+            Hall = s2.Hall,
+            Seats = JsonSerializer.Serialize(new[] { "B1", "B2" }),
+            Status = "bought",
+            BookingDate = DateTime.UtcNow.AddDays(-2),
+            Showtime = s2.Time,
+            TotalPrice = 30.00m,
+            UserId = demoUser.Id,
+            ScreeningId = s2.Id
+        });
+
+        context.SaveChanges();
+        Console.WriteLine("[DbSeeder] Demo user bookings seeded.");
     }
 
     // ── Films ─────────────────────────────────────────────────────────────
 
     private static void SeedFilms(CinemaDbContext context, string seedsPath)
     {
-        var json = File.ReadAllText(Path.Combine(seedsPath, "films.json"));
+        var filePath = Path.Combine(seedsPath, "films.json");
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("[DbSeeder] Warning: films.json not found. Skipping films seeding.");
+            return;
+        }
+
+        var json = File.ReadAllText(filePath);
         var items = JsonSerializer.Deserialize<List<FilmSeedModel>>(json, JsonOptions) ?? [];
 
         foreach (var item in items)
@@ -98,7 +209,14 @@ public static class DbSeeder
 
     private static void SeedHalls(CinemaDbContext context, string seedsPath)
     {
-        var json = File.ReadAllText(Path.Combine(seedsPath, "halls.json"));
+        var filePath = Path.Combine(seedsPath, "halls.json");
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("[DbSeeder] Warning: halls.json not found. Skipping halls seeding.");
+            return;
+        }
+
+        var json = File.ReadAllText(filePath);
         var items = JsonSerializer.Deserialize<List<HallSeedModel>>(json, JsonOptions) ?? [];
 
         foreach (var item in items)
@@ -120,7 +238,14 @@ public static class DbSeeder
 
     private static void SeedNews(CinemaDbContext context, string seedsPath)
     {
-        var json = File.ReadAllText(Path.Combine(seedsPath, "news.json"));
+        var filePath = Path.Combine(seedsPath, "news.json");
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("[DbSeeder] Warning: news.json not found. Skipping news seeding.");
+            return;
+        }
+
+        var json = File.ReadAllText(filePath);
         var items = JsonSerializer.Deserialize<List<NewsSeedModel>>(json, JsonOptions) ?? [];
 
         foreach (var item in items)
@@ -144,7 +269,14 @@ public static class DbSeeder
 
     private static void SeedScreenings(CinemaDbContext context, string seedsPath)
     {
-        var json = File.ReadAllText(Path.Combine(seedsPath, "screenings.json"));
+        var filePath = Path.Combine(seedsPath, "screenings.json");
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("[DbSeeder] Warning: screenings.json not found. Skipping screenings seeding.");
+            return;
+        }
+
+        var json = File.ReadAllText(filePath);
         var items = JsonSerializer.Deserialize<List<ScreeningSeedModel>>(json, JsonOptions) ?? [];
 
         // Map mock movieId → actual DB film id (films were inserted in order, so index+1 = db id)
@@ -196,7 +328,14 @@ public static class DbSeeder
 
     private static void SeedUsers(CinemaDbContext context, string seedsPath)
     {
-        var json = File.ReadAllText(Path.Combine(seedsPath, "users.json"));
+        var filePath = Path.Combine(seedsPath, "users.json");
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("[DbSeeder] Warning: users.json not found. Skipping users seeding.");
+            return;
+        }
+
+        var json = File.ReadAllText(filePath);
         var items = JsonSerializer.Deserialize<List<UserSeedModel>>(json, JsonOptions) ?? [];
 
         var defaultPasswordHash = BCrypt.Net.BCrypt.HashPassword("Cinema123!");
@@ -225,7 +364,14 @@ public static class DbSeeder
 
     private static void SeedBookings(CinemaDbContext context, string seedsPath)
     {
-        var json = File.ReadAllText(Path.Combine(seedsPath, "bookings.json"));
+        var filePath = Path.Combine(seedsPath, "bookings.json");
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("[DbSeeder] Warning: bookings.json not found. Skipping bookings seeding.");
+            return;
+        }
+
+        var json = File.ReadAllText(filePath);
         var items = JsonSerializer.Deserialize<List<BookingSeedModel>>(json, JsonOptions) ?? [];
 
         var films = context.Films.OrderBy(f => f.Id).ToList();

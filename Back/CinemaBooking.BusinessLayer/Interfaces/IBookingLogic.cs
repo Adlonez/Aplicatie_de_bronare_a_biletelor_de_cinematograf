@@ -5,7 +5,7 @@ namespace CinemaBooking.BusinessLayer.Interfaces;
 
 public interface IBookingLogic
 {
-    ServiceResponse CreateBooking(BookingCreateDto booking);
+    ServiceResponse CreateBooking(BookingCreateDto booking, int? userId = null);
     ServiceResponse GetBookingById(int id);
     ServiceResponse GetBookingList();
     ServiceResponse GetBookingList(AdminListQuery query);
@@ -13,4 +13,5 @@ public interface IBookingLogic
     ServiceResponse UpdateBookingStatus(int id, string status);
     ServiceResponse UpdateBooking(int id, BookingCreateDto bookingDto);
     ServiceResponse DeleteBooking(int id);
+    ServiceResponse CancelOwnBooking(int id, int userId);
 }

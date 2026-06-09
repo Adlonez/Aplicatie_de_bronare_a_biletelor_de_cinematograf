@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState, type FC, type Key } from 'react';
-import { Table, Button, Tag, message, Space, Popconfirm, Typography, Input, DatePicker } from 'antd';
+import { Grid, Table, Button, Card, Tag, message, Space, Popconfirm, Typography, Input, DatePicker } from 'antd';
 import { CheckCircleOutlined, StopOutlined, DeleteOutlined, UserOutlined, ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnType, TableProps } from 'antd/es/table';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import { useAuth } from '../../contexts/AuthContext';
 import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import type { User } from '../../types/ui';
+import MobileCardList from '../../components/admin/MobileCardList';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -66,6 +68,9 @@ const textColumnSearch = (placeholder: string): Pick<ColumnType<User>, 'filterDr
 });
 
 const Users: FC = () => {
+  const { isDemoAdmin } = useAuth();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
@@ -131,6 +136,10 @@ const Users: FC = () => {
   };
 
   const toggleStatus = async (user: User) => {
+    if (isDemoAdmin) {
+      message.error('Action denied: Demo user cannot modify data.');
+      return;
+    }
     const nextStatus: User['status'] = user.status === 'active' ? 'inactive' : 'active';
 
     try {
@@ -148,6 +157,10 @@ const Users: FC = () => {
   };
 
   const deleteUser = async (id: number) => {
+    if (isDemoAdmin) {
+      message.error('Action denied: Demo user cannot modify data.');
+      return;
+    }
     try {
       setLoading(true);
       await axiosInstance.delete(`/api/users/${id}`);
@@ -216,7 +229,7 @@ const Users: FC = () => {
           icon={status === 'active' ? <CheckCircleOutlined /> : <StopOutlined />}
           size="small"
           onClick={() => toggleStatus(u)}
-          disabled={u.deleted}
+          disabled={u.deleted || isDemoAdmin}
           style={{
             backgroundColor: status === 'active' ? '#52c41a' : '#ff4d4f',
             borderColor: status === 'active' ? '#52c41a' : '#ff4d4f',
@@ -235,8 +248,8 @@ const Users: FC = () => {
       fixed: 'end',
       render: (_: unknown, u: User) => (
         <Space>
-          <Popconfirm title="Delete this user?" onConfirm={() => deleteUser(u.id)} okText="Yes" cancelText="No" disabled={u.deleted}>
-            <Button type="primary" danger icon={<DeleteOutlined />} size="small" style={{ width: 90 }} disabled={u.deleted}>Delete</Button>
+          <Popconfirm title="Delete this user?" onConfirm={() => deleteUser(u.id)} okText="Yes" cancelText="No" disabled={u.deleted || isDemoAdmin}>
+            <Button type="primary" danger icon={<DeleteOutlined />} size="small" style={{ width: 90 }} disabled={u.deleted || isDemoAdmin}>Delete</Button>
           </Popconfirm>
         </Space>
       ),
@@ -270,26 +283,69 @@ const Users: FC = () => {
 
   return (
     <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'scroll' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
         <Title level={2} style={{ margin: 0 }}><UserOutlined /> User Management</Title>
         <Button icon={<ClearOutlined />} onClick={resetFilters}>Reset All Filters</Button>
       </div>
       <div style={{ flex: 1, overflow: 'scroll' }}>
-        <Table
-          key={tableKey}
-          dataSource={visibleUsers}
-          columns={columns}
-          rowKey="id"
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
-          }}
-          loading={loading}
-          onChange={handleTableChange}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={visibleUsers}
+            rowKey={(u) => u.id}
+            loading={loading}
+            emptyText="No users found."
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              onChange: (page, ps) => loadUsers(page, ps, filters, sort),
+            }}
+            renderCard={(u) => (
+              <Card size="small">
+                <Space wrap size={4} style={{ marginBottom: 4 }}>
+                  <Typography.Text strong style={{ fontSize: 15 }}>{u.name}</Typography.Text>
+                  {u.deleted && <Tag color="red">Deleted</Tag>}
+                </Space>
+                <div style={{ color: 'var(--ant-color-text-secondary, #666)', fontSize: 13, marginBottom: 8 }}>
+                  {u.email && <div>{u.email}</div>}
+                  {u.phone && <div>{u.phone}</div>}
+                  {u.registrationDate && <div>{u.registrationDate}</div>}
+                </div>
+                <Space wrap>
+                  <Button
+                    type="primary"
+                    icon={u.status === 'active' ? <CheckCircleOutlined /> : <StopOutlined />}
+                    size="small"
+                    onClick={() => toggleStatus(u)}
+                    disabled={u.deleted || isDemoAdmin}
+                    style={{ backgroundColor: u.status === 'active' ? '#52c41a' : undefined, borderColor: u.status === 'active' ? '#52c41a' : undefined }}
+                  >
+                    {u.status === 'active' ? 'Active' : 'Inactive'}
+                  </Button>
+                  <Popconfirm title="Delete this user?" onConfirm={() => deleteUser(u.id)} okText="Yes" cancelText="No" disabled={u.deleted || isDemoAdmin}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} size="small" style={{ width: 90 }} disabled={u.deleted || isDemoAdmin}>Delete</Button>
+                  </Popconfirm>
+                </Space>
+              </Card>
+            )}
+          />
+        ) : (
+          <Table
+            key={tableKey}
+            dataSource={visibleUsers}
+            columns={columns}
+            rowKey="id"
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+            }}
+            loading={loading}
+            onChange={handleTableChange}
+          />
+        )}
       </div>
     </div>
   );

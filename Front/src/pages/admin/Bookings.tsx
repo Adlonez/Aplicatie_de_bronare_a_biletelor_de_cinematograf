@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState, type FC, type Key } from 'react';
-import { Table, Button, Tag, message, Space, Popover, Tooltip, Popconfirm, Typography, Select, Input, DatePicker, TimePicker, InputNumber } from 'antd';
+import { Grid, Table, Button, Card, Tag, message, Space, Popover, Tooltip, Popconfirm, Typography, Select, Input, DatePicker, TimePicker, InputNumber } from 'antd';
 import { DeleteOutlined, InfoCircleOutlined, BookOutlined, ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnType, TableProps } from 'antd/es/table';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import { useAuth } from '../../contexts/AuthContext';
 import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import type { Booking, Hall } from '../../types/ui';
+import MobileCardList from '../../components/admin/MobileCardList';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -129,6 +131,9 @@ const textColumnSearch = (placeholder: string): Pick<ColumnType<Booking>, 'filte
 });
 
 const Bookings: FC = () => {
+  const { isDemoAdmin } = useAuth();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [halls, setHalls] = useState<Hall[]>([]);
   const [loading, setLoading] = useState(false);
@@ -200,6 +205,10 @@ const Bookings: FC = () => {
   };
 
   const changeBookingStatus = async (id: number, status: Booking['status']) => {
+    if (isDemoAdmin) {
+      message.error('Action denied: Demo user cannot modify data.');
+      return;
+    }
     try {
       setLoading(true);
       await axiosInstance.put(`/api/bookings/${id}/status`, status, {
@@ -215,6 +224,10 @@ const Bookings: FC = () => {
   };
 
   const deleteBooking = async (id: number) => {
+    if (isDemoAdmin) {
+      message.error('Action denied: Demo user cannot modify data.');
+      return;
+    }
     try {
       setLoading(true);
       await axiosInstance.delete(`/api/bookings/${id}`);
@@ -388,12 +401,12 @@ const Bookings: FC = () => {
             value={b.status}
             size="small"
             style={{ width: 112 }}
-            disabled={b.deleted}
+            disabled={b.deleted || isDemoAdmin}
             options={[{ value: 'booked', label: 'Booked' }, { value: 'bought', label: 'Bought' }]}
             onChange={(status) => changeBookingStatus(b.id, status)}
           />
-          <Popconfirm title="Delete this booking?" onConfirm={() => deleteBooking(b.id)} okText="Yes" cancelText="No" disabled={b.deleted}>
-            <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={b.deleted}>Delete</Button>
+          <Popconfirm title="Delete this booking?" onConfirm={() => deleteBooking(b.id)} okText="Yes" cancelText="No" disabled={b.deleted || isDemoAdmin}>
+            <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={b.deleted || isDemoAdmin}>Delete</Button>
           </Popconfirm>
         </Space>
       ),
@@ -430,7 +443,7 @@ const Bookings: FC = () => {
 
   return (
     <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'scroll' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
         <Title level={2} style={{ margin: 0 }}><BookOutlined /> Booking & Ticket Management</Title>
         <Space>
           <Button icon={<ClearOutlined />} onClick={resetFilters}>Reset All Filters</Button>
@@ -449,21 +462,69 @@ const Bookings: FC = () => {
       </div>
 
       <div style={{ flex: 1, overflow: 'scroll' }}>
-        <Table
-          key={tableKey}
-          dataSource={visibleBookings}
-          columns={columns}
-          rowKey="id"
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
-          }}
-          loading={loading}
-          onChange={handleTableChange}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={visibleBookings}
+            rowKey={(b) => b.id}
+            loading={loading}
+            emptyText="No bookings found."
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              onChange: (page, ps) => loadBookingData(page, ps, filters, sort),
+            }}
+            renderCard={(b) => (
+              <Card size="small">
+                <Space wrap size={4} style={{ marginBottom: 4 }}>
+                  <Typography.Text strong style={{ fontSize: 15 }}>#{b.id} — {b.movieTitle}</Typography.Text>
+                  {b.deleted && <Tag color="red">Deleted</Tag>}
+                </Space>
+                <div style={{ color: 'var(--ant-color-text-secondary, #666)', fontSize: 13, marginBottom: 8 }}>
+                  {b.customerName && <div>{b.customerName}</div>}
+                  {b.customerEmail && <div>{b.customerEmail}</div>}
+                  {b.customerPhone && <div>{b.customerPhone}</div>}
+                  <Space wrap size={4} style={{ marginTop: 4 }}>
+                    {b.hall && <Tag color="blue">{b.hall}</Tag>}
+                    {b.status && <Tag color={statusColor(b.status)}>{b.status.toUpperCase()}</Tag>}
+                  </Space>
+                  {b.seats && <div style={{ marginTop: 4 }}>Seats: {Array.isArray(b.seats) ? b.seats.join(', ') : b.seats}</div>}
+                  {b.totalPrice != null && <div>${b.totalPrice.toFixed(2)}</div>}
+                  {b.showtime && <div>{b.showtime}</div>}
+                </div>
+                <Space wrap>
+                  <Select
+                    value={b.status}
+                    size="small"
+                    style={{ width: 112 }}
+                    disabled={b.deleted || isDemoAdmin}
+                    options={[{ value: 'booked', label: 'Booked' }, { value: 'bought', label: 'Bought' }]}
+                    onChange={(status) => changeBookingStatus(b.id, status)}
+                  />
+                  <Popconfirm title="Delete this booking?" onConfirm={() => deleteBooking(b.id)} okText="Yes" cancelText="No" disabled={b.deleted || isDemoAdmin}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={b.deleted || isDemoAdmin}>Delete</Button>
+                  </Popconfirm>
+                </Space>
+              </Card>
+            )}
+          />
+        ) : (
+          <Table
+            key={tableKey}
+            dataSource={visibleBookings}
+            columns={columns}
+            rowKey="id"
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+            }}
+            loading={loading}
+            onChange={handleTableChange}
+          />
+        )}
       </div>
     </div>
   );

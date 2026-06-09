@@ -19,6 +19,7 @@ import {
   YoutubeOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '../contexts/AuthContext'
+import { paths } from '../routes/paths'
 
 const { Header, Footer, Content } = Layout
 const { Text, Title } = Typography
@@ -140,7 +141,7 @@ const MainLayout = (props: IMainLayoutProps) => {
                 )}
                 <Button
                   icon={<UserOutlined />}
-                  onClick={() => navigate('/films')}
+                  onClick={() => navigate('/' + paths.profile)}
                   className="ml-2"
                 >
                   <span className="desktop-action-label">{user?.name}</span>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Form, Input, Button, Card, Typography, Space, Divider, theme, Alert } from 'antd'
+import { Form, Input, Button, Card, Typography, Space, Divider, theme, Alert, Row, Col } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { MailOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons'
+import { MailOutlined, LockOutlined, LoginOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons'
 import axiosInstance from '../../api/axiosInstance'
 import { useAuth } from '../../contexts/AuthContext'
 import { paths } from '../../routes/paths'
@@ -25,6 +25,7 @@ const Login = () => {
   const { login } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [form] = Form.useForm()
 
   const onFinish = async (values: LoginFormValues) => {
     setLoading(true)
@@ -45,13 +46,19 @@ const Login = () => {
     }
   }
 
+  const fillAndLogin = (email: string, pass: string) => {
+    form.setFieldsValue({ email, password: pass })
+    onFinish({ email, password: pass })
+  }
+
   return (
-    <div className="auth-page">
+    <div className="auth-page" style={{ flexDirection: 'column' }}>
       <Card
         className="auth-card"
         style={{
           boxShadow: `0 8px 32px ${token.colorPrimary}33`,
-          border: `1px solid ${token.colorPrimary}4D`
+          border: `1px solid ${token.colorPrimary}4D`,
+          marginBottom: 24
         }}
       >
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -71,6 +78,7 @@ const Login = () => {
           )}
 
           <Form
+            form={form}
             name="login"
             onFinish={onFinish}
             layout="vertical"
@@ -128,6 +136,43 @@ const Login = () => {
             </Button>
           </div>
         </Space>
+      </Card>
+
+      <Card
+        className="auth-card"
+        title={<Text strong style={{ color: token.colorTextSecondary }}>Quick Access (Demo Accounts)</Text>}
+        style={{
+          boxShadow: `0 4px 16px ${token.colorTextQuaternary}1A`,
+          border: `1px dashed ${token.colorBorder}`
+        }}
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Button 
+              block 
+              icon={<UserOutlined />} 
+              onClick={() => fillAndLogin('user_demo@demo.com', 'user_demo')}
+              disabled={loading}
+            >
+              User Demo
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Button 
+              block 
+              icon={<SettingOutlined />} 
+              onClick={() => fillAndLogin('admin_demo@demo.com', 'admin_demo')}
+              disabled={loading}
+            >
+              Admin Demo
+            </Button>
+          </Col>
+        </Row>
+        <div style={{ textAlign: 'center', marginTop: 12 }}>
+          <Text type="secondary" style={{ fontSize: '12px' }}>
+            Click to fill and login instantly
+          </Text>
+        </div>
       </Card>
     </div>
   )

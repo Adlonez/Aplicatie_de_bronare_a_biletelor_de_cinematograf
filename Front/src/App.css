@@ -672,6 +672,7 @@
 }
 
 .news-title {
+  display: block;
   color: var(--cinema-text);
   font-size: 17px;
   line-height: 1.36;
@@ -884,8 +885,7 @@
   }
 
   .promo-card-visual {
-    min-height: 180px;
-    clip-path: none;
+    display: none;
   }
 }
 
