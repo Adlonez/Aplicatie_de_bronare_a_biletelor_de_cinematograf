@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState, type FC, type Key } from 'react';
-import { Table, Button, Modal, Form, Select, DatePicker, TimePicker, Space, message, Popconfirm, Tag, Popover, Tooltip, Typography, Input } from 'antd';
+import { Grid, Table, Button, Card, Modal, Form, Select, DatePicker, TimePicker, Space, message, Popconfirm, Tag, Popover, Tooltip, Typography, Input } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, CalendarOutlined, EyeOutlined, InfoCircleOutlined, ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnType, TableProps } from 'antd/es/table';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import { useAuth } from '../../contexts/AuthContext';
 import axiosInstance, { getErrorMessage } from '../../api/axiosInstance';
 import SeatMapModal from '../../components/admin/SeatMapModal';
+import MobileCardList from '../../components/admin/MobileCardList';
 import type { Screening, Booking, Hall, Films } from '../../types/ui';
 
 const { Title } = Typography;
@@ -81,6 +83,9 @@ const FilterButtons = ({ confirm, clearFilters, hasFilter }: { confirm: () => vo
 );
 
 const Screenings: FC = () => {
+  const { isDemoAdmin } = useAuth();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const [screenings, setScreenings] = useState<Screening[]>([]);
   const [movies, setMovies] = useState<Films[]>([]);
   const [halls, setHalls] = useState<Hall[]>([]);
@@ -182,6 +187,10 @@ const Screenings: FC = () => {
   };
 
   const saveScreening = async () => {
+    if (isDemoAdmin) {
+      message.error('Action denied: Demo user cannot modify data.');
+      return;
+    }
     try {
       const values = await form.validateFields() as ScreeningFormValues;
       const movie = movies.find((m) => m.id === values.movieId);
@@ -245,6 +254,10 @@ const Screenings: FC = () => {
     );
 
     const doDelete = async () => {
+      if (isDemoAdmin) {
+        message.error('Action denied: Demo user cannot modify data.');
+        return;
+      }
       try {
         setLoading(true);
         await axiosInstance.delete(`/api/screenings/${id}`);
@@ -366,8 +379,8 @@ const Screenings: FC = () => {
         <Space>
           <Button icon={<EyeOutlined />} size="small" onClick={() => { setSelectedScreening(s); setSeatMapOpen(true); }} disabled={s.deleted}>Seats</Button>
           <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(s)} disabled={s.deleted}>Edit</Button>
-          <Popconfirm title="Delete this screening?" onConfirm={() => deleteScreening(s.id)} okText="Yes" cancelText="No" disabled={s.deleted}>
-            <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={s.deleted}>Delete</Button>
+          <Popconfirm title="Delete this screening?" onConfirm={() => deleteScreening(s.id)} okText="Yes" cancelText="No" disabled={s.deleted || isDemoAdmin}>
+            <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={s.deleted || isDemoAdmin}>Delete</Button>
           </Popconfirm>
         </Space>
       ),
@@ -398,7 +411,7 @@ const Screenings: FC = () => {
 
   return (
     <div style={{ padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'scroll' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
         <Title level={2} style={{ margin: 0 }}><CalendarOutlined /> Screening Schedule</Title>
         <Space>
           <Button icon={<ClearOutlined />} onClick={resetFilters}>Reset All Filters</Button>
@@ -414,26 +427,61 @@ const Screenings: FC = () => {
           >
             <Button icon={<InfoCircleOutlined />}>Halls Info</Button>
           </Popover>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()}>Add Screening</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal()} disabled={isDemoAdmin}>Add Screening</Button>
         </Space>
       </div>
 
       <div style={{ flex: 1, overflow: 'scroll' }}>
-        <Table
-          key={tableKey}
-          dataSource={visibleScreenings}
-          columns={columns}
-          rowKey="id"
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
-          }}
-          loading={loading}
-          onChange={handleTableChange}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={visibleScreenings}
+            rowKey={(s) => s.id}
+            loading={loading}
+            emptyText="No screenings found."
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              onChange: (page, ps) => loadScreeningData(page, ps, filters, sort),
+            }}
+            renderCard={(s) => (
+              <Card size="small">
+                <Space wrap size={4} style={{ marginBottom: 4 }}>
+                  <Typography.Text strong style={{ fontSize: 15 }}>{s.movieTitle}</Typography.Text>
+                  {s.deleted && <Tag color="red">Deleted</Tag>}
+                </Space>
+                <div style={{ color: 'var(--ant-color-text-secondary, #666)', fontSize: 13, marginBottom: 8 }}>
+                  {s.date && <div>{s.date}</div>}
+                  {s.time && <div>{s.time}</div>}
+                  {s.hall && <Tag color="blue" style={{ marginTop: 4 }}>{s.hall}</Tag>}
+                </div>
+                <Space wrap style={{ marginTop: 10 }}>
+                  <Button icon={<EyeOutlined />} size="small" onClick={() => { setSelectedScreening(s); setSeatMapOpen(true); }} disabled={s.deleted}>Seats</Button>
+                  <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openModal(s)} disabled={s.deleted}>Edit</Button>
+                  <Popconfirm title="Delete this screening?" onConfirm={() => deleteScreening(s.id)} okText="Yes" cancelText="No" disabled={s.deleted || isDemoAdmin}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} size="small" disabled={s.deleted || isDemoAdmin}>Delete</Button>
+                  </Popconfirm>
+                </Space>
+              </Card>
+            )}
+          />
+        ) : (
+          <Table
+            key={tableKey}
+            dataSource={visibleScreenings}
+            columns={columns}
+            rowKey="id"
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+            }}
+            loading={loading}
+            onChange={handleTableChange}
+          />
+        )}
       </div>
 
       {/* Screening Form Modal */}

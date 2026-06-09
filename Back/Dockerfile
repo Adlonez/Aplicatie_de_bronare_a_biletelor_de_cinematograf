@@ -19,8 +19,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# The DbSeeder looks for Front/src/_mock relative to CWD (/app/../../Front/src/_mock => /Front/src/_mock)
-COPY ["Front/src/_mock", "/Front/src/_mock"]
+COPY ["Front/src/_mock", "seeds/"]
 
 # Expose port (default in container is usually 8080 for .NET 8)
 EXPOSE 8080

@@ -129,6 +129,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
+app.UseMiddleware<CinemaBooking.Api.Middleware.DemoReadOnlyMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<SeatHub>("/hubs/seats");

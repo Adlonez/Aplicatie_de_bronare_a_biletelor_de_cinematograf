@@ -8,6 +8,7 @@ import {
   Descriptions,
   Empty,
   Form,
+  Grid,
   Input,
   Modal,
   Popconfirm,
@@ -20,6 +21,7 @@ import {
   Typography,
   message,
 } from 'antd'
+import MobileCardList from '../components/admin/MobileCardList'
 import { UserOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { useAuth } from '../contexts/AuthContext'
@@ -57,7 +59,9 @@ const roleColor = (role: string) => {
 }
 
 const Profile = () => {
-  const { isAuthenticated, updateUser } = useAuth()
+  const { isAuthenticated, updateUser, isDemoUser } = useAuth()
+  const screens = Grid.useBreakpoint()
+  const isMobile = !screens.md
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [halls, setHalls] = useState<Hall[]>([])
@@ -103,6 +107,10 @@ const Profile = () => {
   }
 
   const handleEditSubmit = async () => {
+    if (isDemoUser) {
+      message.error('Error: Demo account cannot modify data.')
+      return
+    }
     try {
       const values = await form.validateFields()
       setSaving(true)
@@ -125,6 +133,10 @@ const Profile = () => {
   }
 
   const handleCancel = async (id: number) => {
+    if (isDemoUser) {
+      message.error('Error: Demo account cannot modify data.')
+      return
+    }
     setCancellingId(id)
     try {
       await axiosInstance.post(`/api/bookings/${id}/cancel`)
@@ -238,6 +250,15 @@ const Profile = () => {
 
   return (
     <div className="cinema-page-shell">
+      {isDemoUser && (
+        <Alert
+          message="Demo Mode Active"
+          description="You are currently logged in as a Demo User. You can explore your profile and bookings, but any changes you try to save or cancellations will be blocked."
+          type="info"
+          showIcon
+          style={{ marginBottom: 24 }}
+        />
+      )}
       <div className="cinema-page-title">
         <div className="cinema-section-kicker">
           <UserOutlined />
@@ -303,16 +324,54 @@ const Profile = () => {
         </Col>
       </Row>
 
-      {/* Bookings table */}
+      {/* Bookings table / card list */}
       <Card title="My Bookings">
-        <Table<BookingInfo>
-          columns={bookingColumns}
-          dataSource={profile?.bookings ?? []}
-          rowKey="id"
-          pagination={{ pageSize: 8 }}
-          locale={{ emptyText: 'No bookings yet.' }}
-          scroll={{ x: 900 }}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={profile?.bookings ?? []}
+            rowKey={(b) => b.id}
+            emptyText="No bookings yet."
+            renderCard={(record) => (
+              <Card size="small">
+                <Space wrap size={4} style={{ marginBottom: 4 }}>
+                  <Typography.Text strong style={{ fontSize: 15 }}>{record.movieTitle}</Typography.Text>
+                  <Tag color={statusColor(record.status)}>{record.status?.toUpperCase() ?? '—'}</Tag>
+                </Space>
+                <div style={{ color: 'var(--ant-color-text-secondary, #666)', fontSize: 13, marginBottom: 8 }}>
+                  {record.hall && <div>{record.hall}</div>}
+                  {record.showtime && <div>{record.showtime}</div>}
+                  {record.seats?.length ? <div>Seats: {record.seats.join(', ')}</div> : null}
+                  {record.totalPrice != null && <div>${record.totalPrice.toFixed(2)}</div>}
+                  {record.bookingDate && <div>{new Date(record.bookingDate).toLocaleDateString()}</div>}
+                </div>
+                <Space size="small" wrap>
+                  <Button size="small" onClick={() => setDetailsBooking(record)}>Details</Button>
+                  <Button size="small" onClick={() => setSeatmapBooking(record)}>Seatmap</Button>
+                  {record.status === 'booked' && (
+                    <Popconfirm
+                      title="Cancel this booking?"
+                      description="This cannot be undone."
+                      onConfirm={() => handleCancel(record.id)}
+                      okText="Yes, cancel"
+                      cancelText="No"
+                    >
+                      <Button size="small" danger loading={cancellingId === record.id}>Cancel</Button>
+                    </Popconfirm>
+                  )}
+                </Space>
+              </Card>
+            )}
+          />
+        ) : (
+          <Table<BookingInfo>
+            columns={bookingColumns}
+            dataSource={profile?.bookings ?? []}
+            rowKey="id"
+            pagination={{ pageSize: 8 }}
+            locale={{ emptyText: 'No bookings yet.' }}
+            scroll={{ x: 900 }}
+          />
+        )}
       </Card>
 
       {/* Edit modal */}
@@ -352,46 +411,73 @@ const Profile = () => {
       >
         {detailsBooking && (
           <div style={{ padding: '8px 0' }}>
-            <Descriptions bordered column={{ xs: 1, sm: 2 }} style={{ marginBottom: 32 }}>
-              <Descriptions.Item label="Booking ID">{detailsBooking.id}</Descriptions.Item>
-              <Descriptions.Item label="Status">
-                <Tag color={statusColor(detailsBooking.status)}>
-                  {detailsBooking.status?.toUpperCase()}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Movie">{detailsBooking.movieTitle}</Descriptions.Item>
-              <Descriptions.Item label="Hall">{detailsBooking.hall}</Descriptions.Item>
-              <Descriptions.Item label="Showtime">{detailsBooking.showtime ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label="Booking Date">
-                {detailsBooking.bookingDate
-                  ? new Date(detailsBooking.bookingDate).toLocaleDateString()
-                  : '—'}
-              </Descriptions.Item>
-              <Descriptions.Item label="Seats">
-                {detailsBooking.seats?.join(', ') ?? '—'}
-              </Descriptions.Item>
-              <Descriptions.Item label="Total Price">
-                ${detailsBooking.totalPrice?.toFixed(2) ?? '0.00'}
-              </Descriptions.Item>
-              <Descriptions.Item label="Name">{detailsBooking.customerName}</Descriptions.Item>
-              <Descriptions.Item label="Email">{detailsBooking.customerEmail}</Descriptions.Item>
-              <Descriptions.Item label="Phone">{detailsBooking.customerPhone || '—'}</Descriptions.Item>
-            </Descriptions>
+            {/* On mobile: show QR first so it's visible without scrolling */}
+            {isMobile && (
+              <>
+                <Title level={5} style={{ marginBottom: 16 }}>Ticket QR Codes</Title>
+                <Space wrap size="large" style={{ marginBottom: 24, width: '100%', justifyContent: 'center' }}>
+                  {detailsBooking.seats?.map(seat => (
+                    <div key={seat} style={{ textAlign: 'center' }}>
+                      <QRCode
+                        value={`${detailsBooking.movieId}_${seat}_${detailsBooking.id}`}
+                        size={200}
+                      />
+                      <div style={{ marginTop: 8 }}>
+                        <Text type="secondary">{seat}</Text>
+                      </div>
+                    </div>
+                  ))}
+                </Space>
+              </>
+            )}
 
-            <Title level={5} style={{ marginBottom: 16 }}>Ticket QR Codes</Title>
-            <Space wrap size="large">
-              {detailsBooking.seats?.map(seat => (
-                <div key={seat} style={{ textAlign: 'center' }}>
-                  <QRCode
-                    value={`${detailsBooking.movieId}_${seat}_${detailsBooking.id}`}
-                    size={140}
-                  />
-                  <div style={{ marginTop: 8 }}>
-                    <Text type="secondary">{seat}</Text>
-                  </div>
-                </div>
-              ))}
-            </Space>
+            <div style={{ overflowX: 'auto' }}>
+              <Descriptions bordered column={{ xs: 1, sm: 2 }} style={{ marginBottom: 16 }}>
+                <Descriptions.Item label="Booking ID">{detailsBooking.id}</Descriptions.Item>
+                <Descriptions.Item label="Status">
+                  <Tag color={statusColor(detailsBooking.status)}>
+                    {detailsBooking.status?.toUpperCase()}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Movie">{detailsBooking.movieTitle}</Descriptions.Item>
+                <Descriptions.Item label="Hall">{detailsBooking.hall}</Descriptions.Item>
+                <Descriptions.Item label="Showtime">{detailsBooking.showtime ?? '—'}</Descriptions.Item>
+                <Descriptions.Item label="Booking Date">
+                  {detailsBooking.bookingDate
+                    ? new Date(detailsBooking.bookingDate).toLocaleDateString()
+                    : '—'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Seats">
+                  {detailsBooking.seats?.join(', ') ?? '—'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Total Price">
+                  ${detailsBooking.totalPrice?.toFixed(2) ?? '0.00'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Name">{detailsBooking.customerName}</Descriptions.Item>
+                <Descriptions.Item label="Email">{detailsBooking.customerEmail}</Descriptions.Item>
+                <Descriptions.Item label="Phone">{detailsBooking.customerPhone || '—'}</Descriptions.Item>
+              </Descriptions>
+            </div>
+
+            {/* On desktop: show QR below the details table */}
+            {!isMobile && (
+              <>
+                <Title level={5} style={{ marginBottom: 16 }}>Ticket QR Codes</Title>
+                <Space wrap size="large">
+                  {detailsBooking.seats?.map(seat => (
+                    <div key={seat} style={{ textAlign: 'center' }}>
+                      <QRCode
+                        value={`${detailsBooking.movieId}_${seat}_${detailsBooking.id}`}
+                        size={200}
+                      />
+                      <div style={{ marginTop: 8 }}>
+                        <Text type="secondary">{seat}</Text>
+                      </div>
+                    </div>
+                  ))}
+                </Space>
+              </>
+            )}
           </div>
         )}
       </Modal>

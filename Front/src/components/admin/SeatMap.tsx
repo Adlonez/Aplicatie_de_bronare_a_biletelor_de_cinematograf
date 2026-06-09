@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { theme } from 'antd';
+import { Grid, theme } from 'antd';
 import type { Hall } from '../../types/ui';
 
 interface SeatMapProps {
@@ -11,6 +11,8 @@ interface SeatMapProps {
 
 const SeatMap: FC<SeatMapProps> = ({ hall, bookedSeats = [], boughtSeats = [], onSeatClick }) => {
   const { token } = theme.useToken();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
 
 
   const getSeatId = (row: string, seat: number) => `${row}${seat}`;
@@ -31,7 +33,7 @@ const SeatMap: FC<SeatMapProps> = ({ hall, bookedSeats = [], boughtSeats = [], o
   ];
 
   return (
-    <div style={{ padding: 24, backgroundColor: token.colorFillQuaternary, borderRadius: 8, maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ padding: isMobile ? 12 : 24, backgroundColor: token.colorFillQuaternary, borderRadius: 8, maxWidth: 900, margin: '0 auto' }}>
       {/* Screen */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <div style={{ backgroundColor: token.colorPrimary, height: 8, borderRadius: '50%', marginBottom: 8, boxShadow: `0 4px 8px ${token.colorPrimary}4D` }} />
@@ -41,8 +43,8 @@ const SeatMap: FC<SeatMapProps> = ({ hall, bookedSeats = [], boughtSeats = [], o
       {/* Seats */}
       <div style={{ overflowX: 'auto' }}>
         {hall.seatMap.rows.map((rowData) => (
-          <div key={rowData.row} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 8, gap: 4 }}>
-            <div style={{ width: 30, textAlign: 'center', fontWeight: 'bold', color: token.colorTextDescription, fontSize: 14 }}>
+          <div key={rowData.row} style={{ display: 'flex', justifyContent: isMobile ? 'flex-start' : 'center', alignItems: 'center', marginBottom: 8, gap: 4, width: 'max-content', minWidth: '100%' }}>
+            <div style={{ width: isMobile ? 22 : 30, textAlign: 'center', fontWeight: 'bold', color: token.colorTextDescription, fontSize: 14 }}>
               {rowData.row}
             </div>
             {rowData.seats.map((seatNumber) => (
@@ -50,8 +52,8 @@ const SeatMap: FC<SeatMapProps> = ({ hall, bookedSeats = [], boughtSeats = [], o
                 key={seatNumber}
                 onClick={() => onSeatClick?.(getSeatId(rowData.row, seatNumber))}
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: isMobile ? 26 : 32,
+                  height: isMobile ? 26 : 32,
                   backgroundColor: getSeatColor(rowData.row, seatNumber),
                   borderRadius: 4,
                   display: 'flex',
